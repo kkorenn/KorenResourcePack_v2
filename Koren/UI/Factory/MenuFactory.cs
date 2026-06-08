@@ -37,6 +37,7 @@ public static class MenuFactory {
 
         var status = CreateItem(parent, "Status", MainCore.Spr.Get(UISprite.Monitor128), (int)OriginalMenuState.Status);
         var progressBar = CreateItem(parent, "Progress Bar", MainCore.Spr.Get(UISprite.Triangle128), (int)OriginalMenuState.ProgressBar);
+        var combo = CreateItem(parent, "Combo", MainCore.Spr.Get(UISprite.Star128), (int)OriginalMenuState.Combo);
         var settings = CreateItem(parent, "Settings", MainCore.Spr.Get(UISprite.Gear128), (int)OriginalMenuState.Settings);
         var reorganize = CreateItem(parent, "Reorganize", MainCore.Spr.Get(UISprite.ToggleCircle128), (int)OriginalMenuState.Reorganize);
         var credits = CreateItem(parent, "Credits", MainCore.Spr.Get(UISprite.Star128), (int)OriginalMenuState.Credits);
@@ -46,6 +47,9 @@ public static class MenuFactory {
 
         progressBar.label.gameObject.AddComponent<TextLocalization>()
             .Init("PROGRESS_BAR", "Progress Bar");
+
+        combo.label.gameObject.AddComponent<TextLocalization>()
+            .Init("COMBO", "Combo");
 
         settings.label.gameObject.AddComponent<TextLocalization>()
             .Init("SETTINGS", "Settings");

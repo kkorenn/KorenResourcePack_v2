@@ -111,8 +111,6 @@ public static class GameStats {
 
     public static float MarginScale => TimingScale.CurrentMarginScale;
 
-    public static int Combo => Status.Combo.Count;
-
     // True when the current run started mid-level (via checkpoint). The HUD
     // can use this to render Progress as a "start% - now%" range.
     public static bool RunHasStartProgress => !ProgressTracker.RunStartedFromFirstTile

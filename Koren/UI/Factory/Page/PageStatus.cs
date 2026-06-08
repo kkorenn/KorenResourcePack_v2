@@ -86,6 +86,10 @@ internal static class PageStatus {
                 isLeft,
                 v => { setLeft(v); Save(); }
             );
+
+            // Small gap so each Show + Side pair reads as one unit, and
+            // adjacent stats don't blur together.
+            GenerateUI.Row(body, 6f);
         }
 
         GenerateUI.AddTextH1(GenerateUI.Row(content.transform)).text = "Status HUD";
@@ -99,13 +103,18 @@ internal static class PageStatus {
             "status_enabled"
         ).Rect.AddToolTip("DESC_STATUS_ENABLED", "Show a draggable HUD with live game status.");
 
-        // === Accuracy ===
+        // === Progress ===
         {
-            var sec = GenerateUI.Collapsible(content.transform, "Accuracy", startExpanded: false);
+            var sec = GenerateUI.Collapsible(content.transform, "Progress", startExpanded: false);
 
             StatRow(sec.Body, "progress", "Progress",
                 def.ShowProgress, conf.ShowProgress, v => conf.ShowProgress = v,
                 !def.ProgressOnRight, !conf.ProgressOnRight, v => conf.ProgressOnRight = !v);
+        }
+
+        // === Accuracy ===
+        {
+            var sec = GenerateUI.Collapsible(content.transform, "Accuracy", startExpanded: false);
 
             StatRow(sec.Body, "accuracy", "Accuracy",
                 def.ShowAccuracy, conf.ShowAccuracy, v => conf.ShowAccuracy = v,
@@ -173,24 +182,6 @@ internal static class PageStatus {
             StatRow(sec.Body, "best", "Best",
                 def.ShowBest, conf.ShowBest, v => conf.ShowBest = v,
                 !def.BestOnRight, !conf.BestOnRight, v => conf.BestOnRight = !v);
-        }
-
-        // === Combo ===
-        {
-            var sec = GenerateUI.Collapsible(content.transform, "Combo", startExpanded: false);
-
-            StatRow(sec.Body, "combo", "Combo",
-                def.ShowCombo, conf.ShowCombo, v => conf.ShowCombo = v,
-                !def.ComboOnRight, !conf.ComboOnRight, v => conf.ComboOnRight = !v);
-
-            GenerateUI.Toggle(
-                GenerateUI.Row(sec.Body),
-                def.ComboCountAuto,
-                conf.ComboCountAuto,
-                v => { conf.ComboCountAuto = v; Save(); },
-                "Combo Counts Auto Hits",
-                "status_combo_auto"
-            );
         }
 
         // === Other ===

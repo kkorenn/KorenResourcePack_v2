@@ -290,11 +290,6 @@ public static class StatusOverlay {
                         (GameStats.MarginScale * 100f).ToString("0.##", CultureInfo.InvariantCulture) + "%");
                 }
 
-                if(Conf.ShowCombo) {
-                    Line(Conf.ComboOnRight, "Combo",
-                        GameStats.Combo.ToString(CultureInfo.InvariantCulture));
-                }
-
                 if(Conf.ShowAttempt) {
                     Line(Conf.AttemptOnRight, "Attempt",
                         GameStats.SessionAttempts.ToString(CultureInfo.InvariantCulture));

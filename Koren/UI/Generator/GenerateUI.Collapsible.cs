@@ -98,7 +98,7 @@ public static partial class GenerateUI {
         labelRect.offsetMin = new Vector2(42f, 0f);
         labelRect.offsetMax = new Vector2(-12f, 0f);
         TextMeshProUGUI label = labelObj.AddComponent<TextMeshProUGUI>();
-        label.font = MainCore.Res.Get<TMP_FontAsset>(Asset.SUIT_Medium);
+        label.font = FontManager.Current;
         label.fontSize = 20f;
         label.color = Color.white;
         label.alignment = TextAlignmentOptions.Left;
@@ -133,10 +133,10 @@ public static partial class GenerateUI {
 
         c.applyState = () => {
             bodyObj.SetActive(c.Expanded);
-            // Triangle128 default points up; -90° = right (collapsed),
-            // 180° = down (expanded).
+            // Triangle128 default points down; 0° = down (expanded),
+            // 90° = right (collapsed).
             arrowObj.transform.localRotation =
-                Quaternion.Euler(0f, 0f, c.Expanded ? 180f : -90f);
+                Quaternion.Euler(0f, 0f, c.Expanded ? 0f : 90f);
         };
         c.applyState();
 
@@ -174,8 +174,8 @@ public static partial class GenerateUI {
         TextMeshProUGUI labelTmp = AddText(bg);
         labelTmp.text = label;
 
-        Image leftImg = CreateMiniButton(bg, "Left", -134f, out GameObject leftBtnObj);
-        Image rightImg = CreateMiniButton(bg, "Right", -34f, out GameObject rightBtnObj);
+        Image leftImg = CreateMiniButton(bg, "Left", -114f, out GameObject leftBtnObj);
+        Image rightImg = CreateMiniButton(bg, "Right", -44f, out GameObject rightBtnObj);
 
         bool current = initialLeft;
 
@@ -213,7 +213,7 @@ public static partial class GenerateUI {
         rt.anchorMax = new Vector2(1f, 0.5f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = new Vector2(rightX, 0f);
-        rt.sizeDelta = new Vector2(90f, 32f);
+        rt.sizeDelta = new Vector2(64f, 30f);
 
         Image img = obj.AddComponent<Image>();
         img.sprite = MainCore.Spr.Get(UISliceSprite.Circle256P2048);
@@ -230,7 +230,7 @@ public static partial class GenerateUI {
         textRect.offsetMax = Vector2.zero;
 
         TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-        tmp.font = MainCore.Res.Get<TMP_FontAsset>(Asset.SUIT_Regular);
+        tmp.font = FontManager.Current;
         tmp.fontSize = 16f;
         tmp.color = Color.white;
         tmp.alignment = TextAlignmentOptions.Center;

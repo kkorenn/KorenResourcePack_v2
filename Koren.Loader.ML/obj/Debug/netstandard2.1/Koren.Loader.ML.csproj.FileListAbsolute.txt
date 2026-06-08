@@ -129,8 +129,6 @@
 /Users/koren/Documents/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/UnityEngine.InputModule.dll
 /Users/koren/Documents/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/Unity.Services.Core.dll
 /Users/koren/Documents/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.sourcelink.json
-/Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.dll
-/Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.pdb
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/Koren.Loader.ML.dll.config
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/Koren.Loader.ML.deps.json
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/Koren.Loader.ML.dll
@@ -145,9 +143,9 @@
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/Newtonsoft.Json.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/Assembly-CSharp.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/UnityEngine.AudioModule.dll
+/Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/0Harmony.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/UnityEngine.InputLegacyModule.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/UnityEngine.ImageConversionModule.dll
-/Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/0Harmony.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/MonoMod.Utils.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/MonoMod.Backports.dll
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/bin/Debug/netstandard2.1/MonoMod.RuntimeDetour.dll
@@ -260,3 +258,5 @@
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.csproj.CoreCompileInputs.cache
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.sourcelink.json
 /Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Lo.A0BB0A30.Up2Date
+/Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.dll
+/Users/preluminance/Coding/KorenResourcePack_v2/Koren.Loader.ML/obj/Debug/netstandard2.1/Koren.Loader.ML.pdb

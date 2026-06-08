@@ -27,6 +27,7 @@ namespace Koren.UI;
 public enum OriginalMenuState {
     Status,
     ProgressBar,
+    Combo,
     Settings,
     Reorganize,
     Credits,
@@ -650,6 +651,10 @@ public static class UICore {
             Panel.sizeDelta = LastPanelSize;
 
             canvasObj.SetActive(true);
+
+            if(!isMenuOpen) {
+                OpenMenu();
+            }
             return;
         }
 
@@ -663,6 +668,12 @@ public static class UICore {
         panelTweener = Panel.GTAnchorPos(LastPanelPosition, 0.25f)
             .SetEasing(Easing.OutExpo);
         MainCore.TC.Play(panelTweener);
+
+        // Sidebar defaults to open whenever the panel is shown — so users
+        // land directly on the navigation without an extra click.
+        if(!isMenuOpen) {
+            OpenMenu();
+        }
 
         if(firstRunHelperActivated) {
             firstRunHelperActivated = false;

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Koren")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3cbc148188ff9f63714e8fe7f417505acfa4be53")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cbba826a9b26de139e88ee23b0ff74ea312cc556")]
 [assembly: System.Reflection.AssemblyProductAttribute("Koren")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Koren")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.0.0.0")]

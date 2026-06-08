@@ -3,6 +3,7 @@ using Koren.Async;
 using Koren.Compat;
 using Koren.Compat.Interface;
 using Koren.Core.Service;
+using Koren.Features.Combo;
 using Koren.Features.PlayCount;
 using Koren.Features.ProgressBar;
 using Koren.Features.Status;
@@ -148,6 +149,7 @@ public sealed class KorenRuntime {
         if(enabled) {
             StatusOverlay.Initialize(RootObject);
             ProgressBarOverlay.Initialize(RootObject);
+            ComboOverlay.Initialize(RootObject);
 
             OnModEnabledChanged?.Invoke(true, isDispose);
 
@@ -155,6 +157,7 @@ public sealed class KorenRuntime {
         } else {
             OnModEnabledChanged?.Invoke(false, isDispose);
 
+            ComboOverlay.Dispose();
             ProgressBarOverlay.Dispose();
             StatusOverlay.Dispose();
 
