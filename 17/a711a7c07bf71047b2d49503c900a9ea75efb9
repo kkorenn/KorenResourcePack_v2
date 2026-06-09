@@ -1,0 +1,33 @@
+Koren/UI/Generator/GenerateUI.KeyBind.cs
+  s_a15720358fc354::t_294de9ac2fe8dd 1-147
+Koren/IO/CoreSettings.cs
+  s_a15720358fc354::t_7c10de4d00d413 72-73
+  s_a15720358fc354::t_2bf9a8f35b1fac 2
+  s_a15720358fc354::t_7f83ed36c3f5b4 54-55
+  s_a15720358fc354::t_4b3fa21cea065b 19-23
+Koren/UI/UICore.cs
+  s_a15720358fc354::t_5bc735be107df4 278-281
+  s_a15720358fc354::t_a0d05e1eb24d45 631-633,635-639,655
+Koren/Core/Keybind.cs
+  s_a15720358fc354::t_f8e35b73004258 73
+  s_a15720358fc354::t_14c578889c0b34 2-7,14,16-24,61,74-76,78,80-82,84-86,90-103,105-131
+  s_a15720358fc354::t_2df577210b077f 1,8-13,15,25-60,62-72,77,79,83,87-89,104
+Koren/UI/Factory/Page/PageSettings.cs
+  s_a15720358fc354::t_513e97d69981a1 204-219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "17a711a7c07bf71047b2d49503c900a9ea75efb9",
+  "prompts": {},
+  "sessions": {
+    "s_a15720358fc354": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ec96631c-8775-458c-9725-7780d737342e",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
