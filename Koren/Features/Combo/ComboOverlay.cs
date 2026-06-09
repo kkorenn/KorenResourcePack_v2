@@ -35,6 +35,10 @@ public static class ComboOverlay {
     private const float VerticalGap = 32f;
     private const float CaptionGap = 24f;
 
+    // Maps the user's pixel-ish shadow offsets to TMP underlay units (em-
+    // relative): ~0.01 underlay ≈ 1px on a ~100px font.
+    private const float ShadowToUnderlay = 0.01f;
+
     public static void EnsureConf() {
         if(ConfMgr != null) {
             return;
@@ -119,7 +123,10 @@ public static class ComboOverlay {
 
         ApplyFont();
         root.anchoredPosition = GetDefaultPosition();
+        root.localScale = Vector3.one * Mathf.Max(0.01f, Conf.MasterSize);
         ApplyCaption();
+        ApplyValueMaterial();
+        ApplyCaptionMaterial();
     }
 
     private static void ApplyFont() {
@@ -185,6 +192,52 @@ public static class ComboOverlay {
         return anchoredY + bar.TopOffset + bar.Height + VerticalGap;
     }
 
+    private static void ApplyValueMaterial() {
+        if(valueText == null) {
+            return;
+        }
+        ApplyShadow(valueText, Conf.CountShadowX, Conf.CountShadowY, Conf.GetCountShadowColor());
+        ApplyThickness(valueText, Conf.CountThickness);
+    }
+
+    private static void ApplyCaptionMaterial() {
+        if(captionText == null) {
+            return;
+        }
+        ApplyShadow(captionText, Conf.CaptionShadowX, Conf.CaptionShadowY, Conf.GetCaptionShadowColor());
+    }
+
+    // TMP face dilate — thickens the glyph strokes. 0 = native weight.
+    private static void ApplyThickness(TextMeshProUGUI text, float dilate) {
+        Material mat = text.fontMaterial;
+        if(mat == null) {
+            return;
+        }
+        mat.SetFloat("_FaceDilate", Mathf.Clamp(dilate, -1f, 1f));
+    }
+
+    // TMP underlay drop shadow. A zero offset (or transparent color) turns the
+    // underlay keyword off, so the default (0,0) means no shadow at all.
+    private static void ApplyShadow(TextMeshProUGUI text, float x, float y, Color color) {
+        Material mat = text.fontMaterial;
+        if(mat == null) {
+            return;
+        }
+
+        bool any = color.a > 0.001f && (Mathf.Abs(x) > 0.001f || Mathf.Abs(y) > 0.001f);
+        if(any) {
+            mat.EnableKeyword("UNDERLAY_ON");
+        } else {
+            mat.DisableKeyword("UNDERLAY_ON");
+        }
+
+        mat.SetColor("_UnderlayColor", color);
+        mat.SetFloat("_UnderlayOffsetX", x * ShadowToUnderlay);
+        mat.SetFloat("_UnderlayOffsetY", y * ShadowToUnderlay);
+        mat.SetFloat("_UnderlaySoftness", 0f);
+        mat.SetFloat("_UnderlayDilate", 0f);
+    }
+
     private sealed class Updater : MonoBehaviour {
         private int cachedCount = -1;
 
@@ -211,9 +264,17 @@ public static class ComboOverlay {
             Conf.OffsetX = root.anchoredPosition.x;
             Conf.OffsetY = GetOffsetYFromPosition(root.anchoredPosition.y);
 
-            valueText.font = FontManager.Current;
-            if(captionText != null) {
-                captionText.font = FontManager.Current;
+            // Only reassign the font when it actually changes — setting .font
+            // rebuilds the material instance and would wipe the shadow/thickness
+            // we baked in, so re-apply those right after.
+            TMP_FontAsset font = FontManager.Current;
+            if(valueText.font != font) {
+                valueText.font = font;
+                ApplyValueMaterial();
+            }
+            if(captionText != null && captionText.font != font) {
+                captionText.font = font;
+                ApplyCaptionMaterial();
             }
 
             int count = isReorganizing && Combo.Count <= 0 ? 42 : Combo.Count;
@@ -222,7 +283,7 @@ public static class ComboOverlay {
                 valueText.text = count.ToString(CultureInfo.InvariantCulture);
             }
 
-            float pulse = Combo.EvaluatePulseScale();
+            (float pulse, float pulseIntensity) = Combo.EvaluatePulse(Conf.CountPulseScale, Conf.PulseDuration);
             float valueSize = Conf.FontSize * pulse;
             valueText.fontSize = valueSize;
             valueText.color = Conf.GetComboColor(count);
@@ -230,15 +291,18 @@ public static class ComboOverlay {
             Vector2 pref = valueText.GetPreferredValues(valueText.text);
             valueText.rectTransform.sizeDelta = new Vector2(Mathf.Max(pref.x, 200f), pref.y);
 
-            float captionSize = valueSize * 0.35f;
+            float captionSize = valueSize * Conf.CaptionScale;
             if(captionText != null && Conf.ShowCaption) {
                 captionText.fontSize = captionSize;
                 captionText.color = Color.white;
                 Vector2 capPref = captionText.GetPreferredValues(captionText.text);
                 captionText.rectTransform.sizeDelta = new Vector2(Mathf.Max(capPref.x, 200f), capPref.y);
+                // Caption sits below the value; LabelPulseOffsetY kicks it up by
+                // the pulse intensity (0 by default = no kick).
+                float labelKick = pulseIntensity * Conf.LabelPulseOffsetY;
                 captionText.rectTransform.anchoredPosition = new Vector2(
                     0f,
-                    -(valueText.rectTransform.sizeDelta.y + CaptionGap + Conf.CaptionOffsetY)
+                    -(valueText.rectTransform.sizeDelta.y + CaptionGap + Conf.CaptionOffsetY) + labelKick
                 );
             }
 
