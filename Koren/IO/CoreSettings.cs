@@ -21,6 +21,21 @@ public sealed class CoreSettings : ISettingsFile {
     public int ToggleModifier = (int)Keybind.KeyModifier.Alt;
     public int ToggleKey = (int)KeyCode.K;
 
+    // Release channel to accept updates from. Lower (less stable) channels
+    // include all higher ones: Alpha gets every build, Stable only final
+    // releases. Defaults to Alpha for the current alpha test phase.
+    public int UpdateChannel = (int)ReleaseChannel.Alpha;
+
+    // Version tag the user chose to skip (e.g. "v2.0.0-alpha-2"). That build
+    // won't be offered again; a newer one still will.
+    public string SkippedVersion = "";
+
+    public ReleaseChannel GetUpdateChannel() => (ReleaseChannel)UpdateChannel;
+
+    // Whether a build published on `remote` should be offered to this user —
+    // the chosen channel accepts itself and everything more stable.
+    public bool AcceptsChannel(ReleaseChannel remote) => remote >= GetUpdateChannel();
+
     // UI accent color (drives the whole theme via UIColors.ApplyAccent).
     // Default ff9999 (soft red).
     public float AccentR = 1.0f;
@@ -53,6 +68,8 @@ public sealed class CoreSettings : ISettingsFile {
             [nameof(ScrollSpeed)] = ScrollSpeed,
             [nameof(ToggleModifier)] = ToggleModifier,
             [nameof(ToggleKey)] = ToggleKey,
+            [nameof(UpdateChannel)] = UpdateChannel,
+            [nameof(SkippedVersion)] = SkippedVersion,
             [nameof(AccentR)] = AccentR,
             [nameof(AccentG)] = AccentG,
             [nameof(AccentB)] = AccentB
@@ -71,6 +88,8 @@ public sealed class CoreSettings : ISettingsFile {
         ScrollSpeed = IOUtils.Read(token, nameof(ScrollSpeed), ScrollSpeed);
         ToggleModifier = IOUtils.Read(token, nameof(ToggleModifier), ToggleModifier);
         ToggleKey = IOUtils.Read(token, nameof(ToggleKey), ToggleKey);
+        UpdateChannel = IOUtils.Read(token, nameof(UpdateChannel), UpdateChannel);
+        SkippedVersion = IOUtils.Read(token, nameof(SkippedVersion), SkippedVersion);
         AccentR = IOUtils.Read(token, nameof(AccentR), AccentR);
         AccentG = IOUtils.Read(token, nameof(AccentG), AccentG);
         AccentB = IOUtils.Read(token, nameof(AccentB), AccentB);

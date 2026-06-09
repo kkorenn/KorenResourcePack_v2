@@ -3,6 +3,9 @@ using MelonLoader.Utils;
 using Koren.Core;
 using Koren.Compat.Interface;
 
+// MelonInfo's version must be a compile-time constant, so it uses the numeric
+// core version; the full channel + build string lives in Info.DisplayVersion
+// (shown in-game and used for update checks).
 [assembly: MelonInfo(typeof(Koren.Loader.ML.Loader), Info.Name, Info.Version, Info.Author, Info.GithubLink)]
 [assembly: MelonGame("7th Beat Games", "A Dance of Fire and Ice")]
 
@@ -15,6 +18,8 @@ public class Loader : MelonMod, IKorenHost, IKorenLogger {
     public IKorenLogger KorenLogger => this;
 
     public string KorenFilePath => MelonEnvironment.UserDataDirectory;
+    public string ModsPath => MelonEnvironment.ModsDirectory;
+    public string UserLibsPath => MelonEnvironment.UserLibsDirectory;
 
     public override void OnInitializeMelon() {
         MainCore.Initialize(this);

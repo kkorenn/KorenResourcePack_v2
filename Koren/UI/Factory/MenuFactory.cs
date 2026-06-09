@@ -52,6 +52,13 @@ public static class MenuFactory {
         credits.label.gameObject.AddComponent<TextLocalization>()
             .Init("CREDITS", "Credits");
 
+        // Developer tab — only present in "dev" builds.
+        if(Info.IsDev) {
+            var developer = CreateItem(parent, "Developer", MainCore.Spr.Get(UISprite.Wrench128), (int)OriginalMenuState.Developer);
+            developer.label.gameObject.AddComponent<TextLocalization>()
+                .Init("DEVELOPER", "Developer");
+        }
+
         ApplyState(UICore.CurrentMenuState, true);
     }
 

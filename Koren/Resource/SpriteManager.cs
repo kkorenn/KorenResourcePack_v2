@@ -19,6 +19,7 @@ public enum UISprite {
     Power128,
     MagnifyingGlass128,
     Gamepad128,
+    Wrench128,
 }
 
 public enum UISliceSprite {
@@ -165,7 +166,8 @@ public sealed class SpriteManager(ResourceManager resource) : IDisposable {
         [UISprite.Triangle128] = Asset.Triangle128,
         [UISprite.Power128] = Asset.Power128,
         [UISprite.MagnifyingGlass128] = Asset.MagnifyingGlass128,
-        [UISprite.Gamepad128] = Asset.Gamepad128
+        [UISprite.Gamepad128] = Asset.Gamepad128,
+        [UISprite.Wrench128] = Asset.Wrench128
     };
 
     private readonly Dictionary<UISliceSprite, (Asset asset, float ppui)> sliceMap = new() {

@@ -31,6 +31,12 @@ public static class PageFactory {
         PageOverlay.Create(UICore.Pages[(int)OriginalMenuState.Overlay]);
         PageGameplay.Create(UICore.Pages[(int)OriginalMenuState.Gameplay]);
 
+        // Developer page — only populated in "dev" builds (its tab is likewise
+        // only created then).
+        if(Koren.Core.Info.IsDev) {
+            PageDeveloper.Create(UICore.Pages[(int)OriginalMenuState.Developer]);
+        }
+
         return PagesContaner;
     }
 

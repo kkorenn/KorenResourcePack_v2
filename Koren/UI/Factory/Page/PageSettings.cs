@@ -11,14 +11,28 @@ using Koren.Tween;
 using Koren.UI.Generator;
 using Koren.UI.Objects.Impl;
 using Koren.UI.Utility;
+using Koren.Update;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if IL2CPP
+using Il2CppTMPro;
+#else
+using TMPro;
+#endif
 
 namespace Koren.UI.Factory.Page;
 
 internal static class PageSettings {
     private static readonly Dictionary<TextLocalization, (GameObject LabelRow, GameObject MainRow)> objects = [];
     private static UIDropDown<string> languageDropdown;
+
+    // Update UI, refreshed from UpdateService.OnChanged.
+    private static UIButton updateCheckButton;
+    private static TextMeshProUGUI updateStatusText;
+    private static GameObject updateActionRow;
+    private static TextMeshProUGUI updateVersionText;
+    private static bool updateHooked;
 
     public static void Create(RectTransform parent) {
         GameObject pad = new("Pad");
@@ -342,6 +356,94 @@ internal static class PageSettings {
         var accentTr = accentPicker.Label.gameObject.AddComponent<TextLocalization>().Init("ACCENT_COLOR", "Accent Color");
         objects[accentTr] = (overlayerText.gameObject, accentRow.gameObject);
 
+        var updatesLabelRow = GenerateUI.Row(content.transform);
+        var updatesText = GenerateUI.AddTextH1(updatesLabelRow);
+        var updatesTextTr = updatesText.gameObject.AddComponent<TextLocalization>().Init("UPDATES", "Updates");
+
+        ReleaseChannel[] channels = [
+            ReleaseChannel.Stable,
+            ReleaseChannel.ReleaseCandidate,
+            ReleaseChannel.Beta,
+            ReleaseChannel.Alpha,
+        ];
+        var channelRow = GenerateUI.Row(content.transform);
+        UIDropDown<ReleaseChannel> channelDropdown = GenerateUI.DropDown(
+            channelRow,
+            ReleaseChannel.Stable,
+            MainCore.Conf.GetUpdateChannel(),
+            channels,
+            ch => ch switch {
+                ReleaseChannel.Stable => "Stable",
+                ReleaseChannel.ReleaseCandidate => "Release Candidate",
+                ReleaseChannel.Beta => "Beta",
+                ReleaseChannel.Alpha => "Alpha",
+                _ => ch.ToString(),
+            },
+            ch => {
+                MainCore.Conf.UpdateChannel = (int)ch;
+                MainCore.ConfMgr.RequestSave();
+            },
+            "update_channel"
+        );
+        channelDropdown.Rect.AddToolTip(
+            "DESC_UPDATE_CHANNEL",
+            "Which builds to receive when updating. Alpha includes every build; each step up is more stable, with Stable being only final releases."
+        );
+        objects[updatesTextTr] = (updatesLabelRow.gameObject, channelRow.gameObject);
+
+        var updateCheckRow = GenerateUI.Row(content.transform);
+        updateCheckButton = GenerateUI.Button(
+            updateCheckRow,
+            () => UpdateService.Check(),
+            "Check for Updates",
+            "update_check"
+        );
+        updateCheckButton.Label.gameObject.AddComponent<TextLocalization>().Init("CHECK_FOR_UPDATES", "Check for Updates");
+
+        var updateStatusRow = GenerateUI.Row(content.transform);
+        updateStatusText = GenerateUI.AddText(updateStatusRow);
+        updateStatusText.text = "";
+
+        var updateActionRect = GenerateUI.Row(content.transform);
+        updateActionRow = updateActionRect.gameObject;
+        updateVersionText = GenerateUI.AddText(updateActionRect);
+
+        UIButton installButton = GenerateUI.Button(
+            updateActionRect,
+            () => UpdateService.Install(UpdateService.Available),
+            "Install",
+            "update_install"
+        );
+        {
+            var r = installButton.Rect;
+            r.pivot = new(1f, 0.5f);
+            r.anchorMin = new(1f, 0.5f);
+            r.anchorMax = new(1f, 0.5f);
+            r.sizeDelta = new(120f, 40f);
+            r.anchoredPosition = new(-12f, 0f);
+        }
+
+        UIButton skipButton = GenerateUI.Button(
+            updateActionRect,
+            () => UpdateService.Skip(UpdateService.Available),
+            "Skip",
+            "update_skip"
+        );
+        {
+            var r = skipButton.Rect;
+            r.pivot = new(1f, 0.5f);
+            r.anchorMin = new(1f, 0.5f);
+            r.anchorMax = new(1f, 0.5f);
+            r.sizeDelta = new(90f, 40f);
+            r.anchoredPosition = new(-140f, 0f);
+        }
+
+        if(!updateHooked) {
+            UpdateService.OnChanged += RefreshUpdates;
+            updateHooked = true;
+        }
+        RefreshUpdates();
+
         var fontLabelRow = GenerateUI.Row(content.transform);
         var fontText = GenerateUI.AddTextH1(fontLabelRow);
         var fontTextTr = fontText.gameObject.AddComponent<TextLocalization>().Init("FONT", "Font");
@@ -357,6 +459,37 @@ internal static class PageSettings {
             "font_dropdown"
         );
         objects[fontTextTr] = (fontLabelRow.gameObject, fontRow.gameObject);
+    }
+
+    // Pulls the latest UpdateService state into the update row. Runs on the
+    // main thread (UpdateService raises OnChanged via MainThread).
+    internal static void RefreshUpdates() {
+        if(updateStatusText == null || updateActionRow == null) {
+            return;
+        }
+
+        UpdateStatus status = UpdateService.Status;
+        UpdateInfo info = UpdateService.Available;
+        bool available = status == UpdateStatus.Available && info != null;
+
+        updateStatusText.text = status switch {
+            UpdateStatus.Checking => "Checking for updates…",
+            UpdateStatus.UpToDate => "You're up to date.",
+            UpdateStatus.Available => "Update available:",
+            UpdateStatus.Installing => "Downloading update…",
+            UpdateStatus.Installed => "Update installed — restart the game to apply.",
+            UpdateStatus.Failed => UpdateService.Message,
+            _ => "",
+        };
+
+        updateActionRow.SetActive(available);
+        if(available) {
+            updateVersionText.text = $"v{Info.DisplayVersion}   →   {info.Tag}";
+        }
+
+        if(updateCheckButton != null) {
+            updateCheckButton.SetBlocked(status is UpdateStatus.Checking or UpdateStatus.Installing);
+        }
     }
 
     internal static void OnTranslatorLoadEnd() {

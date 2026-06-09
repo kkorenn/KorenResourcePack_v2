@@ -9,6 +9,7 @@ using Koren.Features.ProgressBar;
 using Koren.Features.Status;
 using Koren.IO;
 using Koren.Resource;
+using Koren.Update;
 using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -109,6 +110,9 @@ public sealed class KorenRuntime {
         services.Initialize();
 
         SetModEnabled(Config.Data.Active, false);
+
+        // Background check so the Settings page can show any available update.
+        UpdateService.Check();
 
         Logger.Msg("Hello");
     }

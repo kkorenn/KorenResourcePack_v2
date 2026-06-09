@@ -29,6 +29,7 @@ public enum OriginalMenuState {
     Gameplay,
     Settings,
     Credits,
+    Developer, // dev-only tab; the menu item is created only in "dev" builds
 }
 
 public static class UICore {
@@ -498,7 +499,7 @@ public static class UICore {
             versionRect.offsetMax = Vector2.zero;
             versionRect.pivot = Vector2.zero;
             var versionText = version.AddComponent<TextMeshProUGUI>();
-            versionText.text = $"v{MainCore.Version}";
+            versionText.text = $"v{Info.DisplayVersion}";
             versionText.font = FontManager.Current;
             versionText.fontSize = 12f;
             versionText.color = new Color(1f, 1f, 1f, 0.4f);
