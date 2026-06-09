@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Linq;
+using Koren.Core;
 using Koren.IO.Interface;
 using UnityEngine;
 
@@ -14,6 +15,11 @@ public sealed class CoreSettings : ISettingsFile {
     public float UIScale = 1.0f;
     public string FontName = "";
     public float ScrollSpeed = 80f;
+
+    // Menu toggle keybind, stored as ints (Keybind.KeyModifier and KeyCode).
+    // Default Alt + K (shown as Option + K on macOS).
+    public int ToggleModifier = (int)Keybind.KeyModifier.Alt;
+    public int ToggleKey = (int)KeyCode.K;
 
     // UI accent color (drives the whole theme via UIColors.ApplyAccent).
     // Default ff9999 (soft red).
@@ -45,6 +51,8 @@ public sealed class CoreSettings : ISettingsFile {
             [nameof(UIScale)] = UIScale,
             [nameof(FontName)] = FontName,
             [nameof(ScrollSpeed)] = ScrollSpeed,
+            [nameof(ToggleModifier)] = ToggleModifier,
+            [nameof(ToggleKey)] = ToggleKey,
             [nameof(AccentR)] = AccentR,
             [nameof(AccentG)] = AccentG,
             [nameof(AccentB)] = AccentB
@@ -61,6 +69,8 @@ public sealed class CoreSettings : ISettingsFile {
         UIScale = IOUtils.Read(token, nameof(UIScale), UIScale);
         FontName = IOUtils.Read(token, nameof(FontName), FontName);
         ScrollSpeed = IOUtils.Read(token, nameof(ScrollSpeed), ScrollSpeed);
+        ToggleModifier = IOUtils.Read(token, nameof(ToggleModifier), ToggleModifier);
+        ToggleKey = IOUtils.Read(token, nameof(ToggleKey), ToggleKey);
         AccentR = IOUtils.Read(token, nameof(AccentR), AccentR);
         AccentG = IOUtils.Read(token, nameof(AccentG), AccentG);
         AccentB = IOUtils.Read(token, nameof(AccentB), AccentB);

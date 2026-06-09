@@ -201,6 +201,22 @@ internal static class PageSettings {
         var startupToggleTr = startupToggle.Label.gameObject.AddComponent<TextLocalization>().Init("SHOW_OVERLAYER_PANEL_AT_STARTUP", "Show KorenResourcePack Settings at Startup");
         objects[startupToggleTr] = (overlayerText.gameObject, startupRow.gameObject);
 
+        var keybindRow = GenerateUI.Row(content.transform);
+        var keybindLabel = GenerateUI.KeyBind(
+            keybindRow,
+            (Keybind.KeyModifier)MainCore.Conf.ToggleModifier,
+            (KeyCode)MainCore.Conf.ToggleKey,
+            (mod, key) => {
+                MainCore.Conf.ToggleModifier = (int)mod;
+                MainCore.Conf.ToggleKey = (int)key;
+                MainCore.ConfMgr.RequestSave();
+            },
+            "Toggle Menu Keybind",
+            "toggle_keybind"
+        );
+        var keybindTr = keybindLabel.gameObject.AddComponent<TextLocalization>().Init("TOGGLE_KEYBIND", "Toggle Menu Keybind");
+        objects[keybindTr] = (overlayerText.gameObject, keybindRow.gameObject);
+
         var tooltipRow = GenerateUI.Row(content.transform);
         UIToggle tooltipToggle = GenerateUI.Toggle(
             tooltipRow,

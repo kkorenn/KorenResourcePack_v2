@@ -275,7 +275,10 @@ public static class UICore {
                     .Build()
                     .SetLoops(-1);
 
-                string fullText = "Press Alt + ` (BackQuote, left of 1 key)";
+                string fullText = "Press " + Keybind.Format(
+                    (Keybind.KeyModifier)MainCore.Conf.ToggleModifier,
+                    (KeyCode)MainCore.Conf.ToggleKey
+                );
                 secondRunHelperTextSequence = GTweenSequenceBuilder.New()
                     .Append(GTweenExtensions.Tween(
                         () => 0,
@@ -625,13 +628,15 @@ public static class UICore {
             return;
         }
 
-        bool pressed =
-            Input.GetKey(KeyCode.LeftAlt)
-            && Input.GetKey(KeyCode.BackQuote);
+        Keybind.KeyModifier mod = (Keybind.KeyModifier)MainCore.Conf.ToggleModifier;
+        KeyCode key = (KeyCode)MainCore.Conf.ToggleKey;
+        bool modHeld = Keybind.ModifierHeld(mod);
 
-        // key down
-        if(Input.GetKey(KeyCode.LeftAlt)
-            && Input.GetKeyDown(KeyCode.BackQuote)) {
+        bool pressed = modHeld && Input.GetKey(key);
+
+        // key down — suppressed while a settings keybind capture is listening,
+        // so pressing keys to rebind doesn't also toggle the menu.
+        if(!Keybind.Capturing && modHeld && Input.GetKeyDown(key)) {
             Toggle();
 
             holdStartTime = Time.unscaledTime;
@@ -647,7 +652,7 @@ public static class UICore {
         }
 
         // key up
-        if(Input.GetKeyUp(KeyCode.BackQuote)) {
+        if(Input.GetKeyUp(key)) {
             holdingToggle = false;
         }
 
