@@ -1,4 +1,4 @@
-﻿using Koren.UI;
+using Koren.UI;
 using Koren.UI.Objects;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +18,11 @@ public class UIButton : UIObject {
     public TextMeshProUGUI Label { get; }
     public Image Background { get; }
 
+    // Resolved lazily so the colors keep tracking accent palette changes;
+    // swap these to give a button a different visual weight (see SetSecondary).
+    public Func<Color> RestColor { get; set; } = static () => UIColors.ObjectButton;
+    public Func<Color> HoverColor { get; set; } = static () => UIColors.ObjectActiveLightBright;
+
     private GTween hoverTween;
 
     public UIButton(
@@ -34,11 +39,20 @@ public class UIButton : UIObject {
         UpdateVisual(true);
     }
 
+    // De-emphasizes the button (panel-colored at rest) for actions that
+    // shouldn't compete with a primary button next to them.
+    public UIButton SetSecondary() {
+        RestColor = static () => UIColors.ObjectBG;
+        HoverColor = static () => UIColors.ObjectButton;
+        UpdateVisual(true);
+        return this;
+    }
+
     public void OnHoverEnter() {
         hoverTween?.Kill();
 
         hoverTween = Background
-            .GTColor(UIColors.ObjectActiveLightBright, 0.12f)
+            .GTColor(HoverColor(), 0.12f)
             .SetEasing(Easing.OutSine);
         MainCore.TC.Play(hoverTween);
     }
@@ -47,7 +61,7 @@ public class UIButton : UIObject {
         hoverTween?.Kill();
 
         hoverTween = Background
-            .GTColor(UIColors.ObjectButton, 0.12f)
+            .GTColor(RestColor(), 0.12f)
             .SetEasing(Easing.OutSine);
         MainCore.TC.Play(hoverTween);
     }
@@ -64,12 +78,12 @@ public class UIButton : UIObject {
         hoverTween?.Kill();
 
         if(noAnimate) {
-            Background.color = UIColors.ObjectButton;
+            Background.color = RestColor();
             return;
         }
 
         hoverTween = Background
-            .GTColor(UIColors.ObjectButton, 0.2f)
+            .GTColor(RestColor(), 0.2f)
             .SetEasing(Easing.OutSine);
         MainCore.TC.Play(hoverTween);
     }

@@ -24,6 +24,7 @@ namespace Koren.UI.Generator;
 public static partial class GenerateUI {
 
     public sealed class CollapsibleSection {
+        public string Title;
         public RectTransform Section;
         public GameObject HeaderObj;
         public RectTransform Body;
@@ -31,15 +32,31 @@ public static partial class GenerateUI {
 
         internal Image arrow;
         internal System.Action applyState;
+        internal System.Action applyInstant;
 
-        public void SetExpanded(bool v) {
+        public void SetExpanded(bool v) => SetExpanded(v, true);
+
+        // animate: false snaps open/closed without the slide tween — used by
+        // search navigation, which needs final layout heights immediately to
+        // compute the scroll position.
+        public void SetExpanded(bool v, bool animate) {
             if(Expanded == v) {
                 return;
             }
             Expanded = v;
-            applyState?.Invoke();
+            if(animate) {
+                applyState?.Invoke();
+            } else {
+                applyInstant?.Invoke();
+            }
         }
     }
+
+    // Every live collapsible, so search can expand the sections that hide a
+    // result before scrolling to it. Cleared when the pages are (re)built.
+    public static readonly List<CollapsibleSection> Sections = [];
+
+    public static void ClearSections() => Sections.Clear();
 
     // Adds a collapsible section under `parent` (which must have a vertical
     // layout). The returned CollapsibleSection.Body is where the caller adds
@@ -142,12 +159,14 @@ public static partial class GenerateUI {
         CanvasGroup bodyCg = bodyObj.AddComponent<CanvasGroup>();
 
         CollapsibleSection c = new() {
+            Title = title,
             Section = sectionRect,
             HeaderObj = headerObj,
             Body = bodyRect,
             Expanded = startExpanded,
             arrow = arrowImg,
         };
+        Sections.Add(c);
 
         GTween openSeq = null;
         GTween arrowSeq = null;
@@ -250,6 +269,7 @@ public static partial class GenerateUI {
         }
 
         c.applyState = () => Apply(true);
+        c.applyInstant = () => Apply(false);
         Apply(false);
 
         AddButton(barObj, btn => {

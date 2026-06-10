@@ -10,7 +10,7 @@ public static class Info {
 
     // Release channel. Move it forward as the project matures:
     //   "alpha" -> "beta" -> "rc" -> "stable".
-    public const string Channel = "alpha";
+    public const string Channel = "dev";
 
     // Pre-release build number. Auto-managed by tools/release.sh, which tracks
     // it per (version, channel) in build.json and bakes the next value here on
@@ -34,7 +34,7 @@ public static class Info {
 
     public static SemVer Current => SemVer.TryParse(DisplayVersion, out SemVer v) ? v : default;
 
-    public const string Description = "A Dance of Fire and Ice mod — clean v2 skeleton. UI ported from Overlayer (modlist-org).";
+    public const string Description = ":thumbs_up:";
     public const string GithubLink = "https://github.com/kkorenn/KorenResourcePack";
 
     // GitHub repo that hosts the release builds the updater pulls from.

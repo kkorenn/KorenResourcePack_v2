@@ -74,7 +74,7 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
         }
     }
 
-    public Texture2D LoadTexture(string path, FilterMode filter = FilterMode.Bilinear) {
+    public Texture2D LoadTexture(string path, FilterMode filter = FilterMode.Trilinear) {
         if(cache.TryGetValue(path, out object cached)) {
             return cached as Texture2D;
         }
@@ -85,7 +85,11 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
             return null;
         }
 
-        Texture2D texture = new(2, 2, TextureFormat.RGBA32, false, true);
+        // Mip chain on: the UI draws these (e.g. 256px circle corners) far
+        // below native size, and minification without mips aliases into
+        // visible stair-stepping on rounded corners. LoadImage rebuilds the
+        // full chain after decoding; trilinear blends between mip levels.
+        Texture2D texture = new(2, 2, TextureFormat.RGBA32, true, true);
 
         if(!OVC_Texture2D.LoadImage(texture, data)) {
             Object.Destroy(texture);
@@ -93,6 +97,11 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
         }
 
         texture.filterMode = filter;
+        texture.anisoLevel = 4;
+        // Negative bias samples one notch sharper than the computed mip
+        // level — counteracts the softness trilinear minification adds to
+        // sprite edges without bringing the stair-stepping back.
+        texture.mipMapBias = -0.7f;
         cache[path] = texture;
         return texture;
     }

@@ -132,6 +132,8 @@ internal static class PageDeveloper {
             $"Mod enabled:     {MainCore.IsModEnabled}",
             $"Update channel:  {MainCore.Conf.GetUpdateChannel()}",
             $"Update status:   {UpdateService.Status}",
+            $"Failure:         {UpdateService.Failure}",
+            $"Progress:        {(UpdateService.Progress < 0f ? "n/a" : UpdateService.Progress.ToString("P0"))}",
             $"Available:       {(available == null ? "none" : available.Tag)}",
             $"Skipped version: {skipped}",
             $"Simulate update: {UpdateService.DevSimulate}",

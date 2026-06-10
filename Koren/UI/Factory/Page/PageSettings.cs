@@ -31,8 +31,21 @@ internal static class PageSettings {
     private static UIButton updateCheckButton;
     private static TextMeshProUGUI updateStatusText;
     private static GameObject updateActionRow;
+    private static GameObject updateButtonRow;
     private static TextMeshProUGUI updateVersionText;
+    private static UIButton updateNotesButton;
+    private static UIButton updateSkipButton;
+    private static UIButton updateInstallButton;
+    private static UIButton updateUndoButton;
+    private static GameObject updateProgressRow;
+    private static RectTransform updateProgressFill;
+    private static TextMeshProUGUI updateProgressLabel;
     private static bool updateHooked;
+
+    // For jumping to the Updates section from the update toast.
+    private static UIScrollController scrollController;
+    private static RectTransform pageContent;
+    private static RectTransform updatesAnchor;
 
     public static void Create(RectTransform parent) {
         GameObject pad = new("Pad");
@@ -78,7 +91,9 @@ internal static class PageSettings {
         ContentSizeFitter fitter = content.AddComponent<ContentSizeFitter>();
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        pad.AddComponent<UIScrollController>().SetContent(contentRect, viewportRect);
+        scrollController = pad.AddComponent<UIScrollController>();
+        scrollController.SetContent(contentRect, viewportRect);
+        pageContent = contentRect;
 
         CoreSettings defSet = new();
 
@@ -182,6 +197,7 @@ internal static class PageSettings {
                     languageDropdown.SetBlocked(false);
                     langBtn.SetBlocked(false);
                     TextLocalization.RefreshAll();
+                    RefreshUpdates();
                 });
             });
         };
@@ -359,6 +375,7 @@ internal static class PageSettings {
         var updatesLabelRow = GenerateUI.Row(content.transform);
         var updatesText = GenerateUI.AddTextH1(updatesLabelRow);
         var updatesTextTr = updatesText.gameObject.AddComponent<TextLocalization>().Init("UPDATES", "Updates");
+        updatesAnchor = updatesLabelRow;
 
         ReleaseChannel[] channels = [
             ReleaseChannel.Stable,
@@ -404,42 +421,160 @@ internal static class PageSettings {
         updateStatusText = GenerateUI.AddText(updateStatusRow);
         updateStatusText.text = "";
 
+        {
+            // Download progress: a rounded track with an accent fill whose
+            // width follows UpdateService.Progress, plus a percent readout.
+            // Visible only while Installing (and progress is known); drives
+            // both real downloads and the dev-simulated one.
+            var progressRect = GenerateUI.Row(content.transform, 32f);
+            updateProgressRow = progressRect.gameObject;
+
+            GameObject track = new("ProgressTrack");
+            track.transform.SetParent(progressRect, false);
+
+            // Same horizontal span as the BackGround() widgets above (full
+            // width minus the 250-unit right gutter) so the edges line up;
+            // the percent readout sits in that gutter.
+            RectTransform trackRect = track.AddComponent<RectTransform>();
+            trackRect.anchorMin = new(0f, 0.5f);
+            trackRect.anchorMax = new(1f, 0.5f);
+            trackRect.pivot = new(0f, 0.5f);
+            trackRect.offsetMin = new(0f, -7f);
+            trackRect.offsetMax = new(-250f, 7f);
+
+            Image trackImg = track.AddComponent<Image>();
+            trackImg.sprite = MainCore.Spr.Get(UISliceSprite.Circle256P2048);
+            trackImg.type = Image.Type.Sliced;
+            trackImg.color = UIColors.ObjectBG;
+            trackImg.raycastTarget = false;
+
+            GameObject fill = new("ProgressFill");
+            fill.transform.SetParent(track.transform, false);
+
+            updateProgressFill = fill.AddComponent<RectTransform>();
+            updateProgressFill.anchorMin = Vector2.zero;
+            updateProgressFill.anchorMax = new(0f, 1f);
+            updateProgressFill.offsetMin = Vector2.zero;
+            updateProgressFill.offsetMax = Vector2.zero;
+
+            Image fillImg = fill.AddComponent<Image>();
+            fillImg.sprite = MainCore.Spr.Get(UISliceSprite.Circle256P2048);
+            fillImg.type = Image.Type.Sliced;
+            fillImg.color = UIColors.ObjectActive;
+            fillImg.raycastTarget = false;
+
+            GameObject pctObj = new("ProgressPercent");
+            pctObj.transform.SetParent(progressRect, false);
+
+            RectTransform pctRect = pctObj.AddComponent<RectTransform>();
+            pctRect.anchorMin = new(1f, 0f);
+            pctRect.anchorMax = new(1f, 1f);
+            pctRect.pivot = new(0f, 0.5f);
+            pctRect.anchoredPosition = new(-238f, 0f);
+            pctRect.sizeDelta = new(90f, 0f);
+
+            updateProgressLabel = pctObj.AddComponent<TextMeshProUGUI>();
+            updateProgressLabel.font = FontManager.Current;
+            updateProgressLabel.fontSize = 18f;
+            updateProgressLabel.color = Color.white;
+            updateProgressLabel.alignment = TextAlignmentOptions.Left;
+            updateProgressLabel.verticalAlignment = VerticalAlignmentOptions.Middle;
+            updateProgressLabel.raycastTarget = false;
+
+            updateProgressRow.SetActive(false);
+        }
+
+        // Version text on its own row; action buttons on the row below so
+        // long tags get the full width instead of squeezing the buttons.
         var updateActionRect = GenerateUI.Row(content.transform);
         updateActionRow = updateActionRect.gameObject;
-        updateVersionText = GenerateUI.AddText(updateActionRect);
 
-        UIButton installButton = GenerateUI.Button(
-            updateActionRect,
+        HorizontalLayoutGroup actionLayout = updateActionRow.AddComponent<HorizontalLayoutGroup>();
+        actionLayout.padding = new RectOffset(16, 12, 0, 0);
+        actionLayout.childControlWidth = true;
+        actionLayout.childControlHeight = true;
+        actionLayout.childForceExpandWidth = false;
+        actionLayout.childForceExpandHeight = true;
+        actionLayout.childAlignment = TextAnchor.MiddleLeft;
+
+        updateVersionText = GenerateUI.AddText(updateActionRect, true);
+        updateVersionText.overflowMode = TextOverflowModes.Ellipsis;
+        LayoutElement versionLe = updateVersionText.gameObject.AddComponent<LayoutElement>();
+        versionLe.flexibleWidth = 1f;
+
+        var updateButtonRect = GenerateUI.Row(content.transform);
+        updateButtonRow = updateButtonRect.gameObject;
+
+        HorizontalLayoutGroup buttonLayout = updateButtonRow.AddComponent<HorizontalLayoutGroup>();
+        buttonLayout.spacing = 12f;
+        buttonLayout.padding = new RectOffset(16, 12, 0, 0);
+        buttonLayout.childControlWidth = true;
+        buttonLayout.childControlHeight = true;
+        buttonLayout.childForceExpandWidth = false;
+        buttonLayout.childForceExpandHeight = true;
+        buttonLayout.childAlignment = TextAnchor.MiddleLeft;
+
+        static void FixWidth(UIButton button, float width) {
+            LayoutElement le = button.Rect.gameObject.AddComponent<LayoutElement>();
+            le.preferredWidth = width;
+            le.minWidth = width;
+            le.flexibleWidth = 0f;
+        }
+
+        updateNotesButton = GenerateUI.Button(
+            updateButtonRect,
+            () => {
+                string url = UpdateService.Available?.Url;
+                if(!string.IsNullOrEmpty(url)) {
+                    Application.OpenURL(url);
+                }
+            },
+            "Notes",
+            "update_notes"
+        ).SetSecondary();
+        FixWidth(updateNotesButton, 100f);
+        updateNotesButton.Label.gameObject.AddComponent<TextLocalization>().Init("UPDATE_NOTES", "Notes");
+        updateNotesButton.Rect.AddToolTip(
+            "DESC_UPDATE_NOTES",
+            "Opens this release's notes on GitHub."
+        );
+
+        updateSkipButton = GenerateUI.Button(
+            updateButtonRect,
+            () => UpdateService.Skip(UpdateService.Available),
+            "Skip",
+            "update_skip"
+        ).SetSecondary();
+        FixWidth(updateSkipButton, 100f);
+        updateSkipButton.Label.gameObject.AddComponent<TextLocalization>().Init("UPDATE_SKIP", "Skip");
+        updateSkipButton.Rect.AddToolTip(
+            "DESC_UPDATE_SKIP",
+            "Hides this version. You'll still be offered the next release."
+        );
+
+        updateInstallButton = GenerateUI.Button(
+            updateButtonRect,
             () => UpdateService.Install(UpdateService.Available),
             "Install",
             "update_install"
         );
-        {
-            var r = installButton.Rect;
-            r.pivot = new(1f, 0.5f);
-            r.anchorMin = new(1f, 0.5f);
-            r.anchorMax = new(1f, 0.5f);
-            r.sizeDelta = new(120f, 40f);
-            r.anchoredPosition = new(-12f, 0f);
-        }
+        FixWidth(updateInstallButton, 130f);
+        updateInstallButton.Label.gameObject.AddComponent<TextLocalization>().Init("UPDATE_INSTALL", "Install");
 
-        UIButton skipButton = GenerateUI.Button(
-            updateActionRect,
-            () => UpdateService.Skip(UpdateService.Available),
-            "Skip",
-            "update_skip"
-        );
-        {
-            var r = skipButton.Rect;
-            r.pivot = new(1f, 0.5f);
-            r.anchorMin = new(1f, 0.5f);
-            r.anchorMax = new(1f, 0.5f);
-            r.sizeDelta = new(90f, 40f);
-            r.anchoredPosition = new(-140f, 0f);
-        }
+        updateUndoButton = GenerateUI.Button(
+            updateButtonRect,
+            () => UpdateService.UndoSkip(),
+            "Undo",
+            "update_undo"
+        ).SetSecondary();
+        FixWidth(updateUndoButton, 100f);
+        updateUndoButton.Label.gameObject.AddComponent<TextLocalization>().Init("UPDATE_UNDO", "Undo");
 
         if(!updateHooked) {
             UpdateService.OnChanged += RefreshUpdates;
+            // The status line is plain text (not TextLocalization), so it has
+            // to be re-rendered when the language changes.
+            MainCore.Tr.OnLanguageChanged += _ => RefreshUpdates();
             updateHooked = true;
         }
         RefreshUpdates();
@@ -461,34 +596,98 @@ internal static class PageSettings {
         objects[fontTextTr] = (fontLabelRow.gameObject, fontRow.gameObject);
     }
 
+    // Scrolls the page so the Updates section heading sits at the top of the
+    // viewport. Used by the update toast after switching to this page.
+    internal static void ScrollToUpdates() {
+        if(scrollController == null || updatesAnchor == null || pageContent == null) {
+            return;
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(pageContent);
+
+        // Layout children keep the default centre pivot, so anchoredPosition.y
+        // is -(distance from content top + half the row height).
+        float top = -updatesAnchor.anchoredPosition.y - (updatesAnchor.rect.height * 0.5f);
+        scrollController.ScrollTo(top - 6f);
+    }
+
     // Pulls the latest UpdateService state into the update row. Runs on the
     // main thread (UpdateService raises OnChanged via MainThread).
     internal static void RefreshUpdates() {
-        if(updateStatusText == null || updateActionRow == null) {
+        if(updateStatusText == null || updateActionRow == null || updateButtonRow == null) {
             return;
         }
 
         UpdateStatus status = UpdateService.Status;
         UpdateInfo info = UpdateService.Available;
         bool available = status == UpdateStatus.Available && info != null;
+        bool skipped = status == UpdateStatus.Skipped;
+
+        static string Tr(string key, string def) => MainCore.Tr.Get(key, def);
 
         updateStatusText.text = status switch {
-            UpdateStatus.Checking => "Checking for updates…",
-            UpdateStatus.UpToDate => "You're up to date.",
-            UpdateStatus.Available => "Update available:",
-            UpdateStatus.Installing => "Downloading update…",
-            UpdateStatus.Installed => "Update installed — restart the game to apply.",
-            UpdateStatus.Failed => UpdateService.Message,
+            UpdateStatus.Checking => Tr("UPDATE_CHECKING", "Checking for updates…"),
+            UpdateStatus.UpToDate => Tr("UPDATE_UP_TO_DATE", "You're up to date."),
+            UpdateStatus.Available => Tr("UPDATE_AVAILABLE", "Update available:"),
+            UpdateStatus.Installing => Tr("UPDATE_DOWNLOADING", "Downloading update…"),
+            UpdateStatus.Installed => string.IsNullOrEmpty(UpdateService.Message)
+                ? Tr("UPDATE_INSTALLED", "Update installed — restart the game to apply.")
+                : UpdateService.Message,
+            UpdateStatus.Skipped => string.Format(
+                Tr("UPDATE_SKIPPED", "Skipped {0} — it won't be offered again."),
+                UpdateService.SkippedTag
+            ),
+            UpdateStatus.Failed => UpdateService.Failure switch {
+                UpdateFailure.Network => Tr("UPDATE_FAILED_NETWORK", "Couldn't reach GitHub — check your connection."),
+                UpdateFailure.NotFound => Tr("UPDATE_FAILED_NOT_FOUND", "Update check failed — release feed not found."),
+                UpdateFailure.RateLimited => Tr("UPDATE_FAILED_RATE_LIMIT", "GitHub rate limit reached — try again later."),
+                UpdateFailure.InstallError => Tr("UPDATE_FAILED_INSTALL", "Install failed."),
+                _ => Tr("UPDATE_FAILED_CHECK", "Update check failed."),
+            },
             _ => "",
         };
 
+        // Progress bar mirrors the download. Hidden when the size is unknown
+        // (Progress < 0, no Content-Length) — the status text still shows.
+        float progress = UpdateService.Progress;
+        bool showProgress = status == UpdateStatus.Installing && progress >= 0f;
+        updateProgressRow.SetActive(showProgress);
+
+        if(showProgress) {
+            float p = Mathf.Clamp01(progress);
+            // Floor wide enough that the pill's rounded ends don't collapse.
+            updateProgressFill.anchorMax = new(Mathf.Max(p, 0.03f), 1f);
+            updateProgressLabel.text = $"{Mathf.RoundToInt(p * 100f)}%";
+        }
+
         updateActionRow.SetActive(available);
+        updateButtonRow.SetActive(available || skipped);
+        updateNotesButton?.Rect.gameObject.SetActive(available);
+        updateSkipButton?.Rect.gameObject.SetActive(available);
+        updateInstallButton?.Rect.gameObject.SetActive(available);
+        updateUndoButton?.Rect.gameObject.SetActive(skipped);
+
         if(available) {
-            updateVersionText.text = $"v{Info.DisplayVersion}   →   {info.Tag}";
+            // SUIT has the arrow glyph, but a user-supplied font might not.
+            string arrow = HasGlyph('→') ? "→" : ">";
+            string simulated = UpdateService.DevSimulate
+                ? $" {Tr("UPDATE_SIMULATED", "(simulated)")}"
+                : "";
+            updateVersionText.text = $"v{Info.DisplayVersion}  {arrow}  {info.Tag}{simulated}";
+        } else {
+            updateVersionText.text = "";
         }
 
         if(updateCheckButton != null) {
             updateCheckButton.SetBlocked(status is UpdateStatus.Checking or UpdateStatus.Installing);
+        }
+    }
+
+    private static bool HasGlyph(char c) {
+        try {
+            return FontManager.Current != null && FontManager.Current.HasCharacter(c, true, true);
+        } catch {
+            return false;
         }
     }
 

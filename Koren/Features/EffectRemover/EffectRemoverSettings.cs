@@ -1,0 +1,111 @@
+using Newtonsoft.Json.Linq;
+using Koren.IO;
+using Koren.IO.Interface;
+
+namespace Koren.Features.EffectRemover;
+
+// Persisted config for the Effect Remover, ported field-for-field from the
+// original KorenResourcePack (defaults match v1's Settings.cs). Lives in
+// UserData/Koren/EffectRemover.json.
+public sealed class EffectRemoverSettings : ISettingsFile {
+    public bool On = true;
+
+    // Editor: while the remover is on, saving a chart would write the
+    // stripped level over the original — saving is blocked unless this is
+    // explicitly enabled.
+    public bool EnableSave = false;
+
+    // === Non-DLC events ===
+    public bool Filters = true;
+    public bool AdvancedFilters = true;
+    public bool Particles = true;
+    public bool Decorations = true;
+    public bool Backgrounds = true;
+    public bool Cameras = false;
+    public bool RepeatEvents = false;
+    public bool FrameRate = true;
+    public bool HitSounds = true;
+
+    // === Planet events ===
+    public bool PlanetOrbit = false;
+    public bool PlanetScale = false;
+    public bool PlanetRadius = false;
+
+    // === Track events ===
+    public bool TrackAnimations = false;
+    public bool TrackPositions = false;
+    public bool TrackMoves = true;
+    public bool TrackColors = true;
+
+    // === DLC events ===
+    public bool HoldSounds = false;
+    public bool HideIcons = false;
+
+    // === Misc ===
+    public bool RemoveAllDecorations = true;
+    public bool ResetTrackOpacity = false;
+    public bool SetCameraZoom = false;
+    public float CameraZoomScale = 250f;
+    public bool ResetTrackAnimation = false;
+    public bool ResetTrackColor = true;
+
+    public JToken Serialize() {
+        return new JObject {
+            [nameof(On)] = On,
+            [nameof(EnableSave)] = EnableSave,
+            [nameof(Filters)] = Filters,
+            [nameof(AdvancedFilters)] = AdvancedFilters,
+            [nameof(Particles)] = Particles,
+            [nameof(Decorations)] = Decorations,
+            [nameof(Backgrounds)] = Backgrounds,
+            [nameof(Cameras)] = Cameras,
+            [nameof(RepeatEvents)] = RepeatEvents,
+            [nameof(FrameRate)] = FrameRate,
+            [nameof(HitSounds)] = HitSounds,
+            [nameof(PlanetOrbit)] = PlanetOrbit,
+            [nameof(PlanetScale)] = PlanetScale,
+            [nameof(PlanetRadius)] = PlanetRadius,
+            [nameof(TrackAnimations)] = TrackAnimations,
+            [nameof(TrackPositions)] = TrackPositions,
+            [nameof(TrackMoves)] = TrackMoves,
+            [nameof(TrackColors)] = TrackColors,
+            [nameof(HoldSounds)] = HoldSounds,
+            [nameof(HideIcons)] = HideIcons,
+            [nameof(RemoveAllDecorations)] = RemoveAllDecorations,
+            [nameof(ResetTrackOpacity)] = ResetTrackOpacity,
+            [nameof(SetCameraZoom)] = SetCameraZoom,
+            [nameof(CameraZoomScale)] = CameraZoomScale,
+            [nameof(ResetTrackAnimation)] = ResetTrackAnimation,
+            [nameof(ResetTrackColor)] = ResetTrackColor,
+        };
+    }
+
+    public void Deserialize(JToken token) {
+        On = IOUtils.Read(token, nameof(On), On);
+        EnableSave = IOUtils.Read(token, nameof(EnableSave), EnableSave);
+        Filters = IOUtils.Read(token, nameof(Filters), Filters);
+        AdvancedFilters = IOUtils.Read(token, nameof(AdvancedFilters), AdvancedFilters);
+        Particles = IOUtils.Read(token, nameof(Particles), Particles);
+        Decorations = IOUtils.Read(token, nameof(Decorations), Decorations);
+        Backgrounds = IOUtils.Read(token, nameof(Backgrounds), Backgrounds);
+        Cameras = IOUtils.Read(token, nameof(Cameras), Cameras);
+        RepeatEvents = IOUtils.Read(token, nameof(RepeatEvents), RepeatEvents);
+        FrameRate = IOUtils.Read(token, nameof(FrameRate), FrameRate);
+        HitSounds = IOUtils.Read(token, nameof(HitSounds), HitSounds);
+        PlanetOrbit = IOUtils.Read(token, nameof(PlanetOrbit), PlanetOrbit);
+        PlanetScale = IOUtils.Read(token, nameof(PlanetScale), PlanetScale);
+        PlanetRadius = IOUtils.Read(token, nameof(PlanetRadius), PlanetRadius);
+        TrackAnimations = IOUtils.Read(token, nameof(TrackAnimations), TrackAnimations);
+        TrackPositions = IOUtils.Read(token, nameof(TrackPositions), TrackPositions);
+        TrackMoves = IOUtils.Read(token, nameof(TrackMoves), TrackMoves);
+        TrackColors = IOUtils.Read(token, nameof(TrackColors), TrackColors);
+        HoldSounds = IOUtils.Read(token, nameof(HoldSounds), HoldSounds);
+        HideIcons = IOUtils.Read(token, nameof(HideIcons), HideIcons);
+        RemoveAllDecorations = IOUtils.Read(token, nameof(RemoveAllDecorations), RemoveAllDecorations);
+        ResetTrackOpacity = IOUtils.Read(token, nameof(ResetTrackOpacity), ResetTrackOpacity);
+        SetCameraZoom = IOUtils.Read(token, nameof(SetCameraZoom), SetCameraZoom);
+        CameraZoomScale = IOUtils.Read(token, nameof(CameraZoomScale), CameraZoomScale);
+        ResetTrackAnimation = IOUtils.Read(token, nameof(ResetTrackAnimation), ResetTrackAnimation);
+        ResetTrackColor = IOUtils.Read(token, nameof(ResetTrackColor), ResetTrackColor);
+    }
+}

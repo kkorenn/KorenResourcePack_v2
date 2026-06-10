@@ -27,7 +27,9 @@ namespace Koren.UI;
 public enum OriginalMenuState {
     Overlay,
     Gameplay,
+    Visuals,
     Settings,
+    Search,
     Credits,
     Developer, // dev-only tab; the menu item is created only in "dev" builds
 }
@@ -71,6 +73,7 @@ public static class UICore {
         CreatePanel();
         ResizeHandle.CreateResizeHandles(Panel);
         Tooltip.Initialize(canvasObj.transform);
+        UpdateToast.Initialize();
 
         CreateExitReorganizeButton();
 
@@ -982,6 +985,7 @@ public static class UICore {
     public static void Dispose() {
         MainCore.Tr.OnLoadEnd -= _onPageSettings;
         MainCore.Tr.OnLoadEnd -= _onRefresh;
+        UpdateToast.Dispose();
         Tooltip.Dispose();
         UnityEngine.Object.Destroy(canvasObj);
         canvasObj = null;

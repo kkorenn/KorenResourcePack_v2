@@ -2,6 +2,7 @@ using Koren.Core;
 using Koren.Localization;
 using Koren.Resource;
 using Koren.UI.Transition;
+using Koren.Update;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -32,13 +33,25 @@ public static class MenuFactory {
 
     private static readonly List<MenuItem> items = [];
 
+    // Small dot on the Settings item while an update is available, so the
+    // background startup check is visible without opening the Settings page.
+    private static GameObject updateBadge;
+    private static bool updateHooked;
+
     public static void CreateMenu(Transform parent) {
         items.Clear();
 
-        var overlay = CreateItem(parent, "Overlay", MainCore.Spr.Get(UISprite.Monitor128), (int)OriginalMenuState.Overlay);
-        var gameplay = CreateItem(parent, "Gameplay", MainCore.Spr.Get(UISprite.Gamepad128), (int)OriginalMenuState.Gameplay);
-        var settings = CreateItem(parent, "Settings", MainCore.Spr.Get(UISprite.Gear128), (int)OriginalMenuState.Settings);
-        var credits = CreateItem(parent, "Credits", MainCore.Spr.Get(UISprite.Star128), (int)OriginalMenuState.Credits);
+        // Sized icon variants: 128px sources drawn at 28 units were ~4x
+        // minified through the mip chain and visibly mushy. The panel canvas
+        // multiplies px/unit by the user's UI scale, so bake for that too.
+        float iconUnits = 28f * MainCore.Conf.UIScale;
+
+        var overlay = CreateItem(parent, "Overlay", MainCore.Spr.Get(UISprite.Monitor128, iconUnits), (int)OriginalMenuState.Overlay);
+        var gameplay = CreateItem(parent, "Gameplay", MainCore.Spr.Get(UISprite.Gamepad128, iconUnits), (int)OriginalMenuState.Gameplay);
+        var visuals = CreateItem(parent, "Visuals", MainCore.Spr.Get(UISprite.Image128, iconUnits), (int)OriginalMenuState.Visuals);
+        var search = CreateItem(parent, "Search", MainCore.Spr.Get(UISprite.MagnifyingGlass128, iconUnits), (int)OriginalMenuState.Search);
+        var settings = CreateItem(parent, "Settings", MainCore.Spr.Get(UISprite.Gear128, iconUnits), (int)OriginalMenuState.Settings);
+        var credits = CreateItem(parent, "Credits", MainCore.Spr.Get(UISprite.Star128, iconUnits), (int)OriginalMenuState.Credits);
 
         overlay.label.gameObject.AddComponent<TextLocalization>()
             .Init("OVERLAY", "Overlay");
@@ -46,20 +59,62 @@ public static class MenuFactory {
         gameplay.label.gameObject.AddComponent<TextLocalization>()
             .Init("GAMEPLAY", "Gameplay");
 
+        visuals.label.gameObject.AddComponent<TextLocalization>()
+            .Init("VISUALS", "Visuals");
+
         settings.label.gameObject.AddComponent<TextLocalization>()
             .Init("SETTINGS", "Settings");
+
+        search.label.gameObject.AddComponent<TextLocalization>()
+            .Init("SEARCH", "Search");
 
         credits.label.gameObject.AddComponent<TextLocalization>()
             .Init("CREDITS", "Credits");
 
         // Developer tab — only present in "dev" builds.
         if(Info.IsDev) {
-            var developer = CreateItem(parent, "Developer", MainCore.Spr.Get(UISprite.Wrench128), (int)OriginalMenuState.Developer);
+            var developer = CreateItem(parent, "Developer", MainCore.Spr.Get(UISprite.Wrench128, iconUnits), (int)OriginalMenuState.Developer);
             developer.label.gameObject.AddComponent<TextLocalization>()
                 .Init("DEVELOPER", "Developer");
         }
 
+        CreateUpdateBadge(settings.obj.transform);
+        if(!updateHooked) {
+            UpdateService.OnChanged += RefreshUpdateBadge;
+            updateHooked = true;
+        }
+        RefreshUpdateBadge();
+
         ApplyState(UICore.CurrentMenuState, true);
+    }
+
+    private static void CreateUpdateBadge(Transform parent) {
+        updateBadge = new GameObject("UpdateBadge");
+        updateBadge.transform.SetParent(parent, false);
+
+        RectTransform rect = updateBadge.AddComponent<RectTransform>();
+        rect.anchorMin = new(1f, 0.5f);
+        rect.anchorMax = new(1f, 0.5f);
+        rect.pivot = new(0.5f, 0.5f);
+        rect.anchoredPosition = new(-22f, 0f);
+        rect.sizeDelta = new(10f, 10f);
+
+        Image img = updateBadge.AddComponent<Image>();
+        // Sized variant: the 256px circle drawn at 10 units is a ~24x
+        // minification — far past what the mip chain renders cleanly.
+        img.sprite = MainCore.Spr.Get(UISprite.Circle256, 10f * MainCore.Conf.UIScale);
+        img.color = UIColors.SoftRed;
+        img.raycastTarget = false;
+
+        updateBadge.SetActive(false);
+    }
+
+    private static void RefreshUpdateBadge() {
+        if(updateBadge == null) {
+            return;
+        }
+
+        updateBadge.SetActive(UpdateService.Status == UpdateStatus.Available);
     }
 
     // Re-applies menu selection colors after the accent palette changes.

@@ -15,7 +15,19 @@ public enum UpdateStatus {
     Available,
     Installing,
     Installed, // downloaded + placed; needs a restart to take effect
+    Skipped,   // user dismissed the offered version; undoable
     Failed,
+}
+
+// Why the last operation failed. The UI maps these to localized strings;
+// Message keeps the raw detail for logs and the Developer page.
+public enum UpdateFailure {
+    None,
+    Network,      // couldn't reach GitHub at all (DNS, offline, timeout)
+    NotFound,     // releases feed returned 404 (repo private/renamed)
+    RateLimited,  // GitHub API quota hit (403/429)
+    CheckError,   // anything else during the check
+    InstallError, // download or file copy failed
 }
 
 // A single available release found on GitHub.
@@ -42,6 +54,15 @@ public static class UpdateService {
     public static UpdateStatus Status { get; private set; } = UpdateStatus.Idle;
     public static UpdateInfo Available { get; private set; }
     public static string Message { get; private set; } = "";
+    public static UpdateFailure Failure { get; private set; } = UpdateFailure.None;
+
+    // Download progress while Installing: 0..1, or -1 when unknown
+    // (server sent no Content-Length).
+    public static float Progress { get; private set; } = -1f;
+
+    // The version most recently dismissed via Skip, so the UI can offer undo.
+    public static string SkippedTag => lastSkipped?.Tag ?? MainCore.Conf.SkippedVersion;
+    private static UpdateInfo lastSkipped;
 
     // Dev-only: when on, a fake update (same version, no real assets) is
     // offered so the update flow can be exercised without a real release.
@@ -51,6 +72,11 @@ public static class UpdateService {
     public static event System.Action OnChanged;
 
     private static readonly HttpClient Http = CreateClient();
+
+    private sealed class CheckException : System.Exception {
+        public UpdateFailure Kind { get; }
+        public CheckException(UpdateFailure kind, string message) : base(message) => Kind = kind;
+    }
 
     private static HttpClient CreateClient() {
         try {
@@ -69,12 +95,33 @@ public static class UpdateService {
     private static void Set(UpdateStatus status, string message = "") {
         Status = status;
         Message = message ?? "";
+
+        if(status != UpdateStatus.Failed) {
+            Failure = UpdateFailure.None;
+        }
+        if(status != UpdateStatus.Installing) {
+            Progress = -1f;
+        }
+
         MainThread.Enqueue(() => OnChanged?.Invoke());
+    }
+
+    private static void Fail(UpdateFailure kind, string detail) {
+        Failure = kind;
+        Set(UpdateStatus.Failed, detail);
     }
 
     // Kicks off a background check. Safe to call from the main thread.
     public static async void Check() {
         if(Status is UpdateStatus.Checking or UpdateStatus.Installing) {
+            return;
+        }
+
+        // While simulating, a real check would clear the fake update; keep
+        // offering it instead so the flow stays testable.
+        if(DevSimulate) {
+            Available = Simulated();
+            Set(UpdateStatus.Available);
             return;
         }
 
@@ -86,14 +133,33 @@ public static class UpdateService {
             Set(found == null ? UpdateStatus.UpToDate : UpdateStatus.Available);
         } catch(System.Exception ex) {
             Available = null;
-            Set(UpdateStatus.Failed, "Update check failed.");
+            Fail(Classify(ex), ex.Message);
             MainCore.Log.Wrn($"[Update] check failed: {ex.Message}");
         }
     }
 
+    private static UpdateFailure Classify(System.Exception ex) => ex switch {
+        CheckException ce => ce.Kind,
+        HttpRequestException => UpdateFailure.Network,
+        TaskCanceledException => UpdateFailure.Network, // HttpClient timeout
+        _ => UpdateFailure.CheckError,
+    };
+
     private static async Task<UpdateInfo> FetchLatest() {
         string url = $"https://api.github.com/repos/{Info.RepoOwner}/{Info.RepoName}/releases?per_page=30";
-        string json = await Http.GetStringAsync(url);
+
+        string json;
+        using(HttpResponseMessage resp = await Http.GetAsync(url)) {
+            if(resp.StatusCode == HttpStatusCode.NotFound) {
+                throw new CheckException(UpdateFailure.NotFound, "releases feed returned 404");
+            }
+            if((int)resp.StatusCode is 403 or 429) {
+                throw new CheckException(UpdateFailure.RateLimited, $"GitHub returned {(int)resp.StatusCode}");
+            }
+            resp.EnsureSuccessStatusCode();
+            json = await resp.Content.ReadAsStringAsync();
+        }
+
         JArray releases = JArray.Parse(json);
 
         SemVer current = Info.Current;
@@ -155,14 +221,23 @@ public static class UpdateService {
             return;
         }
 
-        // A dev-simulated update has no real assets — go through the motions
-        // but don't touch any files.
+        // A dev-simulated update has no real assets — play a fake download
+        // through the same Installing/Progress states the real path uses, so
+        // the progress UI can be exercised, but don't touch any files.
         if(info.KorenDllUrl == null || info.LoaderDllUrl == null) {
+            lastPercent = -1;
+            Progress = 0f;
+            Set(UpdateStatus.Installing);
+
+            await SimulateDownload();
+
             Available = null;
             Set(UpdateStatus.Installed, "DEV: simulated install — no files changed.");
             return;
         }
 
+        lastPercent = -1;
+        Progress = 0f;
         Set(UpdateStatus.Installing);
 
         try {
@@ -170,7 +245,7 @@ public static class UpdateService {
             Available = null;
             Set(UpdateStatus.Installed);
         } catch(System.Exception ex) {
-            Set(UpdateStatus.Failed, "Install failed.");
+            Fail(UpdateFailure.InstallError, ex.Message);
             MainCore.Log.Wrn($"[Update] install failed: {ex.Message}");
         }
     }
@@ -183,12 +258,60 @@ public static class UpdateService {
         string stagedLoader = Path.Combine(staging, "Koren.Loader.ML.dll");
 
         // Download to staging first so a failure can't leave a half-written DLL
-        // in the live folders.
-        File.WriteAllBytes(stagedKoren, await Http.GetByteArrayAsync(info.KorenDllUrl));
-        File.WriteAllBytes(stagedLoader, await Http.GetByteArrayAsync(info.LoaderDllUrl));
+        // in the live folders. Each file maps to half of the progress range.
+        await DownloadFile(info.KorenDllUrl, stagedKoren, 0f, 0.5f);
+        await DownloadFile(info.LoaderDllUrl, stagedLoader, 0.5f, 1f);
 
         File.Copy(stagedKoren, Path.Combine(MainCore.Host.UserLibsPath, "Koren.dll"), true);
         File.Copy(stagedLoader, Path.Combine(MainCore.Host.ModsPath, "Koren.Loader.ML.dll"), true);
+    }
+
+    // Dev-only: advances Progress in uneven chunks on a delay, mimicking a
+    // real network download (~2-4s total) for the simulated install.
+    private static async Task SimulateDownload() {
+        System.Random rng = new();
+        float p = 0f;
+
+        while(p < 1f) {
+            await Task.Delay(rng.Next(40, 140));
+            p = System.Math.Min(1f, p + ((float)rng.NextDouble() * 0.05f) + 0.01f);
+            ReportProgress(p);
+        }
+    }
+
+    private static int lastPercent = -1;
+
+    private static async Task DownloadFile(string url, string path, float from, float to) {
+        using HttpResponseMessage resp = await Http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        resp.EnsureSuccessStatusCode();
+
+        long total = resp.Content.Headers.ContentLength ?? -1;
+        using Stream src = await resp.Content.ReadAsStreamAsync();
+        using FileStream dst = new(path, FileMode.Create, FileAccess.Write, FileShare.None);
+
+        byte[] buffer = new byte[64 * 1024];
+        long done = 0;
+        int n;
+        while((n = await src.ReadAsync(buffer, 0, buffer.Length)) > 0) {
+            dst.Write(buffer, 0, n);
+            done += n;
+            if(total > 0) {
+                ReportProgress(from + ((to - from) * done / total));
+            }
+        }
+    }
+
+    // Pushes Progress to the UI, throttled to whole-percent changes so the
+    // main thread isn't flooded with redraws.
+    private static void ReportProgress(float value) {
+        int percent = (int)(value * 100f);
+        if(percent == lastPercent) {
+            return;
+        }
+
+        lastPercent = percent;
+        Progress = value;
+        MainThread.Enqueue(() => OnChanged?.Invoke());
     }
 
     // Remembers this version as skipped so it's no longer offered.
@@ -199,9 +322,33 @@ public static class UpdateService {
 
         MainCore.Conf.SkippedVersion = info.Tag;
         MainCore.ConfMgr.RequestSave();
+        lastSkipped = info;
         Available = null;
-        Set(UpdateStatus.UpToDate);
+        Set(UpdateStatus.Skipped);
     }
+
+    // Re-offers the version dismissed by Skip (or re-checks if it's no longer
+    // held in memory, e.g. the skip happened in a previous session).
+    public static void UndoSkip() {
+        MainCore.Conf.SkippedVersion = "";
+        MainCore.ConfMgr.RequestSave();
+
+        if(lastSkipped != null) {
+            Available = lastSkipped;
+            lastSkipped = null;
+            Set(UpdateStatus.Available);
+        } else {
+            Check();
+        }
+    }
+
+    private static UpdateInfo Simulated() => new() {
+        Tag = "v" + Info.DisplayVersion,
+        Version = Info.Current,
+        Url = Info.GithubLink,
+        KorenDllUrl = null,
+        LoaderDllUrl = null,
+    };
 
     // Dev-only: toggle a fake available update (current version, no assets) to
     // exercise the prompt + install flow without a real release.
@@ -209,13 +356,7 @@ public static class UpdateService {
         DevSimulate = on;
 
         if(on) {
-            Available = new UpdateInfo {
-                Tag = "v" + Info.DisplayVersion,
-                Version = Info.Current,
-                Url = Info.GithubLink,
-                KorenDllUrl = null,
-                LoaderDllUrl = null,
-            };
+            Available = Simulated();
             Set(UpdateStatus.Available);
         } else {
             Available = null;

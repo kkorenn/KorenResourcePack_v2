@@ -117,6 +117,19 @@ public class UIScrollController : MonoBehaviour {
         MainCore.TC.Play(scrollTween);
     }
 
+    // Scrolls so the content sits `y` pixels down from its top, with the same
+    // tween as wheel scrolling. Clamped to the scrollable range.
+    public void ScrollTo(float y) {
+        if(content == null || viewport == null) {
+            return;
+        }
+
+        float maxOffset = Mathf.Max(0f, content.rect.height - viewport.rect.height);
+
+        targetY = Mathf.Clamp(y, 0f, maxOffset);
+        ApplyTween();
+    }
+
     public void SetContent(RectTransform content, RectTransform viewport) {
         this.content = content;
         this.viewport = viewport;

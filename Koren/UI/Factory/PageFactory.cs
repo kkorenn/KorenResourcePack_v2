@@ -1,4 +1,5 @@
 using Koren.UI.Factory.Page;
+using Koren.UI.Generator;
 using UnityEngine;
 
 namespace Koren.UI.Factory;
@@ -6,6 +7,9 @@ namespace Koren.UI.Factory;
 public static class PageFactory {
     public static RectTransform PagesContaner;
     public static RectTransform CreatePages(GameObject panel) {
+        // Sections registered by a previous build of the pages are stale.
+        GenerateUI.ClearSections();
+
         GameObject pagesContainer = new("PagesContainer");
         pagesContainer.transform.SetParent(panel.transform, false);
 
@@ -30,6 +34,8 @@ public static class PageFactory {
         PageSettings.Create(UICore.Pages[(int)OriginalMenuState.Settings]);
         PageOverlay.Create(UICore.Pages[(int)OriginalMenuState.Overlay]);
         PageGameplay.Create(UICore.Pages[(int)OriginalMenuState.Gameplay]);
+        PageVisuals.Create(UICore.Pages[(int)OriginalMenuState.Visuals]);
+        PageSearch.Create(UICore.Pages[(int)OriginalMenuState.Search]);
 
         // Developer page — only populated in "dev" builds (its tab is likewise
         // only created then).

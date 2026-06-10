@@ -5,6 +5,8 @@ using Koren.Compat.Interface;
 using Koren.Core.Service;
 using Koren.Features.PlayCount;
 using Koren.Features.Combo;
+using Koren.Features.EffectRemover;
+using Koren.Features.Judgement;
 using Koren.Features.ProgressBar;
 using Koren.Features.Status;
 using Koren.IO;
@@ -154,6 +156,10 @@ public sealed class KorenRuntime {
             StatusOverlay.Initialize(RootObject);
             ComboOverlay.Initialize(RootObject);
             ProgressBarOverlay.Initialize(RootObject);
+            JudgementOverlay.Initialize(RootObject);
+
+            // Re-disable editor Save buttons if the Effect Remover is on.
+            EffectRemover.RefreshEditorSaveButtons();
 
             OnModEnabledChanged?.Invoke(true, isDispose);
 
@@ -161,9 +167,13 @@ public sealed class KorenRuntime {
         } else {
             OnModEnabledChanged?.Invoke(false, isDispose);
 
+            JudgementOverlay.Dispose();
             ProgressBarOverlay.Dispose();
             ComboOverlay.Dispose();
             StatusOverlay.Dispose();
+
+            // The remover's editor-save lock shouldn't outlive the mod.
+            EffectRemover.RestoreEditorSaveButtons();
 
             Logger.Msg("Mod Disabled");
         }

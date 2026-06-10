@@ -118,6 +118,7 @@ internal static class PageOverlay {
 
         PageProgressBar.AppendTo(content.transform);
         PageCombo.AppendTo(content.transform);
+        PageJudgement.AppendTo(content.transform);
 
         // === Accuracy ===
         {
@@ -310,6 +311,13 @@ internal static class PageOverlay {
                 () => ComboOverlay.ResetPosition(),
                 "Reset Combo Position",
                 "overlay_resetcombo"
+            );
+
+            GenerateUI.Button(
+                GenerateUI.Row(sec.Body),
+                () => Koren.Features.Judgement.JudgementOverlay.ResetPosition(),
+                "Reset Judgement Position",
+                "overlay_resetjudgement"
             );
         }
     }
