@@ -1,0 +1,226 @@
+Koren/Core/KorenRuntime.cs
+  s_b54fea9dfc331d::t_8f9db0d898e2cb 184
+  s_b54fea9dfc331d::t_a1ffc6cd5658dc 195
+  s_b54fea9dfc331d::t_05d772fad77c63 10,16
+  s_b54fea9dfc331d::t_8638a31516d674 200,203-205
+  s_b54fea9dfc331d::t_36dd53f884cd49 172
+  s_b54fea9dfc331d::t_3a7efb70d2261c 11
+Koren/Resource/ResourceManager.cs
+  s_b54fea9dfc331d::t_0d492304df5422 38
+  s_b54fea9dfc331d::t_64b86eaa2d540f 203-204
+Koren/Features/Restriction/RestrictionSettings.cs
+  s_b54fea9dfc331d::t_7109d7bce09cd8 1-66
+Koren/Features/PlayCount/PlayData.cs
+  s_b54fea9dfc331d::t_43fc4fc3b3aebe 14-16,22,31
+Koren/Features/PlanetColors/PlanetColorsPatches.cs
+  s_b54fea9dfc331d::t_7cf209dac52a89 93
+  s_b54fea9dfc331d::t_66113b72e81b6d 125-152
+Koren/Features/Panels/PanelsSettings.cs
+  s_9ef3ae4deced1c::t_c3c03489886564 97-104,117-130,155-162,195-202
+  s_b54fea9dfc331d::t_5ae48499570cdb 8-34,81-82
+  s_b54fea9dfc331d::t_91c221be2eb021 1-7,49-53,56-57,80,83-95,105-116,131-133,139-140,142-143,145-154,163-172,174-178,182-194,203-218,220-245
+  s_b54fea9dfc331d::t_c8c1db36b30c5e 134-138,144
+  s_b54fea9dfc331d::t_6ae680f805c66f 179-181
+  s_b54fea9dfc331d::t_f47eec21f84eb1 219
+  s_b54fea9dfc331d::t_19a6d189e94f7a 141
+  s_b54fea9dfc331d::t_bb4ec19bfbd7e0 35-48,54-55,58-79
+  s_9ef3ae4deced1c::t_c62618bc1db26a 96
+  s_b54fea9dfc331d::t_623284ad6baf55 173
+Koren/Features/OttoIcon/OttoIcon.cs
+  s_b54fea9dfc331d::t_203bceec5d0018 1-311
+Koren/UI/Factory/Page/PageOverlay.cs
+  s_b54fea9dfc331d::t_a429bf89b10981 10-13
+  s_b54fea9dfc331d::t_77f235fe29eb72 320,401,411,427
+  s_b54fea9dfc331d::t_e74124231db925 15,18
+  s_b54fea9dfc331d::t_31acf766811d36 247-248
+  s_b54fea9dfc331d::t_66150cfbe81700 831-873
+  s_b54fea9dfc331d::t_97d3ebf183c846 937
+  s_9ef3ae4deced1c::t_fc31a7e01121e2 563-568,570-590,592-593,624-634,637-646
+  s_b54fea9dfc331d::t_0fc996f8ba9395 458-464
+  s_b54fea9dfc331d::t_8de00b6f3d2bfc 760-772
+  s_b54fea9dfc331d::t_64f86fa36ebd35 238-242,246,249,259-261,314-319,321-325,328-332,352-370,372-374,376-400,402-410,412-426,430-437,439-443,445-454,466-467
+  s_b54fea9dfc331d::t_2eb3901ed33446 327,333-341,343-349
+  s_b54fea9dfc331d::t_2f423c8c0439bf 473-494
+  s_b54fea9dfc331d::t_f30b1901c083bd 982-985
+  s_b54fea9dfc331d::t_3750affd282f2f 455-457,465
+  s_b54fea9dfc331d::t_89310e4817a053 371
+  s_b54fea9dfc331d::t_c327cc694ebaab 3,17,20-24,28-31,33,36-38,85,98-102,104-109,115,117,119-139,141-143,145-150,152-155,157,159,161-166,168-180,182,184-188,190-192,194,196-201,204-207,209-237,243-245,471-472,496-559,561-562,594-599,601-620
+  s_b54fea9dfc331d::t_74ba0fb105004b 622-623,648-651,653-658,660-661,663-664,666-759,773-815,820-823,874,908-910,912-914,918,921-923,925-926,930-934,938-941
+  s_b54fea9dfc331d::t_ad7f805241c844 816-819,824-830,875-907,911,915-917,919-920,924,927-929,935-936,942-981,986-1005
+  s_b54fea9dfc331d::t_1919defea90af6 438
+  s_b54fea9dfc331d::t_5289f240b64c77 250-258,262-312
+Koren/UI/Generator/GenerateUI.cs
+  s_9ef3ae4deced1c::t_88d85f2449f82e 280-282,298,306,354-355,363,441
+  s_edf9f1fdfebff7::t_afc87ba0bc1e9b 320,327
+  s_edf9f1fdfebff7::t_9f13a85d7bab71 313-319,321,328-329
+  s_b54fea9dfc331d::t_c9fca441c0de5b 483-485
+  s_5cea31d8e69071::t_7e95e7173e5c52 404,406-432,435,438-439,446-450,454,456-460,480,492
+Koren/Features/OttoIcon/OttoIconSettings.cs
+  s_b54fea9dfc331d::t_e9d8a8dd45be77 1-58
+Koren/Features/UiHider/UiHider.cs
+  s_b54fea9dfc331d::t_209627c82f2185 1-296
+Koren/Features/Panels/PanelsOverlay.cs
+  s_b54fea9dfc331d::t_a9db38dfb17bbd 77-83
+  s_b54fea9dfc331d::t_3875bfe15b831c 251
+  s_b54fea9dfc331d::t_be0db14077adfa 343-348
+  s_b54fea9dfc331d::t_4ad9d50dfc6b0a 43-44,50,54,57-59,61-63,67,71,73,75,84
+  s_9ef3ae4deced1c::t_d0ee037c3d69a5 205,209-216,382-394
+  s_b54fea9dfc331d::t_c11ecf1edd1092 225-227
+  s_b54fea9dfc331d::t_92cc807df1f04e 1-42,45-49,51-53,60,65-66,68-70,72,74,76,85-204,206-208,217-224,228-250,252-285,293-342,349-381,395-400,409-423
+  s_9ef3ae4deced1c::t_b4799e87e1ab8d 401-408
+  s_b54fea9dfc331d::t_cb86181a27368f 64
+  s_b54fea9dfc331d::t_9e3f271901a09a 55-56
+  s_b54fea9dfc331d::t_b0f266ae544a0f 286-292
+Koren/UI/Utility/TMPTextShadow.cs
+  s_9ef3ae4deced1c::t_72d82b0ce200f3 2,13,27-36,38-169,172-187,190-194,196-199
+  s_9ef3ae4deced1c::t_89b3676d4d26b4 1,3-12,14-26,37,170-171,188-189,195,200-201
+Koren/UI/Factory/Page/PageJudgement.cs
+  s_9ef3ae4deced1c::t_458ba5a29fbe32 45-75
+Koren/UI/Generator/GenerateUI.Collapsible.cs
+  s_edf9f1fdfebff7::t_abd81b4cfa52bb 33,38,43-45,50-53,68-85,96-97,193-194,305
+Koren/Features/UiHider/UiHiderPatches.cs
+  s_b54fea9dfc331d::t_59ba45da886f70 1-150
+Koren/Features/PlanetColors/PlanetColors.cs
+  s_b54fea9dfc331d::t_0f5db57bf58c93 22-24
+  s_b54fea9dfc331d::t_cde71ebb794075 234-235,255-258,262-332
+Koren/UI/UICore.cs
+  s_edf9f1fdfebff7::t_d6eb94141df2e6 835-836,843,848,864
+  s_edf9f1fdfebff7::t_29ecd8e522cca3 334,421-422,439,998
+Koren/UI/Factory/Page/PageCombo.cs
+  s_9ef3ae4deced1c::t_84be9c775d62ef 22-23,92,99,103,107,113-114,130,137,141,145,151-152
+  s_9ef3ae4deced1c::t_393ce4a69948db 88-91,93-96,104-106,126-129,131-134,142-144
+Koren/Features/AutoDeafen/AutoDeafenSettings.cs
+  s_b54fea9dfc331d::t_796079bc00ba44 1-36
+Koren/Features/Tweaks/TweaksPatches.cs
+  s_9ef3ae4deced1c::t_bebc54ff4ab9e5 246-252
+  s_b54fea9dfc331d::t_bf7e94092db824 241-245
+Koren/Features/KeyLimiter/KeyLimiterSettings.cs
+  s_b54fea9dfc331d::t_a8043b198c0a06 1-37
+Koren/Features/AutoDeafen/DiscordRpc.cs
+  s_b54fea9dfc331d::t_0464b8fe63c8b4 1-194
+Koren/Features/KeyLimiter/KeyLimiter.cs
+  s_b54fea9dfc331d::t_341306feba2a9a 492-521
+  s_b54fea9dfc331d::t_a7b4f924894fcc 564,570,577-581,589
+  s_b54fea9dfc331d::t_22b6db5e53f9c1 441-444,448-459,463-465,469,472-488
+  s_b54fea9dfc331d::t_e97c43905f5eb1 590-592
+  s_b54fea9dfc331d::t_5c91205cfe6e7d 1-440,445-447,460-462,466-468,470-471,489-491,522-563,565-569,571-576,582-588,593-603
+Koren/Koren.csproj
+  s_b54fea9dfc331d::t_120555874d756b 60
+  s_b54fea9dfc331d::t_7e9c70a88f35c2 34
+Koren/Features/Tweaks/Tweaks.cs
+  s_b54fea9dfc331d::t_5cd51fa7227543 67,122-146
+  s_9ef3ae4deced1c::t_329191989616f6 17,57-62,68-121
+Koren/Features/ChatterBlocker/ChatterBlockerSettings.cs
+  s_b54fea9dfc331d::t_121b3272301a6d 1-24
+Koren/Features/AutoDeafen/DiscordOAuthServer.cs
+  s_b54fea9dfc331d::t_dbe92639316ebf 22
+  s_b54fea9dfc331d::t_4ea3b4d1c8bc07 1-21,23-68,70-386
+  s_b54fea9dfc331d::t_d01181ca5587f3 69
+Koren/Features/UiHider/UiHiderSettings.cs
+  s_b54fea9dfc331d::t_510f37a515f9f1 1-95
+Koren/UI/Factory/Page/PageVisuals.cs
+  s_b54fea9dfc331d::t_4091ce696c0164 1,4,7
+  s_b54fea9dfc331d::t_8b4afceca5ca20 288-456
+Koren/Features/Combo/ComboOverlay.cs
+  s_9ef3ae4deced1c::t_1f0d66c9129b1f 164-167
+  s_9ef3ae4deced1c::t_d0eb31b4b770e7 200-207,214-221
+  s_9ef3ae4deced1c::t_1267e4263d16d3 285,300-302
+  s_b54fea9dfc331d::t_a7747c49fa787b 243
+Koren/Features/Status/ProgressTracker.cs
+  s_b54fea9dfc331d::t_19472703fb9bb2 24-25,31-43,46-47
+  s_9ef3ae4deced1c::t_87f99c255e20b8 18-22,50,53-54,61-68,74-76,83,87
+  s_9ef3ae4deced1c::t_526a5bb287398a 69-73
+  s_b54fea9dfc331d::t_e0d113b1fb0baa 79-82,84-86,88-90
+Koren/Features/Restriction/Restriction.cs
+  s_b54fea9dfc331d::t_91a87163414825 1-157
+Koren/UI/Objects/Impl/UIDropdown.cs
+  s_edf9f1fdfebff7::t_aa64db218d1b97 200
+  s_5cea31d8e69071::t_ba46d0b21ae125 118-119,242
+  s_edf9f1fdfebff7::t_8351f282bacaed 201-202
+Koren/Features/AutoDeafen/AutoDeafen.cs
+  s_b54fea9dfc331d::t_789a45b768c1df 1-255
+Koren/Features/Judgement/JudgementSettings.cs
+  s_9ef3ae4deced1c::t_d21914ffbafe24 20
+  s_9ef3ae4deced1c::t_a663a919b517ab 4,21-39,47-54,64-71
+Koren/UI/Factory/Page/PageSearch.cs
+  s_edf9f1fdfebff7::t_1f580acc321d99 304
+Koren/Features/Judgement/JudgementOverlay.cs
+  s_9ef3ae4deced1c::t_a7024d17530640 226
+  s_b54fea9dfc331d::t_a7747c49fa787b 195
+  s_9ef3ae4deced1c::t_2e1219bca01a29 134,143-158
+Koren/Features/Combo/ComboSettings.cs
+  s_9ef3ae4deced1c::t_96589347114487 246-257,259-267
+  s_9ef3ae4deced1c::t_36a36805c9a41b 39,49
+  s_9ef3ae4deced1c::t_68403ff7196cab 38,40-42,50-52,149,152,158,161,199,202,205,211,214,217,245,258,268
+  s_9ef3ae4deced1c::t_988f0c00352779 200-201,212-213
+Koren/IO/CoreSettings.cs
+  s_edf9f1fdfebff7::t_53b858f4437f6c 18,59-64,66-70,85,106-114
+Koren/Features/PlayCount/PlayCount.cs
+  s_b54fea9dfc331d::t_c0dba7d2c9e358 147,162
+  s_b54fea9dfc331d::t_76617850a5ec9f 80-105
+Koren/Features/ChatterBlocker/ChatterBlocker.cs
+  s_b54fea9dfc331d::t_fc0c79f71861df 1-239
+Koren/Features/Tweaks/TweaksSettings.cs
+  s_9ef3ae4deced1c::t_31a043d8e06cc6 22-26,37-40,52-55
+  s_b54fea9dfc331d::t_e7f30dd9177c7d 20
+  s_b54fea9dfc331d::t_aa7c09ad473373 51
+  s_b54fea9dfc331d::t_dc49e798b2bd8c 36
+Koren/UI/Factory/Page/PageGameplay.cs
+  s_b54fea9dfc331d::t_38ed1ee1798346 81-203
+  s_b54fea9dfc331d::t_d2d93d1d77ac90 234-247,254,256-269,271-282,284-287,291-301,303,309,312
+  s_b54fea9dfc331d::t_911ab4eee395b1 13
+  s_b54fea9dfc331d::t_5fafe900cadc35 1,3-6,8-9,11,23-25,27-30,32-80,204-233,248-253,255,270,283,288-290,304-308,310-311,313-314,377-670
+  s_b54fea9dfc331d::t_b409147f3c79f1 302
+  s_b54fea9dfc331d::t_d24d4cd197710b 12
+  s_b54fea9dfc331d::t_43a27710994704 2
+  s_b54fea9dfc331d::t_d4075027774a75 315-376
+Koren/UI/Factory/Page/PageTweaks.cs
+  s_9ef3ae4deced1c::t_3549ec5cb5302b 64,80,96
+  s_9ef3ae4deced1c::t_9e8233ceb4ebd6 110-175
+  s_b54fea9dfc331d::t_f1e67b8a5b8fde 94-95,97-109
+Koren/Features/ProgressBar/ProgressBar.cs
+  s_9ef3ae4deced1c::t_89615431c68e99 17-20,94-101
+  s_b54fea9dfc331d::t_a7747c49fa787b 239
+Koren/Features/Status/GameStats.cs
+  s_b54fea9dfc331d::t_d19b1d07ef7dfb 126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "68d7fcf5c0ed3e046f0687144be94ecdfe21cc35",
+  "prompts": {},
+  "sessions": {
+    "s_5cea31d8e69071": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb64d-d1ff-74f1-82c2-0c8b4d517b91",
+        "model": "gpt-5.5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_9ef3ae4deced1c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb61f-801e-78f1-a4e6-cc446ad37d3a",
+        "model": "gpt-5.5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_b54fea9dfc331d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0691f103-3dd2-4b46-880b-90ddea09f2ed",
+        "model": "claude-fable-5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_edf9f1fdfebff7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb64e-352a-7bf2-9f35-e9d3a9cac193",
+        "model": "gpt-5.5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
