@@ -8,6 +8,7 @@ using Koren.Tween;
 
 using GTweens.Builders;
 using GTweens.Easings;
+using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
 #if IL2CPP
 using Il2CppTMPro;

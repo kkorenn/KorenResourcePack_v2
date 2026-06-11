@@ -11,9 +11,11 @@ using Koren.Tween;
 using Koren.UI.Generator;
 using Koren.UI.Objects.Impl;
 using Koren.UI.Utility;
+using Koren.Utility;
 using Koren.Update;
 using UnityEngine;
 using UnityEngine.UI;
+using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
 #if IL2CPP
 using Il2CppTMPro;
@@ -107,25 +109,33 @@ internal static class PageSettings {
                 bool isBlank = string.IsNullOrWhiteSpace(value);
                 Dictionary<GameObject, bool> labelActivationMap = [];
 
-                foreach(var pair in objects) {
-                    if(pair.Value.LabelRow != null) {
-                        labelActivationMap[pair.Value.LabelRow] = isBlank;
-                    }
+                foreach(var pair in objects.Where(pair => pair.Value.LabelRow != null)) {
+                    labelActivationMap[pair.Value.LabelRow] = isBlank;
                 }
 
-                string normalizedQuery = UICore.NormalizeString(value);
+                string normalizedQuery = StringUtils.Normalize(value);
 
-                foreach(var pair in objects) {
-                    TextLocalization labelLoc = pair.Key;
-                    var (labelRow, mainRow) = pair.Value;
+                if(MainCore.Conf.Language == "ko-KR") {
+                    normalizedQuery = StringUtils.NormalizeToHangulChosung(normalizedQuery);
+                }
+
+                foreach(var (labelLoc, valueTuple) in objects) {
+                    var (labelRow, mainRow) = valueTuple;
 
                     if(labelRow == null || mainRow == null) {
                         continue;
                     }
 
-                    string normalizedTarget = labelLoc != null ? UICore.NormalizeString(labelLoc.Value) : string.Empty;
+                    string normalizedTarget = labelLoc != null ? StringUtils.Normalize(labelLoc.Value) : string.Empty;
+                    if(MainCore.Conf.Language == "ko-KR" && !string.IsNullOrEmpty(normalizedTarget)) {
+                        normalizedTarget = StringUtils.NormalizeToHangulChosung(normalizedTarget);
+                    }
 
-                    bool isMainMatch = isBlank || (!string.IsNullOrEmpty(normalizedTarget) && normalizedTarget.Contains(normalizedQuery));
+                    bool isMainMatch = isBlank
+                        || (
+                            !string.IsNullOrEmpty(normalizedTarget)
+                            && normalizedTarget.Contains(normalizedQuery)
+                        );
 
                     mainRow.SetActive(isMainMatch);
 

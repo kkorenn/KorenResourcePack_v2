@@ -10,10 +10,12 @@ namespace Koren.Core.Service;
 // MainCore.IsModEnabled themselves when their behavior is feature-conditional.
 // This mirrors the original KorenResourcePack's lifecycle model.
 public sealed class HarmonyService : IRuntimeService {
-    public Harmony Harmony { get; private set; }
+    // Fully qualified: MelonLoader.dll ships a legacy `Harmony` shim namespace
+    // that would otherwise shadow the HarmonyLib.Harmony type.
+    public HarmonyLib.Harmony Harmony { get; private set; }
 
     public void Initialize() {
-        Harmony = new Harmony(Info.Name);
+        Harmony = new HarmonyLib.Harmony(Info.Name);
         Harmony.PatchAll(MainCore.Asm);
     }
 

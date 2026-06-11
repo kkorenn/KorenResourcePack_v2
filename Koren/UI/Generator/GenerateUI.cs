@@ -13,6 +13,7 @@ using GTweens.Extensions;
 
 using GTweens.Builders;
 using Koren.Tween;
+using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
 #if IL2CPP
 using Il2CppTMPro;
@@ -242,23 +243,31 @@ public static partial class GenerateUI {
 
         bool isDragging = false;
 
-        UnityUtils.AddEvent(EventTriggerType.BeginDrag, _ => isDragging = true, trigger);
-
-        UnityUtils.AddEvent(EventTriggerType.Drag, _ => {
-            if(!isDragging || !UnityEngine.Input.GetMouseButton(0)) {
-                return;
-            }
-
+        UnityUtils.AddEvent(EventTriggerType.BeginDrag, _ => {
+            isDragging = true;
             SetFromMouse();
         }, trigger);
 
-        UnityUtils.AddEvent(EventTriggerType.EndDrag, _ => {
-            if(!isDragging) {
-                return;
+        UnityUtils.AddEvent(EventTriggerType.Drag, _ => {
+            if(isDragging && UnityEngine.Input.GetMouseButton(0)) {
+                SetFromMouse();
+            } else {
+                isDragging = false;
             }
+        }, trigger);
 
-            isDragging = false;
-            slider.OnComplete?.Invoke(slider.Value);
+        UnityUtils.AddEvent(EventTriggerType.EndDrag, _ => {
+            if(isDragging) {
+                isDragging = false;
+                slider.OnComplete?.Invoke(slider.Value);
+            }
+        }, trigger);
+
+        UnityUtils.AddEvent(EventTriggerType.PointerUp, _ => {
+            if(isDragging) {
+                isDragging = false;
+                slider.OnComplete?.Invoke(slider.Value);
+            }
         }, trigger);
 
         slider.Set(Apply(value), false);

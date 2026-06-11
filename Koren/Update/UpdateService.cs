@@ -36,7 +36,6 @@ public sealed class UpdateInfo {
     public SemVer Version;
     public string Url;          // release page
     public string KorenDllUrl;  // download URL for Koren.dll
-    public string LoaderDllUrl; // download URL for Koren.Loader.ML.dll
 }
 
 // Checks GitHub Releases for a newer build on the user's chosen channel and,
@@ -185,19 +184,16 @@ public static class UpdateService {
             }
 
             string korenUrl = null;
-            string loaderUrl = null;
             if(rel["assets"] is JArray assets) {
                 foreach(JToken a in assets) {
                     string name = (string)a["name"];
                     if(name == "Koren.dll") {
                         korenUrl = (string)a["browser_download_url"];
-                    } else if(name == "Koren.Loader.ML.dll") {
-                        loaderUrl = (string)a["browser_download_url"];
                     }
                 }
             }
-            // A release without both DLLs can't be installed; skip it.
-            if(korenUrl == null || loaderUrl == null) {
+            // A release without the DLL can't be installed; skip it.
+            if(korenUrl == null) {
                 continue;
             }
 
@@ -207,7 +203,6 @@ public static class UpdateService {
                     Version = v,
                     Url = (string)rel["html_url"],
                     KorenDllUrl = korenUrl,
-                    LoaderDllUrl = loaderUrl,
                 };
             }
         }
@@ -224,7 +219,7 @@ public static class UpdateService {
         // A dev-simulated update has no real assets — play a fake download
         // through the same Installing/Progress states the real path uses, so
         // the progress UI can be exercised, but don't touch any files.
-        if(info.KorenDllUrl == null || info.LoaderDllUrl == null) {
+        if(info.KorenDllUrl == null) {
             lastPercent = -1;
             Progress = 0f;
             Set(UpdateStatus.Installing);
@@ -255,15 +250,27 @@ public static class UpdateService {
         Directory.CreateDirectory(staging);
 
         string stagedKoren = Path.Combine(staging, "Koren.dll");
-        string stagedLoader = Path.Combine(staging, "Koren.Loader.ML.dll");
 
         // Download to staging first so a failure can't leave a half-written DLL
-        // in the live folders. Each file maps to half of the progress range.
-        await DownloadFile(info.KorenDllUrl, stagedKoren, 0f, 0.5f);
-        await DownloadFile(info.LoaderDllUrl, stagedLoader, 0.5f, 1f);
+        // in the live folder.
+        await DownloadFile(info.KorenDllUrl, stagedKoren, 0f, 1f);
 
-        File.Copy(stagedKoren, Path.Combine(MainCore.Host.UserLibsPath, "Koren.dll"), true);
-        File.Copy(stagedLoader, Path.Combine(MainCore.Host.ModsPath, "Koren.Loader.ML.dll"), true);
+        File.Copy(stagedKoren, Path.Combine(MainCore.Host.ModsPath, "Koren.dll"), true);
+
+        // Pre-merge installs shipped a separate loader in Mods and the core DLL
+        // in UserLibs; leaving either behind would double-load the mod.
+        DeleteIfExists(Path.Combine(MainCore.Host.ModsPath, "Koren.Loader.ML.dll"));
+        DeleteIfExists(Path.Combine(MainCore.Host.UserLibsPath, "Koren.dll"));
+    }
+
+    private static void DeleteIfExists(string path) {
+        try {
+            if(File.Exists(path)) {
+                File.Delete(path);
+            }
+        } catch(System.Exception ex) {
+            MainCore.Log.Wrn($"[Update] couldn't remove stale file {path}: {ex.Message}");
+        }
     }
 
     // Dev-only: advances Progress in uneven chunks on a delay, mimicking a
@@ -347,7 +354,6 @@ public static class UpdateService {
         Version = Info.Current,
         Url = Info.GithubLink,
         KorenDllUrl = null,
-        LoaderDllUrl = null,
     };
 
     // Dev-only: toggle a fake available update (current version, no assets) to

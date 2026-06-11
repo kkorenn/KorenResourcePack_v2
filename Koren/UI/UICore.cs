@@ -15,6 +15,7 @@ using GTweens.Builders;
 using GTweens.Extensions;
 using Koren.Tween;
 using GTweens.Easings;
+using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
 #if IL2CPP
 using Il2CppTMPro;
@@ -72,7 +73,7 @@ public static class UICore {
 
         UIColors.ApplyAccent(MainCore.Conf.GetAccentColor());
         CreatePanel();
-        ResizeHandle.CreateResizeHandles(Panel);
+        ResizeHandle.CreateResizeHandles(Panel, canvasObj.GetComponent<RectTransform>());
         Tooltip.Initialize(canvasObj.transform);
         UpdateToast.Initialize();
 
@@ -96,8 +97,6 @@ public static class UICore {
         TextLocalization.RefreshAll();
 
         if(MainCore.Conf.IsFirstRun) {
-            MainCore.Conf.IsFirstRun = false;
-            MainCore.ConfMgr.Save();
             MakeFirstRunHelper();
         }
 
@@ -278,7 +277,7 @@ public static class UICore {
                     .Append(firstRunHelperImage.GTAlpha(1.6f, 0.1f).SetEasing(Easing.OutSine))
                     .Append(firstRunHelperImage.GTAlpha(0.04f, 1f).SetEasing(Easing.OutSine))
                     .Build()
-                    .SetLoops(-1);
+                    .SetMaxLoops();
 
                 string fullText = "Press " + Keybind.Format(
                     (Keybind.KeyModifier)MainCore.Conf.ToggleModifier,
@@ -290,7 +289,7 @@ public static class UICore {
                         x => firstRunHelperText.text = fullText[..x],
                         fullText.Length,
                         1.4f
-                    ))
+                    ).SetEasing(Easing.OutSine))
                     .Build();
 
                 MainCore.TC.Play(firstRunHelperImageSequence);
@@ -300,11 +299,14 @@ public static class UICore {
     }
 
     private static void EndFirstRunHelper() {
+        MainCore.Conf.IsFirstRun = false;
+        MainCore.ConfMgr.Save();
+
         firstRunHelperImageSequence?.Kill();
         secondRunHelperTextSequence?.Kill();
 
         firstRunHelperText.text = "";
-        string endText = "Great Job!";
+        const string endText = "Great Job!";
 
         var sequence = GTweenSequenceBuilder.New()
             .Append(firstRunHelperImage.GTAlpha(1.0f, 0.2f).SetEasing(Easing.OutSine))
@@ -446,7 +448,12 @@ public static class UICore {
             layout.childForceExpandHeight = false;
 
             layout.spacing = 0f;
-            layout.padding = new RectOffset(0, 0, 0, 0);
+            layout.padding = new() {
+                left = 0,
+                right = 0,
+                top = 0,
+                bottom = 0
+            };
 
             var fitter = content.AddComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -876,58 +883,6 @@ public static class UICore {
         } else {
             OpenMenu();
         }
-    }
-
-    public static List<string> Search(string query, IEnumerable<string> source) {
-        if(string.IsNullOrWhiteSpace(query)) {
-            return [.. source];
-        }
-
-        string q = NormalizeString(query);
-
-        if(string.IsNullOrEmpty(q)) {
-            return [];
-        }
-
-        return [..
-        source
-        .Select(original => new {
-            Original = original,
-            Normalized = NormalizeString(original)
-        })
-        .Select(x => new {
-            x.Original,
-            Score = ScoreMatch(x.Normalized, q)
-        })
-        .Where(x => x.Score > 0)
-        .OrderByDescending(x => x.Score)
-        .Select(x => x.Original)
-        ];
-    }
-
-    private static int ScoreMatch(string normalizedValue, string normalizedQuery) {
-        if(normalizedValue == normalizedQuery) {
-            return 100;
-        }
-
-        if(normalizedValue.StartsWith(normalizedQuery)) {
-            return 80;
-        }
-
-        if(normalizedValue.Contains(normalizedQuery)) {
-            return 50;
-        }
-
-        return 0;
-    }
-
-    public static string NormalizeString(string input) {
-        if(string.IsNullOrEmpty(input)) {
-            return string.Empty;
-        }
-
-        char[] chars = [.. input.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant)];
-        return new string(chars);
     }
 
     // Accent theming. Applies a new accent palette and recolors every already-built

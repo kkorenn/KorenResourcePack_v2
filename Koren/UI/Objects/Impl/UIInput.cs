@@ -169,8 +169,10 @@ public sealed class UIInput : UIObject {
             return;
         }
 
-        if(!caretLooping)
+        if(!caretLooping) {
             return;
+        }
+
         caretLooping = false;
 
         caretTween?.Kill();

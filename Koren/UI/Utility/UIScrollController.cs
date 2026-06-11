@@ -4,6 +4,8 @@ using GTweens.Tweens;
 using Koren.Core;
 using UnityEngine;
 
+namespace Koren.UI.Utility;
+
 public class UIScrollController : MonoBehaviour {
     public RectTransform content;
     public RectTransform viewport;

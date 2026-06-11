@@ -6,6 +6,7 @@ using Koren.Localization;
 using Koren.Resource;
 using Koren.UI.Generator;
 using Koren.UI.Utility;
+using Koren.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -122,6 +123,18 @@ internal static class PageSearch {
 
     private static string Tr(string key, string def) => MainCore.Tr.Get(key, def);
 
+    // Normalize for matching; in Korean also collapse syllables to 초성 so
+    // consonant-only queries (e.g. "ㅈㄷ" for "진동") match.
+    private static string Norm(string input) {
+        string normalized = StringUtils.Normalize(input);
+
+        if(MainCore.Conf.Language == "ko-KR" && !string.IsNullOrEmpty(normalized)) {
+            normalized = StringUtils.NormalizeToHangulChosung(normalized);
+        }
+
+        return normalized;
+    }
+
     private static string TabName(int state) => (OriginalMenuState)state switch {
         OriginalMenuState.Overlay => Tr("OVERLAY", "Overlay"),
         OriginalMenuState.Gameplay => Tr("GAMEPLAY", "Gameplay"),
@@ -142,7 +155,7 @@ internal static class PageSearch {
             Object.Destroy(resultsContainer.GetChild(i).gameObject);
         }
 
-        string q = UICore.NormalizeString(query ?? "");
+        string q = Norm(query ?? "");
 
         if(string.IsNullOrWhiteSpace(q)) {
             statusText.text = Tr("SEARCH_HINT", "Type to search every tab — categories, toggles, buttons, everything.");
@@ -151,15 +164,15 @@ internal static class PageSearch {
 
         List<Entry> matches = [];
         foreach(Entry e in BuildIndex()) {
-            if(UICore.NormalizeString(e.Text).Contains(q)) {
+            if(Norm(e.Text).Contains(q)) {
                 matches.Add(e);
             }
         }
 
         // Prefix matches first, categories before plain rows, then A-Z.
         matches.Sort((a, b) => {
-            bool ap = UICore.NormalizeString(a.Text).StartsWith(q);
-            bool bp = UICore.NormalizeString(b.Text).StartsWith(q);
+            bool ap = Norm(a.Text).StartsWith(q);
+            bool bp = Norm(b.Text).StartsWith(q);
             if(ap != bp) {
                 return ap ? -1 : 1;
             }

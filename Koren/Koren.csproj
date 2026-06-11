@@ -25,6 +25,7 @@
 	<ItemGroup>
 		<Reference Include="Newtonsoft.Json"><HintPath>$(GamePath)/$(GameData)/Managed/Newtonsoft.Json.dll</HintPath></Reference>
 		<Reference Include="0Harmony"><HintPath>$(GamePath)/MelonLoader/net35/0Harmony.dll</HintPath></Reference>
+		<Reference Include="MelonLoader"><HintPath>$(GamePath)/MelonLoader/net35/MelonLoader.dll</HintPath></Reference>
 	</ItemGroup>
 
 	<ItemGroup Condition="!$(Configuration.Contains('IL2CPP'))">
@@ -88,10 +89,13 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>
 
-	<!-- Auto-install: drop Koren.dll into UserLibs and export language files to UserData/Koren -->
+	<!-- Auto-install: drop Koren.dll into Mods and export language files to UserData/Koren.
+	     Also removes the pre-merge two-DLL layout (Mods/Koren.Loader.ML.dll + UserLibs/Koren.dll)
+	     so MelonLoader doesn't load the mod twice. -->
 	<Target Name="PostBuild" AfterTargets="Build">
-		<MakeDir Directories="$(GamePath)/UserLibs" Condition="'$(TargetPath)' != ''" />
-		<Copy Condition="'$(TargetPath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)/UserLibs" SkipUnchangedFiles="true" />
+		<MakeDir Directories="$(GamePath)/Mods" Condition="'$(TargetPath)' != ''" />
+		<Copy Condition="'$(TargetPath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)/Mods" SkipUnchangedFiles="true" />
+		<Delete Files="$(GamePath)/Mods/Koren.Loader.ML.dll;$(GamePath)/UserLibs/Koren.dll" TreatErrorsAsWarnings="true" />
 
 		<ItemGroup>
 			<ExportFiles Include="Resource/Export/**/*.*" />

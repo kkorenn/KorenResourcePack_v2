@@ -6,7 +6,8 @@ public interface IKorenHost {
     string KorenFilePath { get; }
 
     // Install locations, used by the updater to drop new builds in place.
-    // ModsPath holds Koren.Loader.ML.dll; UserLibsPath holds Koren.dll.
+    // ModsPath holds Koren.dll (single-DLL layout); UserLibsPath is only
+    // touched to clean up the old two-DLL install.
     string ModsPath { get; }
     string UserLibsPath { get; }
 }

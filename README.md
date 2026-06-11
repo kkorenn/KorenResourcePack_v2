@@ -18,8 +18,7 @@ A clean-slate **v2** of KorenResourcePack — a [MelonLoader](https://melonloade
 
 | Project | Output | Goes to |
 |---------|--------|---------|
-| `Koren` | `Koren.dll` (core mod + UI + features) | `UserLibs/` |
-| `Koren.Loader.ML` | `Koren.Loader.ML.dll` (MelonLoader entry) | `Mods/` |
+| `Koren` | `Koren.dll` (MelonLoader entry + core mod + UI + features) | `Mods/` |
 
 Language files are exported to `UserData/Koren/`. Settings live in `UserData/Koren/Settings.json` and
 `UserData/Koren/Status.json`.
@@ -34,8 +33,9 @@ Requires the .NET SDK and a MelonLoader-patched copy of the game.
 dotnet build Koren.slnx -c Debug
 ```
 
-The build's PostBuild step copies the DLLs straight into the game (`Mods/` + `UserLibs/`) and exports the
-language files — launch the game and the mod is loaded. Override the game path with the `GAMEPATH` env var
+The build's PostBuild step copies `Koren.dll` straight into the game's `Mods/` folder (removing the old
+two-DLL `Mods/` + `UserLibs/` layout if present) and exports the language files — launch the game and the
+mod is loaded. Override the game path with the `GAMEPATH` env var
 or by editing `Directory.Build.props` (see `Directory.Build.example.props`).
 
 ## Credits

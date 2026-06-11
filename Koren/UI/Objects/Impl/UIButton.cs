@@ -1,5 +1,3 @@
-using Koren.UI;
-using Koren.UI.Objects;
 using UnityEngine;
 using UnityEngine.UI;
 using GTweens.Tweens;
@@ -12,6 +10,8 @@ using Il2CppTMPro;
 #else
 using TMPro;
 #endif
+
+namespace Koren.UI.Objects.Impl;
 
 public class UIButton : UIObject {
     public Action OnClick { get; set; }

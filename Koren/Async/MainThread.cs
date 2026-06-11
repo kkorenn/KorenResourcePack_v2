@@ -1,9 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using Koren.Core;
+using System.Collections.Concurrent;
 using UnityEngine;
 
 namespace Koren.Async;
 
-internal sealed class MainThread : MonoBehaviour {
+public class MainThread : MonoBehaviour {
     private static readonly ConcurrentQueue<Action> queue = new();
 
     public static void Enqueue(Action action) {
@@ -18,8 +19,8 @@ internal sealed class MainThread : MonoBehaviour {
         while(queue.TryDequeue(out Action action)) {
             try {
                 action();
-            } catch(Exception ex) {
-                Debug.LogException(ex);
+            } catch(Exception e) {
+                MainCore.Log.Err(e.Message);
             }
         }
     }

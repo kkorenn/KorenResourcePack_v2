@@ -1,4 +1,4 @@
-﻿using Koren.Core;
+using Koren.Core;
 using Koren.Resource;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,13 +18,11 @@ public enum ResizeHandleType {
     BottomRight
 }
 
-public class ResizeHandle
-    : MonoBehaviour,
-      IPointerDownHandler,
-      IDragHandler {
-    public ResizeHandleType Type;
+public class ResizeHandle : MonoBehaviour {
 
+    public ResizeHandleType Type;
     public RectTransform Panel;
+    public RectTransform PanelParent;
 
     private Vector2 startMouse;
     private Vector2 startSize;
@@ -33,95 +31,75 @@ public class ResizeHandle
     public const float MIN_WIDTH = 900f;
     public const float MIN_HEIGHT = 500f;
 
-    public void OnPointerDown(PointerEventData eventData) {
+    private void Awake() {
+        var trigger = gameObject.AddComponent<EventTrigger>();
+
+        var downEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
+        downEntry.callback.AddListener(_ => OnPointerDownInternal());
+        trigger.triggers.Add(downEntry);
+
+        var dragEntry = new EventTrigger.Entry { eventID = EventTriggerType.Drag };
+        dragEntry.callback.AddListener(_ => OnDragInternal());
+        trigger.triggers.Add(dragEntry);
+    }
+
+    private void OnPointerDownInternal() {
+        startSize = Panel.sizeDelta;
+        startPos = Panel.anchoredPosition;
+
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            Panel.parent as RectTransform,
-            eventData.position,
+            PanelParent,
+            Input.mousePosition,
             null,
             out startMouse
         );
-
-        startSize = Panel.sizeDelta;
-        startPos = Panel.anchoredPosition;
     }
 
-    public void OnDrag(PointerEventData eventData) {
+    public void OnDragInternal() {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            Panel.parent as RectTransform,
-            eventData.position,
+            PanelParent,
+            Input.mousePosition,
             null,
             out Vector2 currentMouse
         );
 
         Vector2 delta = currentMouse - startMouse;
+        Vector2 newSize = startSize;
+        Vector2 newPos = startPos;
 
-        float width = startSize.x;
-        float height = startSize.y;
+        float minW = MIN_WIDTH / MainCore.Conf.UIScale;
+        float minH = MIN_HEIGHT / MainCore.Conf.UIScale;
 
-        Vector2 pos = startPos;
+        Vector2 pivot = Panel.pivot;
 
-        // RIGHT
-        if(Type is ResizeHandleType.Right
-            or ResizeHandleType.TopRight
-            or ResizeHandleType.BottomRight) {
-            float newWidth = Mathf.Max(
-                MIN_WIDTH / MainCore.Conf.UIScale,
-                startSize.x + delta.x
-            );
-
-            float applied = newWidth - startSize.x;
-
-            width = newWidth;
-            pos.x += applied * 0.5f;
+        if(Type is ResizeHandleType.Right or ResizeHandleType.TopRight or ResizeHandleType.BottomRight) {
+            newSize.x = Mathf.Max(minW, startSize.x + delta.x);
+        } else if(Type is ResizeHandleType.Left or ResizeHandleType.TopLeft or ResizeHandleType.BottomLeft) {
+            newSize.x = Mathf.Max(minW, startSize.x - delta.x);
         }
 
-        // LEFT
-        if(Type is ResizeHandleType.Left
-            or ResizeHandleType.TopLeft
-            or ResizeHandleType.BottomLeft) {
-            float newWidth = Mathf.Max(
-                MIN_WIDTH / MainCore.Conf.UIScale,
-                startSize.x - delta.x
-            );
-
-            float applied = newWidth - startSize.x;
-
-            width = newWidth;
-            pos.x -= applied * 0.5f;
+        if(Type is ResizeHandleType.Top or ResizeHandleType.TopLeft or ResizeHandleType.TopRight) {
+            newSize.y = Mathf.Max(minH, startSize.y + delta.y);
+        } else if(Type is ResizeHandleType.Bottom or ResizeHandleType.BottomLeft or ResizeHandleType.BottomRight) {
+            newSize.y = Mathf.Max(minH, startSize.y - delta.y);
         }
 
-        // TOP
-        if(Type is ResizeHandleType.Top
-            or ResizeHandleType.TopLeft
-            or ResizeHandleType.TopRight) {
-            float newHeight = Mathf.Max(
-                MIN_HEIGHT / MainCore.Conf.UIScale,
-                startSize.y + delta.y
-            );
+        Vector2 sizeDiff = newSize - startSize;
 
-            float applied = newHeight - startSize.y;
-
-            height = newHeight;
-            pos.y += applied * 0.5f;
+        if(Type is ResizeHandleType.Right or ResizeHandleType.TopRight or ResizeHandleType.BottomRight) {
+            newPos.x = startPos.x + (sizeDiff.x * (1f - pivot.x));
+        } else if(Type is ResizeHandleType.Left or ResizeHandleType.TopLeft or ResizeHandleType.BottomLeft) {
+            newPos.x = startPos.x - (sizeDiff.x * pivot.x);
         }
 
-        // BOTTOM
-        if(Type is ResizeHandleType.Bottom
-            or ResizeHandleType.BottomLeft
-            or ResizeHandleType.BottomRight) {
-            float newHeight = Mathf.Max(
-                MIN_HEIGHT / MainCore.Conf.UIScale,
-                startSize.y - delta.y
-            );
-
-            float applied = newHeight - startSize.y;
-
-            height = newHeight;
-            pos.y -= applied * 0.5f;
+        if(Type is ResizeHandleType.Top or ResizeHandleType.TopLeft or ResizeHandleType.TopRight) {
+            newPos.y = startPos.y + (sizeDiff.y * (1f - pivot.y));
+        } else if(Type is ResizeHandleType.Bottom or ResizeHandleType.BottomLeft or ResizeHandleType.BottomRight) {
+            newPos.y = startPos.y - (sizeDiff.y * pivot.y);
         }
 
-        Panel.sizeDelta = new(width, height);
-        Panel.anchoredPosition = pos;
+        Panel.sizeDelta = newSize;
+        Panel.anchoredPosition = newPos;
     }
 
     private static readonly ResizeHandleType[] HandleOrder = {
@@ -137,13 +115,12 @@ public class ResizeHandle
         ResizeHandleType.BottomRight
     };
 
-    private const float HANDLE_CORNER = 32f;
-    private const float HANDLE_SIDE = 10f;
-
-    public static void CreateResizeHandles(RectTransform parent) {
+    private const float HANDLE_CORNER = 26f;
+    private const float HANDLE_SIDE = 12f;
+    public static void CreateResizeHandles(RectTransform panel, RectTransform panelParent) {
         foreach(ResizeHandleType type in HandleOrder) {
             GameObject handle = new($"Resize_{type}");
-            handle.transform.SetParent(parent, false);
+            handle.transform.SetParent(panel, false);
 
             RectTransform rect =
                 handle.AddComponent<RectTransform>();
@@ -162,104 +139,70 @@ public class ResizeHandle
             }
 
             switch(type) {
-                // Top
                 case ResizeHandleType.Top:
                     rect.anchorMin = new(0, 1);
                     rect.anchorMax = new(1, 1);
                     rect.pivot = new(0.5f, 0.5f);
-
-                    rect.offsetMin = new(
-                        HANDLE_SIDE,
-                        -HANDLE_SIDE
-                    );
-
-                    rect.offsetMax = new(
-                        -HANDLE_SIDE,
-                        HANDLE_SIDE
-                    );
+                    rect.offsetMin = new(HANDLE_SIDE, -HANDLE_SIDE);
+                    rect.offsetMax = new(-HANDLE_SIDE, HANDLE_SIDE);
+                    rect.anchoredPosition = Vector2.zero;
                     break;
 
-                // Bottom
                 case ResizeHandleType.Bottom:
                     rect.anchorMin = new(0, 0);
                     rect.anchorMax = new(1, 0);
                     rect.pivot = new(0.5f, 0.5f);
-
-                    rect.offsetMin = new(
-                        HANDLE_SIDE,
-                        -HANDLE_SIDE
-                    );
-
-                    rect.offsetMax = new(
-                        -HANDLE_SIDE,
-                        HANDLE_SIDE
-                    );
+                    rect.offsetMin = new(HANDLE_SIDE, -HANDLE_SIDE);
+                    rect.offsetMax = new(-HANDLE_SIDE, HANDLE_SIDE);
+                    rect.anchoredPosition = Vector2.zero;
                     break;
 
-                // Left
                 case ResizeHandleType.Left:
                     rect.anchorMin = new(0, 0);
                     rect.anchorMax = new(0, 1);
                     rect.pivot = new(0.5f, 0.5f);
-
-                    rect.offsetMin = new(
-                        -HANDLE_SIDE,
-                        HANDLE_SIDE
-                    );
-
-                    rect.offsetMax = new(
-                        HANDLE_SIDE,
-                        -HANDLE_SIDE
-                    );
+                    rect.offsetMin = new(-HANDLE_SIDE, HANDLE_SIDE);
+                    rect.offsetMax = new(HANDLE_SIDE, -HANDLE_SIDE);
+                    rect.anchoredPosition = Vector2.zero;
                     break;
 
-                // Right
                 case ResizeHandleType.Right:
                     rect.anchorMin = new(1, 0);
                     rect.anchorMax = new(1, 1);
                     rect.pivot = new(0.5f, 0.5f);
-
-                    rect.offsetMin = new(
-                        -HANDLE_SIDE,
-                        HANDLE_SIDE
-                    );
-
-                    rect.offsetMax = new(
-                        HANDLE_SIDE,
-                        -HANDLE_SIDE
-                    );
+                    rect.offsetMin = new(-HANDLE_SIDE, HANDLE_SIDE);
+                    rect.offsetMax = new(HANDLE_SIDE, -HANDLE_SIDE);
+                    rect.anchoredPosition = Vector2.zero;
                     break;
 
-                // Top Left
                 case ResizeHandleType.TopLeft:
                     rect.anchorMin = new(0, 1);
                     rect.anchorMax = new(0, 1);
                     rect.pivot = new(0.5f, 0.5f);
+                    rect.anchoredPosition = new(-HANDLE_CORNER * 0.5f, HANDLE_CORNER * 0.5f);
                     break;
 
-                // Top Right
                 case ResizeHandleType.TopRight:
                     rect.anchorMin = new(1, 1);
                     rect.anchorMax = new(1, 1);
                     rect.pivot = new(0.5f, 0.5f);
+                    rect.anchoredPosition = new(HANDLE_CORNER * 0.5f, HANDLE_CORNER * 0.5f);
                     break;
 
-                // Bottom Left
                 case ResizeHandleType.BottomLeft:
                     rect.anchorMin = new(0, 0);
                     rect.anchorMax = new(0, 0);
                     rect.pivot = new(0.5f, 0.5f);
+                    rect.anchoredPosition = new(-HANDLE_CORNER * 0.5f, -HANDLE_CORNER * 0.5f);
                     break;
 
-                // Bottom Right
                 case ResizeHandleType.BottomRight:
                     rect.anchorMin = new(1, 0);
                     rect.anchorMax = new(1, 0);
                     rect.pivot = new(0.5f, 0.5f);
+                    rect.anchoredPosition = new(HANDLE_CORNER * 0.5f, -HANDLE_CORNER * 0.5f);
                     break;
             }
-
-            rect.anchoredPosition = Vector2.zero;
 
             Image image = handle.AddComponent<Image>();
             image.sprite = MainCore.Spr.Get(UISprite.Circle256);
@@ -268,28 +211,8 @@ public class ResizeHandle
             ResizeHandle resize = handle.AddComponent<ResizeHandle>();
 
             resize.Type = type;
-            resize.Panel = parent;
-
-            EventTrigger trigger = handle.AddComponent<EventTrigger>();
-
-            var enter = new EventTrigger.Entry {
-                eventID = EventTriggerType.PointerEnter
-            };
-
-            enter.callback.AddListener(_ => {
-
-            });
-
-            var exit = new EventTrigger.Entry {
-                eventID = EventTriggerType.PointerExit
-            };
-
-            exit.callback.AddListener(_ => {
-
-            });
-
-            trigger.triggers.Add(enter);
-            trigger.triggers.Add(exit);
+            resize.Panel = panel;
+            resize.PanelParent = panelParent;
         }
     }
 }

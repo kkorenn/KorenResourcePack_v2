@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds a Release and publishes it as a GitHub release with the mod DLLs
+# Builds a Release and publishes it as a GitHub release with Koren.dll
 # attached. Pre-release channels (alpha/beta/rc) are marked as pre-releases.
 #
 # The build number is auto-incremented per (version, channel) and tracked in
@@ -49,18 +49,17 @@ else
 fi
 
 echo "Building ${tag} ..."
-dotnet build Koren.Loader.ML/Koren.Loader.ML.csproj -c Release
+dotnet build Koren/Koren.csproj -c Release
 
 koren="Koren/bin/Release/netstandard2.1/Koren.dll"
-loader="Koren.Loader.ML/bin/Release/netstandard2.1/Koren.Loader.ML.dll"
-[ -f "$koren" ] && [ -f "$loader" ] || { echo "build outputs missing — aborting" >&2; exit 1; }
+[ -f "$koren" ] || { echo "build output missing — aborting" >&2; exit 1; }
 
 echo "Publishing ${tag} ..."
 if gh release view "$tag" >/dev/null 2>&1; then
-  gh release upload "$tag" "$koren" "$loader" --clobber
+  gh release upload "$tag" "$koren" --clobber
 else
   # shellcheck disable=SC2086
-  gh release create "$tag" "$koren" "$loader" --title "$title" --notes "$notes" $pre
+  gh release create "$tag" "$koren" --title "$title" --notes "$notes" $pre
 fi
 
 echo "Done: ${tag}"
