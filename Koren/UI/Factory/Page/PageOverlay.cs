@@ -357,8 +357,94 @@ internal static class PageOverlay {
             AnimatePicker(true);
         }
 
+        // Per-stat color settings live in a collapsible body under each row,
+        // slid open/closed by the row's Color button (same animation idiom as
+        // the stat picker above). Content is built on open and torn down
+        // after the close animation.
+        HashSet<StatEntry> colorExpanded = [];
+        Dictionary<StatEntry, StatColorBody> colorBodies = [];
+
+        void AnimateColorBody(StatColorBody body, bool open) {
+            body.Seq?.Kill();
+
+            body.Layout.enabled = true;
+            body.Fitter.enabled = true;
+            body.LE.preferredHeight = -1f;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(sec.Section);
+            float content = body.Rect.rect.height;
+
+            body.Layout.enabled = false;
+            body.Fitter.enabled = false;
+
+            body.LE.preferredHeight = open ? 0f : content;
+            body.CG.alpha = open ? 0f : 1f;
+
+            body.Seq = GTweenSequenceBuilder.New()
+                .Join(GTweenExtensions.Tween(
+                    () => body.LE.preferredHeight,
+                    x => {
+                        body.LE.preferredHeight = Mathf.Max(0f, x);
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(sec.Section);
+                    },
+                    open ? content : 0f,
+                    0.16f
+                ).SetEasing(open ? Easing.OutBack : Easing.OutSine))
+                .Join(GTweenExtensions.Tween(
+                    () => body.CG.alpha,
+                    x => body.CG.alpha = x,
+                    open ? 1f : 0f,
+                    0.16f
+                ).SetEasing(Easing.OutSine))
+                .AppendCallback(() => {
+                    if(open) {
+                        // Hand sizing back so the content stays laid out.
+                        body.Layout.enabled = true;
+                        body.Fitter.enabled = true;
+                        body.LE.preferredHeight = -1f;
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(sec.Section);
+                    } else {
+                        ClearChildren(body.Rect);
+                        body.LE.preferredHeight = 0f;
+                    }
+                })
+                .Build();
+            MainCore.TC.Play(body.Seq);
+        }
+
+        void RebuildColorBody(StatEntry entry) {
+            if(!colorBodies.TryGetValue(entry, out StatColorBody body)) {
+                return;
+            }
+
+            ClearChildren(body.Rect);
+            BuildStatColorSettings(body.Rect, entry, Save, () => RebuildColorBody(entry), idp);
+
+            body.Layout.enabled = true;
+            body.Fitter.enabled = true;
+            body.LE.preferredHeight = -1f;
+            body.CG.alpha = 1f;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(sec.Section);
+        }
+
+        void ToggleColorBody(StatEntry entry) {
+            if(!colorBodies.TryGetValue(entry, out StatColorBody body)) {
+                return;
+            }
+
+            if(colorExpanded.Remove(entry)) {
+                AnimateColorBody(body, false);
+                return;
+            }
+
+            colorExpanded.Add(entry);
+            ClearChildren(body.Rect);
+            BuildStatColorSettings(body.Rect, entry, Save, () => RebuildColorBody(entry), idp);
+            AnimateColorBody(body, true);
+        }
+
         void RebuildRows() {
             ClearChildren(rows.transform);
+            colorBodies.Clear();
 
             if(panel.Stats.Count == 0) {
                 var note = GenerateUI.AddText(GenerateUI.Row(rows.transform));
@@ -369,15 +455,34 @@ internal static class PageOverlay {
             }
 
             foreach(StatEntry entry in panel.Stats) {
-                BuildStatRow(rows.transform, entry, CommitOrder, () => {
+                BuildStatRow(rows.transform, entry, () => {
+                    CommitOrder();
+                    // Reordering moves only the marker rows; rebuild so any
+                    // expanded color settings follow their row.
+                    if(colorExpanded.Count > 0) {
+                        RebuildRows();
+                    }
+                }, () => {
                     panel.Stats.Remove(entry);
+                    colorExpanded.Remove(entry);
                     Save();
                     RebuildRows();
                 }, () => {
                     // Swap: open the picker targeting this entry.
                     replaceTarget = entry;
                     OpenPickerAnimated();
-                }, Save, idp);
+                }, () => ToggleColorBody(entry), Save, idp);
+
+                StatColorBody body = CreateColorBody(rows.transform);
+                colorBodies[entry] = body;
+
+                // Entries already expanded (rebuild after add/delete/reorder)
+                // come back open without re-animating.
+                if(colorExpanded.Contains(entry)) {
+                    BuildStatColorSettings(body.Rect, entry, Save, () => RebuildColorBody(entry), idp);
+                    body.LE.preferredHeight = -1f;
+                    body.CG.alpha = 1f;
+                }
             }
         }
 
@@ -679,10 +784,10 @@ internal static class PageOverlay {
         }
     }
 
-    // One stat entry row: [⠿ drag] [label] ......... [enable dot] [Swap] [X]
+    // One stat entry row: [⠿ drag] [label] ... [enable dot] [Color] [Swap] [X]
     private static void BuildStatRow(
         Transform parent, StatEntry entry,
-        Action commitOrder, Action onDelete, Action onSwap, Action save,
+        Action commitOrder, Action onDelete, Action onSwap, Action onColor, Action save,
         string idp
     ) {
         RectTransform row = GenerateUI.Row(parent);
@@ -736,6 +841,7 @@ internal static class PageOverlay {
         );
         RectTransform labelRect = label.rectTransform;
         labelRect.offsetMin = new Vector2(48f, 0f);
+        labelRect.offsetMax = new Vector2(-270f, 0f);
 
         // Enable/disable dot: accent = shown, dim = hidden (kept in the list).
         GameObject toggleObj = new("EnableDot");
@@ -745,7 +851,7 @@ internal static class PageOverlay {
         toggleRect.anchorMin = new Vector2(1f, 0.5f);
         toggleRect.anchorMax = new Vector2(1f, 0.5f);
         toggleRect.pivot = new Vector2(1f, 0.5f);
-        toggleRect.anchoredPosition = new Vector2(-150f, 0f);
+        toggleRect.anchoredPosition = new Vector2(-240f, 0f);
         toggleRect.sizeDelta = new Vector2(26f, 26f);
 
         Image toggleImg = toggleObj.AddComponent<Image>();
@@ -767,8 +873,180 @@ internal static class PageOverlay {
             save();
         });
 
+        MiniButton(bg, "Color", "COLOR_SHORT", -144f, 88f, onColor);
         MiniButton(bg, "Swap", "SWAP", -56f, 84f, onSwap);
         MiniButton(bg, "X", "DELETE_SHORT", -8f, 44f, onDelete);
+    }
+
+    // Collapsible body that hosts a stat's color settings. Starts collapsed
+    // and empty; the Color button slides it open/closed.
+    private sealed class StatColorBody {
+        public RectTransform Rect;
+        public VerticalLayoutGroup Layout;
+        public ContentSizeFitter Fitter;
+        public LayoutElement LE;
+        public CanvasGroup CG;
+        public GTween Seq;
+    }
+
+    private static StatColorBody CreateColorBody(Transform parent) {
+        GameObject obj = new("StatColorBody");
+        obj.transform.SetParent(parent, false);
+
+        StatColorBody body = new() {
+            Rect = obj.AddComponent<RectTransform>(),
+        };
+
+        body.Layout = obj.AddComponent<VerticalLayoutGroup>();
+        body.Layout.spacing = 6f;
+        body.Layout.padding = new RectOffset(40, 0, 0, 6);
+        body.Layout.childControlWidth = true;
+        body.Layout.childControlHeight = true;
+        body.Layout.childForceExpandWidth = true;
+        body.Layout.childForceExpandHeight = false;
+
+        body.Fitter = obj.AddComponent<ContentSizeFitter>();
+        body.Fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        body.LE = obj.AddComponent<LayoutElement>();
+        body.LE.preferredHeight = 0f;
+
+        body.CG = obj.AddComponent<CanvasGroup>();
+        body.CG.alpha = 0f;
+
+        obj.AddComponent<RectMask2D>();
+
+        return body;
+    }
+
+    // Per-stat color settings, expanded under the stat's row — v1's ColorRange
+    // editor: enable toggle, gradient stops (position + color, add/delete),
+    // perfect-color override, and Max BPM for the BPM-driven stats.
+    private static void BuildStatColorSettings(
+        Transform parent, StatEntry entry, Action save, Action rebuild, string idp
+    ) {
+        StatColor color = entry.EnsureColor();
+        bool hasRatio = StatColor.HasRatio(entry.Id);
+
+        GenerateUI.Toggle(
+            GenerateUI.Row(parent),
+            false,
+            color.Enabled,
+            v => { color.Enabled = v; save(); },
+            "Custom Color",
+            idp + "_statcolor_on"
+        ).Rect.AddToolTip(
+            "DESC_PANEL_STATCOLOR_ON",
+            "Tints this stat's value by blending the colors below across the stat's own 0–100% range."
+        );
+
+        if(StatColor.IsBpm(entry.Id)) {
+            UISlider maxBpm = GenerateUI.Slider(
+                GenerateUI.Row(parent),
+                8000f, 1f, 9999f, color.MaxBpm,
+                v => Mathf.Clamp(Mathf.Round(v), 1f, 9999f), null, null,
+                "Color Max BPM", idp + "_statcolor_maxbpm"
+            );
+            maxBpm.Format = "0";
+            maxBpm.OnChanged = v => color.MaxBpm = v;
+            maxBpm.OnComplete = v => { color.MaxBpm = v; save(); };
+            maxBpm.Rect.AddToolTip(
+                "DESC_PANEL_STATCOLOR_MAXBPM",
+                "BPM that maps to the 100% end of the gradient."
+            );
+        }
+
+        // === Gradient stops ===
+        for(int i = 0; i < color.Points.Count; i++) {
+            ColorPoint point = color.Points[i];
+
+            if(hasRatio) {
+                RectTransform posRow = GenerateUI.Row(parent);
+                UISlider pos = GenerateUI.Slider(
+                    posRow,
+                    100f, 0f, 100f, point.Pos * 100f,
+                    v => Mathf.Clamp(Mathf.Round(v * 2f) * 0.5f, 0f, 100f), null, null,
+                    "Position", idp + "_statcolor_pos"
+                );
+                // '%' must be quoted: bare % in a .NET format string multiplies
+                // the value by 100 (slider already holds 0..100).
+                pos.Format = "0.#' %'";
+                pos.OnChanged = v => point.Pos = v * 0.01f;
+                pos.OnComplete = v => {
+                    point.Pos = v * 0.01f;
+                    color.SortPoints();
+                    save();
+                };
+
+                if(color.Points.Count > 1) {
+                    MiniButton(posRow, "X", "DELETE_SHORT", -8f, 44f, () => {
+                        color.Points.Remove(point);
+                        save();
+                        rebuild();
+                    });
+                }
+            }
+
+            GenerateUI.ColorPicker(
+                GenerateUI.Row(parent),
+                Color.white,
+                point.GetColor(),
+                c => point.SetColor(c),
+                c => { point.SetColor(c); save(); },
+                "Color",
+                idp + "_statcolor_color"
+            );
+
+            if(!hasRatio && color.Points.Count > 1) {
+                // No position rows for static stats — extra stops are
+                // meaningless there, offer delete on its own row.
+                MiniButton(GenerateUI.Row(parent, 40f), "X", "DELETE_SHORT", -8f, 44f, () => {
+                    color.Points.Remove(point);
+                    save();
+                    rebuild();
+                });
+            }
+        }
+
+        if(hasRatio && color.Points.Count < 8) {
+            GenerateUI.Button(
+                GenerateUI.Row(parent),
+                () => {
+                    float pos = color.Points.Count > 0 ? 0.5f : 1f;
+                    color.Points.Add(new ColorPoint(pos, color.Evaluate(pos)));
+                    color.SortPoints();
+                    save();
+                    rebuild();
+                },
+                "+ Add Color",
+                idp + "_statcolor_add"
+            ).SetSecondary();
+        }
+
+        // === Perfect color (v1 gold at 100%) ===
+        if(hasRatio) {
+            GenerateUI.Toggle(
+                GenerateUI.Row(parent),
+                false,
+                color.UsePerfect,
+                v => { color.UsePerfect = v; save(); },
+                "Perfect Color (100%)",
+                idp + "_statcolor_perfect"
+            ).Rect.AddToolTip(
+                "DESC_PANEL_STATCOLOR_PERFECT",
+                "Overrides the gradient with this color while the stat sits at exactly 100% — v1's gold accuracy."
+            );
+
+            GenerateUI.ColorPicker(
+                GenerateUI.Row(parent),
+                new Color(1f, 0.854902f, 0f, 1f),
+                color.Perfect.GetColor(),
+                c => color.Perfect.SetColor(c),
+                c => { color.Perfect.SetColor(c); save(); },
+                "Perfect Color",
+                idp + "_statcolor_perfectcolor"
+            );
+        }
     }
 
     private static string AnchorName(PanelAnchor anchor) => anchor switch {

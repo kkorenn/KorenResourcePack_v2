@@ -11,13 +11,28 @@ public sealed class StatEntry {
     public string Id = "";
     public bool Enabled = true;
 
+    // Optional per-stat value coloring (v1's ColorRange). null until the user
+    // opens the stat's color settings.
+    public StatColor Color;
+
     public StatEntry() { }
     public StatEntry(string id) => Id = id;
 
-    public JToken Serialize() => new JObject {
-        [nameof(Id)] = Id,
-        [nameof(Enabled)] = Enabled,
-    };
+    // Lazily seeds the stat's color settings with the v1 defaults for its id.
+    public StatColor EnsureColor() => Color ??= StatColor.DefaultFor(Id);
+
+    public JToken Serialize() {
+        JObject obj = new() {
+            [nameof(Id)] = Id,
+            [nameof(Enabled)] = Enabled,
+        };
+
+        if(Color != null) {
+            obj[nameof(Color)] = Color.Serialize();
+        }
+
+        return obj;
+    }
 
     public static StatEntry Deserialize(JToken token) {
         // Legacy shape: a plain stat-id string.
@@ -28,6 +43,9 @@ public sealed class StatEntry {
         StatEntry e = new();
         e.Id = IOUtils.Read(token, nameof(Id), e.Id);
         e.Enabled = IOUtils.Read(token, nameof(Enabled), e.Enabled);
+        if(token[nameof(Color)] is JObject color) {
+            e.Color = StatColor.Deserialize(color);
+        }
         return e;
     }
 }

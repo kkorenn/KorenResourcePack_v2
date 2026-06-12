@@ -260,7 +260,9 @@ internal static class PageVisuals {
             "Camera Zoom",
             "fxrm_zoom_scale"
         );
-        zoom.Format = "0 %";
+        // Quoted '%': bare % in a .NET format string multiplies by 100, and the
+        // zoom value is already a percent (100–1000).
+        zoom.Format = "0' %'";
         zoom.OnChanged = v => conf.CameraZoomScale = v;
         zoom.OnComplete = v => { conf.CameraZoomScale = v; Save(); };
 

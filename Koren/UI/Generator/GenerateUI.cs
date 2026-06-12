@@ -248,6 +248,10 @@ public static partial class GenerateUI {
         bool isDragging = false;
 
         UnityUtils.AddEvent(EventTriggerType.BeginDrag, _ => {
+            // Upstream 170cb0e: only the left button drags the slider.
+            if(!UnityEngine.Input.GetMouseButton(0)) {
+                return;
+            }
             isDragging = true;
             SetFromMouse();
         }, trigger);

@@ -409,7 +409,21 @@ public static class PanelsOverlay {
                         continue;
                     }
 
-                    sb.Append(LocalizedStatLabel(stat)).Append(c.LabelSeparator).AppendLine(value);
+                    sb.Append(LocalizedStatLabel(stat)).Append(c.LabelSeparator);
+
+                    // Per-stat value coloring (v1 ColorRange): tint the value
+                    // by the stat's own ratio through the entry's gradient.
+                    StatColor color = entry.Color;
+                    if(color is { Enabled: true }) {
+                        Color tint = color.Evaluate(ColorRatio(entry.Id, color));
+                        sb.Append("<color=#")
+                          .Append(ColorUtility.ToHtmlStringRGBA(tint))
+                          .Append('>')
+                          .Append(value)
+                          .AppendLine("</color>");
+                    } else {
+                        sb.AppendLine(value);
+                    }
                 }
             }
 
@@ -470,6 +484,39 @@ public static class PanelsOverlay {
                 }
             }
             return null;
+        }
+
+        // The 0..1 value that drives a stat's color gradient — mirrors which
+        // ratio v1 fed each ColorRange. Stats without a moving ratio sit at
+        // the top of the gradient (static color).
+        private static float ColorRatio(string id, StatColor color) {
+            try {
+                switch(id) {
+                    case "progress": return GameStats.Progress;
+                    case "accuracy": return GameStats.Accuracy;
+                    case "xaccuracy": return GameStats.XAccuracy;
+                    case "maxaccuracy": return GameStats.MaxXAccuracy;
+                    case "musictime": return GameStats.MusicTimeRatio;
+                    case "maptime": return GameStats.MapTimeRatio;
+                    case "best": return GameStats.Best;
+
+                    case "tbpm": {
+                        GameStats.GetBpm(out float tbpm, out _);
+                        return color.MaxBpm <= 0f ? 0f : tbpm / color.MaxBpm;
+                    }
+
+                    // v1 colored KPS with the current-BPM color.
+                    case "cbpm":
+                    case "kps": {
+                        GameStats.GetBpm(out _, out float cbpm);
+                        return color.MaxBpm <= 0f ? 0f : cbpm / color.MaxBpm;
+                    }
+
+                    default: return 1f;
+                }
+            } catch {
+                return 1f;
+            }
         }
     }
 }

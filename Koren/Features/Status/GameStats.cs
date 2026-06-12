@@ -141,6 +141,42 @@ public static class GameStats {
         }
     }
 
+    // How far through the song / map we are, 0..1 — drives the per-stat color
+    // gradients for the time stats (v1 GetPrimaryTimeRatio / GetMapTimeRatio).
+    public static float MusicTimeRatio {
+        get {
+            try {
+                AudioSource song = scrConductor.instance != null ? scrConductor.instance.song : null;
+                if(song == null || song.clip == null || song.clip.length <= 0f) {
+                    return 0f;
+                }
+                return Mathf.Clamp01(song.time / song.clip.length);
+            } catch {
+                return 0f;
+            }
+        }
+    }
+
+    public static float MapTimeRatio {
+        get {
+            try {
+                scrConductor cd = scrConductor.instance;
+                if(cd == null) {
+                    return 0f;
+                }
+
+                float time = (float)(cd.addoffset + cd.songposition_minusi);
+                float total = MapTotalSeconds();
+                if(total <= 0f) {
+                    return 0f;
+                }
+                return Mathf.Clamp01(time / total);
+            } catch {
+                return 0f;
+            }
+        }
+    }
+
     public static string MapTimeText {
         get {
             try {

@@ -282,5 +282,7 @@ public sealed class UIInput : UIObject {
 
         caretTween?.Kill();
         changeTween?.Kill();
+        placeholderTween?.Kill();
+        iconTween?.Kill();
     }
 }

@@ -92,6 +92,12 @@ public class UISlider : UIObject {
     }
 
     public void Set(float value, bool invoke = true) {
+        // Upstream 4b76865: "NaN" parses as a float; don't let it poison the
+        // slider (Clamp(NaN) stays NaN and sticks).
+        if(float.IsNaN(value)) {
+            return;
+        }
+
         value = ApplyFilter(value);
 
         Value = Mathf.Clamp(value, Min, Max);
@@ -104,6 +110,10 @@ public class UISlider : UIObject {
     }
 
     public void SetOnlyValue(float value, bool noAnimate = false) {
+        if(float.IsNaN(value)) {
+            return;
+        }
+
         Value = Mathf.Clamp(ApplyFilter(value), Min, Max);
         UpdateVisual(noAnimate);
     }
@@ -123,8 +133,9 @@ public class UISlider : UIObject {
         UpdateValueText();
 
         float t = Normalize();
-        Vector2 max = FillRect.anchorMax;
-        float changeAlpha = DefaultValue == Value ? 0f : 1f;
+        // Epsilon compare (upstream 4b76865) — float equality misses values
+        // that round-trip through the value editor.
+        float changeAlpha = Mathf.Abs(DefaultValue - Value) > 0.001f ? 1f : 0f;
 
         if(noAnimate) {
             Vector2 fra = FillRect.anchorMax;
