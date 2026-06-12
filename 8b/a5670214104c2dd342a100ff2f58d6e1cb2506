@@ -1,0 +1,77 @@
+Koren/UI/Generator/GenerateUI.cs
+  s_7b03489e9832b6::t_1fad5786886156 1-2
+  s_7b03489e9832b6::t_67dc1f03918482 277-278,284-396
+Koren/UI/Objects/Impl/UIDropdown.cs
+  s_7b03489e9832b6::t_0b55bc51637158 143-146,154-178
+  s_7b03489e9832b6::t_f54f5138f317c5 50-56
+  s_7b03489e9832b6::t_d3bea6ec66b3df 251
+  s_7b03489e9832b6::t_1b9a751ac0fc2f 285-288
+  s_7b03489e9832b6::t_d182a96d7ed8f4 232
+Koren/UI/Objects/Impl/UISlider.cs
+  s_7b03489e9832b6::t_2d042a7d200ca5 106,108
+Koren/Resource/Export/Lang/en-US.json
+  s_7b03489e9832b6::t_a91363253b69c7 275
+  s_7b03489e9832b6::t_0ebc710d3daaf2 368
+  s_7b03489e9832b6::t_473849310360c9 94
+  s_7b03489e9832b6::t_556b4d41376d68 375-376
+  s_7b03489e9832b6::t_7576754dc2ad0b 210
+Koren/UI/Factory/Page/PageProgressBar.cs
+  s_7b03489e9832b6::t_006bd75f3c08df 29-40
+Koren/Features/KeyViewer/KeyViewerOverlay.cs
+  s_7b03489e9832b6::t_bc50c6b05e9db7 262
+  s_7b03489e9832b6::t_6e92b63cf4540b 522-527,537-540
+Koren/Features/Panels/PanelsOverlay.cs
+  s_7b03489e9832b6::t_1896343e5986a4 287,289
+  s_7b03489e9832b6::t_43ad488d1a3702 199-202,207,220-231
+  s_7b03489e9832b6::t_74e0c241661523 322-325
+Koren/Features/Combo/ComboOverlay.cs
+  s_7b03489e9832b6::t_febaf27e5e50e9 89-92
+Koren/Features/Judgement/JudgementOverlay.cs
+  s_7b03489e9832b6::t_ca0ac4225e278c 115-117,119-122
+Koren/Resource/FontManager.cs
+  s_7b03489e9832b6::t_5249fff5d53eda 97-103,111
+  s_7b03489e9832b6::t_46a2e1e952f5d6 145-149
+Koren/UI/Factory/Page/PageKeyViewer.cs
+  s_7b03489e9832b6::t_b8e7622afcc33a 265-274
+  s_7b03489e9832b6::t_268b7e2c831899 241-242,256-257
+  s_7b03489e9832b6::t_08005177733fae 140,152-166
+  s_7b03489e9832b6::t_e646ddf5ba0051 204
+Koren/Resource/Export/Lang/ko-KR.json
+  s_7b03489e9832b6::t_5bff0669d5abc1 275
+  s_7b03489e9832b6::t_1372faaa2b3ced 375-376
+  s_7b03489e9832b6::t_a13aef48482114 94
+  s_7b03489e9832b6::t_387910ae44c81d 368
+  s_7b03489e9832b6::t_43899df897b365 210
+Koren/Features/ProgressBar/ProgressBarSettings.cs
+  s_7b03489e9832b6::t_fc4ee499c294ec 81
+  s_7b03489e9832b6::t_25f20f63a358c0 22-25
+  s_7b03489e9832b6::t_8614152b908883 105
+Koren/UI/Utility/Reorganizer.cs
+  s_7b03489e9832b6::t_7eef7e6a5db342 1-224,227,232-410
+  s_7b03489e9832b6::t_489155b7e0baec 225-226,228-231
+Koren/UI/UICore.cs
+  s_7b03489e9832b6::t_93d2b0d6b0f1c1 195-198
+  s_7b03489e9832b6::t_9f21928b0a3ec4 957
+Koren/UI/Factory/Page/PageSettings.cs
+  s_7b03489e9832b6::t_92f54af8ce438d 598,607-609
+Koren/Features/ProgressBar/ProgressBar.cs
+  s_7b03489e9832b6::t_bd324fcd4b115b 263-266,268-269
+Koren/UI/Factory/Page/PageOverlay.cs
+  s_7b03489e9832b6::t_e8a8cc219476ab 492-494
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "8ba5670214104c2dd342a100ff2f58d6e1cb2506",
+  "prompts": {},
+  "sessions": {
+    "s_7b03489e9832b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d37c3eb-0a4b-4322-98e2-2cb35d5546f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
