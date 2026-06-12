@@ -2,7 +2,8 @@
 # KorenResourcePack v2 build script.
 # Usage: ./build.sh [Config]
 #   Config: Debug (default) | Release | Debug_IL2CPP | Release_IL2CPP
-# Builds Koren.dll and auto-installs into the game (Mods + UserData/Koren).
+# Builds Koren.dll, auto-installs into the game (Mods + UserData/Koren),
+# and writes dist/Koren.zip.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -65,3 +66,4 @@ echo ">> building Koren.slnx ($CONFIG)..."
 dotnet build Koren.slnx -c "$CONFIG"
 
 echo ">> done. Installed: Mods/Koren.dll, UserData/Koren/*"
+echo ">> packaged: dist/Koren.zip"

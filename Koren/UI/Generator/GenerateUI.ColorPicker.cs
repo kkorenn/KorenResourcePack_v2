@@ -56,6 +56,7 @@ public static partial class GenerateUI {
 
         TextMeshProUGUI label = AddText(header);
         label.text = text;
+        LocalizeById(label, id, text);
 
         TextMeshProUGUI valueText = AddText(header);
         valueText.alignment = TextAlignmentOptions.Right;

@@ -400,10 +400,10 @@ internal static class PageSettings {
             MainCore.Conf.GetUpdateChannel(),
             channels,
             ch => ch switch {
-                ReleaseChannel.Stable => "Stable",
-                ReleaseChannel.ReleaseCandidate => "Release Candidate",
-                ReleaseChannel.Beta => "Beta",
-                ReleaseChannel.Alpha => "Alpha",
+                ReleaseChannel.Stable => MainCore.Tr.Get("UPDATE_CHANNEL_STABLE", "Stable"),
+                ReleaseChannel.ReleaseCandidate => MainCore.Tr.Get("UPDATE_CHANNEL_RC", "Release Candidate"),
+                ReleaseChannel.Beta => MainCore.Tr.Get("UPDATE_CHANNEL_BETA", "Beta"),
+                ReleaseChannel.Alpha => MainCore.Tr.Get("UPDATE_CHANNEL_ALPHA", "Alpha"),
                 _ => ch.ToString(),
             },
             ch => {

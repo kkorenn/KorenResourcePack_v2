@@ -7,6 +7,7 @@ using Koren.Features.PlayCount;
 using Koren.Features.Combo;
 using Koren.Features.EffectRemover;
 using Koren.Features.Judgement;
+using Koren.Features.KeyViewer;
 using Koren.Features.OttoIcon;
 using Koren.Features.Panels;
 using Koren.Features.PlanetColors;
@@ -173,6 +174,7 @@ public sealed class KorenRuntime {
             ComboOverlay.Initialize(RootObject);
             ProgressBarOverlay.Initialize(RootObject);
             JudgementOverlay.Initialize(RootObject);
+            KeyViewerOverlay.Initialize(RootObject);
 
             // Re-disable editor Save buttons if the Effect Remover is on.
             EffectRemover.RefreshEditorSaveButtons();
@@ -189,6 +191,7 @@ public sealed class KorenRuntime {
         } else {
             OnModEnabledChanged?.Invoke(false, isDispose);
 
+            KeyViewerOverlay.Dispose();
             JudgementOverlay.Dispose();
             ProgressBarOverlay.Dispose();
             ComboOverlay.Dispose();

@@ -21,6 +21,15 @@ public class TextLocalization : MonoBehaviour {
     private static readonly HashSet<TextLocalization> instances = [];
 
     public TextLocalization Init(string key, string defaultValue, Translator translator = null) {
+        foreach(TextLocalization other in GetComponents<TextLocalization>()) {
+            if(other == this) {
+                continue;
+            }
+
+            instances.Remove(other);
+            Destroy(other);
+        }
+
         tr = translator ?? MainCore.Tr;
         Key = key;
         Default = defaultValue;
@@ -39,6 +48,10 @@ public class TextLocalization : MonoBehaviour {
     void OnDisable() => instances.Remove(this);
 
     public void UpdateText() {
+        if(tmp == null) {
+            tmp = GetComponent<TMP_Text>();
+        }
+
         if(tmp == null || tr == null || string.IsNullOrEmpty(Key)) {
             return;
         }

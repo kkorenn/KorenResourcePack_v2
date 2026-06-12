@@ -138,6 +138,16 @@ public static class KeyLimiter {
         Changed?.Invoke();
     }
 
+    // Wholesale replacement of the allowed list — used by the key viewer's
+    // "sync to key limiter" option.
+    public static void SetAllowedKeys(int[] keys) {
+        EnsureConf();
+
+        Conf.AllowedKeys = keys ?? [];
+        Save();
+        Changed?.Invoke();
+    }
+
     // ===== key normalization (ported from v1's KeyCodeCompat) =====
 
     // v1 stored async keys as 0x1000 + Windows virtual-key in old configs.

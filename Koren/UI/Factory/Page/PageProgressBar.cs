@@ -27,7 +27,7 @@ internal static class PageProgressBar {
         );
 
         // === Size ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Size";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_SIZE", "Size");
 
         static float widthFilter(float v) => Mathf.Clamp(Mathf.Round(v), 200f, 1800f);
         UISlider width = GenerateUI.Slider(
@@ -85,7 +85,7 @@ internal static class PageProgressBar {
         outlineThick.OnComplete = v => { conf.OutlineThickness = v; ProgressBarOverlay.Apply(); Save(); };
 
         // === Color ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Color";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_COLOR", "Color");
 
         GenerateUI.ColorPicker(
             GenerateUI.Row(sec.Body),

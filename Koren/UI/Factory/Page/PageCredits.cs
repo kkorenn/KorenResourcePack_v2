@@ -1,4 +1,5 @@
 ﻿using Koren.Core;
+using Koren.Localization;
 using Koren.Resource;
 using UnityEngine;
 using UnityEngine.UI;
@@ -60,6 +61,8 @@ internal static class PageCredits {
         subtitleTmp.fontSize = 20;
         subtitleTmp.color = new Color(1f, 1f, 1f, 0.45f);
         subtitleTmp.alignment = TextAlignmentOptions.Center;
+        subtitleTmp.gameObject.AddComponent<TextLocalization>()
+            .Init("CREDITS_SUBTITLE", "by koren, sbrothers7, and more.");
 
         GameObject credits = new("Credits");
         credits.transform.SetParent(parent, false);
@@ -81,5 +84,12 @@ internal static class PageCredits {
         creditsTmp.color = Color.white;
         creditsTmp.lineSpacing = 18;
         creditsTmp.alignment = TextAlignmentOptions.Center;
+        creditsTmp.gameObject.AddComponent<TextLocalization>()
+            .Init(
+                "CREDITS_BODY",
+                "<color=#FFFFFF66>UI based on Overlayer (modlist.org)</color>\n" +
+                "<color=#FFFFFF88>Thank you for using KorenResourcePack.</color>\n" +
+                "<size=12><color=#FFFFFF33>\nLicensed under GPLv3</color></size>"
+            );
     }
 }

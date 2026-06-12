@@ -109,7 +109,7 @@ internal static class PageVisuals {
         );
 
         // === Non-DLC events ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Non-DLC Events";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_NON_DLC_EVENTS", "Non-DLC Events");
 
         // Conditional rows created later; these callbacks update their
         // visibility when the toggle that gates them changes.
@@ -217,13 +217,13 @@ internal static class PageVisuals {
         }
 
         // === DLC events ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "DLC Events";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_DLC_EVENTS", "DLC Events");
 
         SimpleToggle(sec.Body, def.HoldSounds, conf.HoldSounds, v => conf.HoldSounds = v, "HoldSound", "fxrm_holdsounds");
         SimpleToggle(sec.Body, def.HideIcons, conf.HideIcons, v => conf.HideIcons = v, "HideIcon & Judgements", "fxrm_hideicons");
 
         // === Misc ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Misc";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_MISC", "Misc");
 
         removeAllRow = GenerateUI.Row(sec.Body);
         GenerateUI.Toggle(
@@ -550,7 +550,11 @@ internal static class PageVisuals {
             int slot = i;
             string n = (slot + 1).ToString();
 
-            GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = $"Planet {n}";
+            GenerateUI.Localize(
+                GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)),
+                "HEADING_PLANET_" + n,
+                $"Planet {n}"
+            );
 
             GenerateUI.ColorPicker(
                 GenerateUI.Row(sec.Body),

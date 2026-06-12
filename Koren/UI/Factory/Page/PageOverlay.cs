@@ -179,6 +179,13 @@ internal static class PageOverlay {
                 "Reset Judgement Position",
                 "overlay_resetjudgement"
             );
+
+            GenerateUI.Button(
+                GenerateUI.Row(sec.Body),
+                () => Koren.Features.KeyViewer.KeyViewerOverlay.ResetPosition(),
+                "Reset Key Viewer Position",
+                "overlay_resetkeyviewer"
+            );
         }
     }
 
@@ -196,7 +203,7 @@ internal static class PageOverlay {
 
         if(panels.Count == 0) {
             var note = GenerateUI.AddText(GenerateUI.Row(panelsList.transform));
-            note.text = "No panels. Create one above.";
+            GenerateUI.Localize(note, "PANEL_NO_PANELS", "No panels. Create one above.");
             note.fontSize = 19f;
             note.color = new Color(1f, 1f, 1f, 0.45f);
             return;
@@ -242,7 +249,7 @@ internal static class PageOverlay {
         // (reorder = display order on the panel), an enable dot, a Swap
         // button (replace with another stat in place) and a delete X.
 
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Stats";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_STATS", "Stats");
 
         UIButton addBtn = null;
         GameObject picker = null;
@@ -329,7 +336,7 @@ internal static class PageOverlay {
             pickerOpen = false;
             replaceTarget = null;
             if(addBtn != null) {
-                addBtn.Label.text = "+ Add Stat";
+                addBtn.Label.text = MainCore.Tr.Get("PANEL_ADDSTAT", "+ Add Stat");
             }
 
             if(animate) {
@@ -344,7 +351,7 @@ internal static class PageOverlay {
         void OpenPickerAnimated() {
             pickerOpen = true;
             if(addBtn != null) {
-                addBtn.Label.text = "Close";
+                addBtn.Label.text = MainCore.Tr.Get("CLOSE", "Close");
             }
             BuildPicker();
             AnimatePicker(true);
@@ -355,7 +362,7 @@ internal static class PageOverlay {
 
             if(panel.Stats.Count == 0) {
                 var note = GenerateUI.AddText(GenerateUI.Row(rows.transform));
-                note.text = "No stats on this panel.";
+                GenerateUI.Localize(note, "PANEL_NO_STATS", "No stats on this panel.");
                 note.fontSize = 19f;
                 note.color = new Color(1f, 1f, 1f, 0.45f);
                 return;
@@ -395,7 +402,11 @@ internal static class PageOverlay {
                     if(!headerAdded) {
                         headerAdded = true;
                         var header = GenerateUI.AddText(GenerateUI.Row(picker.transform, 32f));
-                        header.text = category;
+                        GenerateUI.Localize(
+                            header,
+                            GenerateUI.LocaleKeyFromText("PANEL_CATEGORY", category),
+                            category
+                        );
                         header.fontSize = 17f;
                         header.color = new Color(1f, 1f, 1f, 0.45f);
                     }
@@ -422,7 +433,7 @@ internal static class PageOverlay {
 
             if(!any) {
                 var note = GenerateUI.AddText(GenerateUI.Row(picker.transform));
-                note.text = "All stats are already on this panel.";
+                GenerateUI.Localize(note, "PANEL_ALL_STATS_ADDED", "All stats are already on this panel.");
                 note.fontSize = 19f;
                 note.color = new Color(1f, 1f, 1f, 0.45f);
             }
@@ -469,7 +480,7 @@ internal static class PageOverlay {
 
         // === Appearance ===
 
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Appearance";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_APPEARANCE", "Appearance");
 
         PanelAnchor[] anchors = (PanelAnchor[])Enum.GetValues(typeof(PanelAnchor));
         GenerateUI.DropDown(
@@ -570,7 +581,7 @@ internal static class PageOverlay {
 
         // === Shadow ===
 
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Shadow";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_SHADOW", "Shadow");
 
         GenerateUI.Toggle(
             GenerateUI.Row(sec.Body),
@@ -605,7 +616,7 @@ internal static class PageOverlay {
 
         // === Panel actions ===
 
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Actions";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_ACTIONS", "Actions");
 
         GenerateUI.Button(
             GenerateUI.Row(sec.Body),
@@ -726,7 +737,11 @@ internal static class PageOverlay {
         }
 
         var label = GenerateUI.AddText(bg, true);
-        label.text = StatLabel(entry.Id);
+        GenerateUI.Localize(
+            label,
+            GenerateUI.LocaleKeyFromText("PANEL_STAT", entry.Id),
+            StatDefaultLabel(entry.Id)
+        );
         RectTransform labelRect = label.rectTransform;
         labelRect.offsetMin = new Vector2(48f, 0f);
 
@@ -760,24 +775,24 @@ internal static class PageOverlay {
             save();
         });
 
-        MiniButton(bg, "Swap", -56f, 84f, onSwap);
-        MiniButton(bg, "X", -8f, 44f, onDelete);
+        MiniButton(bg, "Swap", "SWAP", -56f, 84f, onSwap);
+        MiniButton(bg, "X", "DELETE_SHORT", -8f, 44f, onDelete);
     }
 
     private static string AnchorName(PanelAnchor anchor) => anchor switch {
-        PanelAnchor.TopLeft => "Top Left",
-        PanelAnchor.TopCenter => "Top Center",
-        PanelAnchor.TopRight => "Top Right",
-        PanelAnchor.MiddleLeft => "Middle Left",
-        PanelAnchor.MiddleCenter => "Middle Center",
-        PanelAnchor.MiddleRight => "Middle Right",
-        PanelAnchor.BottomLeft => "Bottom Left",
-        PanelAnchor.BottomCenter => "Bottom Center",
-        PanelAnchor.BottomRight => "Bottom Right",
+        PanelAnchor.TopLeft => MainCore.Tr.Get("ANCHOR_TOP_LEFT", "Top Left"),
+        PanelAnchor.TopCenter => MainCore.Tr.Get("ANCHOR_TOP_CENTER", "Top Center"),
+        PanelAnchor.TopRight => MainCore.Tr.Get("ANCHOR_TOP_RIGHT", "Top Right"),
+        PanelAnchor.MiddleLeft => MainCore.Tr.Get("ANCHOR_MIDDLE_LEFT", "Middle Left"),
+        PanelAnchor.MiddleCenter => MainCore.Tr.Get("ANCHOR_MIDDLE_CENTER", "Middle Center"),
+        PanelAnchor.MiddleRight => MainCore.Tr.Get("ANCHOR_MIDDLE_RIGHT", "Middle Right"),
+        PanelAnchor.BottomLeft => MainCore.Tr.Get("ANCHOR_BOTTOM_LEFT", "Bottom Left"),
+        PanelAnchor.BottomCenter => MainCore.Tr.Get("ANCHOR_BOTTOM_CENTER", "Bottom Center"),
+        PanelAnchor.BottomRight => MainCore.Tr.Get("ANCHOR_BOTTOM_RIGHT", "Bottom Right"),
         _ => anchor.ToString(),
     };
 
-    private static string StatLabel(string id) {
+    private static string StatDefaultLabel(string id) {
         foreach(PanelsOverlay.StatDef stat in PanelsOverlay.Catalog) {
             if(stat.Id == id) {
                 return stat.Label;
@@ -786,7 +801,7 @@ internal static class PageOverlay {
         return id;
     }
 
-    private static void MiniButton(Transform parent, string text, float rightOffset, float width, Action onClick) {
+    private static void MiniButton(Transform parent, string text, string key, float rightOffset, float width, Action onClick) {
         GameObject obj = new("MiniBtn_" + text);
         obj.transform.SetParent(parent, false);
 
@@ -803,7 +818,7 @@ internal static class PageOverlay {
         img.color = UIColors.ObjectButton;
 
         var label = GenerateUI.AddText(obj.transform, true);
-        label.text = text;
+        GenerateUI.Localize(label, key, text);
         label.fontSize = 18f;
         label.alignment = TextAlignmentOptions.Center;
 

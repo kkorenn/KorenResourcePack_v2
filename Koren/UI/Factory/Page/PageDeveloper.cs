@@ -65,7 +65,7 @@ internal static class PageDeveloper {
 
         pad.AddComponent<UIScrollController>().SetContent(contentRect, viewportRect);
 
-        GenerateUI.AddTextH1(GenerateUI.Row(content.transform)).text = "Developer";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(content.transform)), "DEVELOPER", "Developer");
 
         // Force the updater to offer an update for the current version. Install
         // goes through the motions but changes no files.
@@ -103,7 +103,7 @@ internal static class PageDeveloper {
             "dev_refresh"
         );
 
-        GenerateUI.AddTextH1(GenerateUI.Row(content.transform)).text = "Status";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(content.transform)), "STATUS", "Status");
 
         statusText = GenerateUI.AddText(GenerateUI.Row(content.transform, 320f));
         statusText.alignment = TextAlignmentOptions.TopLeft;

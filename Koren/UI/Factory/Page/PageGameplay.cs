@@ -196,7 +196,7 @@ internal static class PageGameplay {
             }
             nextPoll = Time.unscaledTime + 0.25f;
 
-            string text = "Status: " + AutoDeafen.Status;
+            string text = MainCore.Tr.Get("STATUS_PREFIX", "Status: ") + AutoDeafen.Status;
             if(Label.text != text) {
                 Label.text = text;
             }
@@ -236,12 +236,12 @@ internal static class PageGameplay {
                     return;
                 }
 
-                captureBtn.Label.text = "Press a key...";
+                captureBtn.Label.text = MainCore.Tr.Get("PRESS_A_KEY", "Press a key...");
                 KeyLimiter.StartCapture(
                     key => KeyLimiter.ToggleAllowedKey(key),
                     () => {
                         if(captureBtn?.Label != null) {
-                            captureBtn.Label.text = "Add / Remove Key";
+                            captureBtn.Label.text = MainCore.Tr.Get("KL_CAPTURE", "Add / Remove Key");
                         }
                     }
                 );
@@ -290,13 +290,13 @@ internal static class PageGameplay {
             int[] keys = KeyLimiter.Conf?.AllowedKeys ?? [];
             if(keys.Length == 0) {
                 var note = GenerateUI.AddText(GenerateUI.Row(list.transform));
-                note.text = "No allowed keys.";
+                GenerateUI.Localize(note, "KL_NO_ALLOWED_KEYS", "No allowed keys.");
                 note.fontSize = 19f;
                 note.color = new Color(1f, 1f, 1f, 0.45f);
                 return;
             }
 
-            GenerateUI.AddTextH1(GenerateUI.Row(list.transform)).text = "Allowed Keys";
+            GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(list.transform)), "KL_ALLOWED_KEYS", "Allowed Keys");
 
             for(int i = 0; i < keys.Length; i++) {
                 CreateKeyRow(list.transform, KeyLimiter.NormalizeKey((KeyCode)keys[i]));
@@ -330,7 +330,7 @@ internal static class PageGameplay {
         label.text = KeyName(key);
 
         bool settingThis = setCaptureKey == key && KeyLimiter.IsCapturing;
-        MiniButton(bg, settingThis ? "..." : "Set", -106f, 90f, () => {
+        MiniButton(bg, settingThis ? "..." : "Set", settingThis ? null : "SET", -106f, 90f, () => {
             if(KeyLimiter.IsCapturing) {
                 KeyLimiter.CancelCapture();
                 return;
@@ -343,10 +343,10 @@ internal static class PageGameplay {
             );
         });
 
-        MiniButton(bg, "Remove", -8f, 90f, () => KeyLimiter.ToggleAllowedKey(key));
+        MiniButton(bg, "Remove", "REMOVE", -8f, 90f, () => KeyLimiter.ToggleAllowedKey(key));
     }
 
-    private static void MiniButton(Transform parent, string text, float rightOffset, float width, Action onClick) {
+    private static void MiniButton(Transform parent, string text, string key, float rightOffset, float width, Action onClick) {
         GameObject obj = new("MiniBtn_" + text);
         obj.transform.SetParent(parent, false);
 
@@ -363,7 +363,11 @@ internal static class PageGameplay {
         img.color = UIColors.ObjectButton;
 
         var label = GenerateUI.AddText(obj.transform, true);
-        label.text = text;
+        if(string.IsNullOrEmpty(key)) {
+            label.text = text;
+        } else {
+            GenerateUI.Localize(label, key, text);
+        }
         label.fontSize = 18f;
         label.alignment = TextAlignmentOptions.Center;
 
@@ -573,10 +577,10 @@ internal static class PageGameplay {
     }
 
     private static string ModeName(int mode) => mode switch {
-        0 => "Minimum Accuracy",
-        1 => "Pure Perfect Only",
-        3 => "Custom Judgements",
-        4 => "No Too Early",
+        0 => MainCore.Tr.Get("JR_MODE_MIN_ACCURACY", "Minimum Accuracy"),
+        1 => MainCore.Tr.Get("JR_MODE_PURE_PERFECT", "Pure Perfect Only"),
+        3 => MainCore.Tr.Get("JR_MODE_CUSTOM", "Custom Judgements"),
+        4 => MainCore.Tr.Get("JR_MODE_NO_TOO_EARLY", "No Too Early"),
         _ => mode.ToString(),
     };
 

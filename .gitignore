@@ -1,6 +1,7 @@
 # Build output
 bin/
 obj/
+/dist/*.zip
 
 # IDE / editor
 .vs/

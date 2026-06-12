@@ -122,6 +122,14 @@ public class UIDropDown<T> : UIObject {
 
     public void Reset() => Set(DefaultValue);
 
+    public void RefreshLanguage() {
+        if(Label != null) {
+            Label.text = Display(Value);
+        }
+
+        RebuildList();
+    }
+
     public void SetExpanded(bool expanded) {
         Expanded = expanded;
 

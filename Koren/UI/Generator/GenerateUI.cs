@@ -50,6 +50,7 @@ public static partial class GenerateUI {
 
         TextMeshProUGUI tmp = AddText(rect);
         tmp.text = text;
+        LocalizeById(tmp, id, text);
 
         GameObject change = AddSmallChangedCircle(rect);
         Image changeImg = change.GetComponent<Image>();
@@ -111,6 +112,7 @@ public static partial class GenerateUI {
         TextMeshProUGUI tmp = AddText(rect, true);
         tmp.text = text;
         tmp.alignment = TextAlignmentOptions.Center;
+        LocalizeById(tmp, id, text);
 
         Image bg = rect.GetComponent<Image>();
         bg.color = UIColors.ObjectButton;
@@ -171,6 +173,7 @@ public static partial class GenerateUI {
         TextMeshProUGUI label = AddText(rect);
         label.text = text;
         label.alignment = TextAlignmentOptions.Left;
+        LocalizeById(label, id, text);
 
         TextMeshProUGUI valueText = AddText(rect);
         valueText.alignment = TextAlignmentOptions.Right;
@@ -319,6 +322,7 @@ public static partial class GenerateUI {
                 TextMeshProUGUI lead = AddText(root.transform);
                 lead.text = leftLabel;
                 lead.raycastTarget = false;
+                LocalizeById(lead, id, leftLabel, "LABEL");
 
                 RectTransform leadRect = lead.rectTransform;
                 leadRect.anchorMin = new(0f, 1f);
@@ -408,6 +412,7 @@ public static partial class GenerateUI {
             value,
             onChanged
         );
+        root.AddComponent<DropdownLanguageRefresh>().Init(dropdown.RefreshLanguage);
 
         GTween layoutSeq = null;
         RectTransform parentRect = parent as RectTransform ?? parent.GetComponent<RectTransform>();
@@ -578,6 +583,7 @@ public static partial class GenerateUI {
         placeholderText.alignment = TextAlignmentOptions.Left;
         placeholderText.textWrappingMode = TextWrappingModes.NoWrap;
         placeholderText.color = new Color(1, 1, 1, 0.2f);
+        LocalizeById(placeholderText, id, placeholder);
 
         RectTransform placeholderRect = placeholderText.rectTransform;
         placeholderRect.anchorMin = Vector2.zero;
@@ -718,6 +724,92 @@ public static partial class GenerateUI {
 
     public static TextMeshProUGUI AddTextH1(Transform parent) => CreateText(parent, 32f, true, true);
 
+    public static TextMeshProUGUI Localize(TextMeshProUGUI text, string key, string defaultValue) {
+        if(text == null) {
+            return null;
+        }
+
+        text.text = defaultValue;
+        text.gameObject.AddComponent<TextLocalization>().Init(key, defaultValue);
+        return text;
+    }
+
+    public static TextMeshProUGUI LocalizeById(
+        TextMeshProUGUI text,
+        string id,
+        string defaultValue,
+        string suffix = null
+    ) {
+        string key = LocaleKeyFromId(id, suffix);
+        if(string.IsNullOrEmpty(key) || string.IsNullOrEmpty(defaultValue)) {
+            return text;
+        }
+
+        return Localize(text, key, defaultValue);
+    }
+
+    public static string LocaleKeyFromId(string id, string suffix = null) {
+        if(string.IsNullOrWhiteSpace(id)) {
+            return null;
+        }
+
+        string key = NormalizeLocaleKey(id);
+
+        if(key.StartsWith("PANEL")) {
+            int i = "PANEL".Length;
+            while(i < key.Length && char.IsDigit(key[i])) {
+                i++;
+            }
+
+            if(i > "PANEL".Length && i < key.Length && key[i] == '_') {
+                key = "PANEL" + key[i..];
+            }
+        }
+
+        if(key.StartsWith("PANEL_PICK_")) {
+            key = "PANEL_STAT_" + key["PANEL_PICK_".Length..];
+        }
+
+        if(!string.IsNullOrEmpty(suffix)) {
+            key += "_" + NormalizeLocaleKey(suffix);
+        }
+
+        return key;
+    }
+
+    public static string LocaleKeyFromText(string prefix, string text) {
+        string key = NormalizeLocaleKey(text);
+        return string.IsNullOrEmpty(prefix) ? key : NormalizeLocaleKey(prefix) + "_" + key;
+    }
+
+    private static string NormalizeLocaleKey(string value) {
+        if(string.IsNullOrWhiteSpace(value)) {
+            return null;
+        }
+
+        List<char> chars = [];
+        bool lastUnderscore = false;
+
+        foreach(char raw in value.Trim().ToUpperInvariant()) {
+            char c = char.IsLetterOrDigit(raw) ? raw : '_';
+            if(c == '_') {
+                if(lastUnderscore) {
+                    continue;
+                }
+                lastUnderscore = true;
+            } else {
+                lastUnderscore = false;
+            }
+            chars.Add(c);
+        }
+
+        while(chars.Count > 0 && chars[^1] == '_') {
+            chars.RemoveAt(chars.Count - 1);
+        }
+
+        return chars.Count == 0 ? null : new string(chars.ToArray());
+    }
+
     private static TextMeshProUGUI CreateText(Transform parent, float size, bool bold, bool noPad) {
         GameObject obj = new("Text");
         obj.transform.SetParent(parent, false);
@@ -788,5 +880,34 @@ public static partial class GenerateUI {
         );
 
         return parent;
+    }
+}
+
+internal sealed class DropdownLanguageRefresh : MonoBehaviour {
+    private Action refresh;
+    private Action<TranslationFailState> onLoadEnd;
+    private Action<string> onLanguageChanged;
+
+    public void Init(Action refreshAction) {
+        refresh = refreshAction;
+        onLanguageChanged = _ => refresh?.Invoke();
+        onLoadEnd = state => {
+            if(state == TranslationFailState.Success) {
+                refresh?.Invoke();
+            }
+        };
+
+        MainCore.Tr.OnLanguageChanged += onLanguageChanged;
+        MainCore.Tr.OnLoadEnd += onLoadEnd;
+    }
+
+    private void OnDestroy() {
+        if(onLanguageChanged != null) {
+            MainCore.Tr.OnLanguageChanged -= onLanguageChanged;
+        }
+
+        if(onLoadEnd != null) {
+            MainCore.Tr.OnLoadEnd -= onLoadEnd;
+        }
     }
 }

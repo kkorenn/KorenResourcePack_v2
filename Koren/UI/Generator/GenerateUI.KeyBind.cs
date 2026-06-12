@@ -1,4 +1,5 @@
 using Koren.Core;
+using Koren.Localization;
 using Koren.Resource;
 using Koren.UI.Utility;
 using UnityEngine;
@@ -35,6 +36,7 @@ public static partial class GenerateUI {
 
         TextMeshProUGUI label = AddText(rect);
         label.text = text;
+        LocalizeById(label, id, text);
 
         // Right-hand combo box.
         GameObject box = new("KeybindBox");
@@ -91,7 +93,7 @@ internal sealed class KeyCapture : MonoBehaviour {
         }
         listening = true;
         Keybind.Capturing = true;
-        Display.text = "Press a key…";
+        Display.text = MainCore.Tr.Get("PRESS_A_KEY", "Press a key...");
     }
 
     private void Refresh() => Display.text = Keybind.Format(Modifier, Key);

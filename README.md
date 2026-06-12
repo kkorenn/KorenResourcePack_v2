@@ -34,8 +34,8 @@ dotnet build Koren.slnx -c Debug
 ```
 
 The build's PostBuild step copies `Koren.dll` straight into the game's `Mods/` folder (removing the old
-two-DLL `Mods/` + `UserLibs/` layout if present) and exports the language files — launch the game and the
-mod is loaded. Override the game path with the `GAMEPATH` env var
+two-DLL `Mods/` + `UserLibs/` layout if present), exports the language files, and writes
+`dist/Koren.zip` with the same install layout — launch the game and the mod is loaded. Override the game path with the `GAMEPATH` env var
 or by editing `Directory.Build.props` (see `Directory.Build.example.props`).
 
 ## Credits

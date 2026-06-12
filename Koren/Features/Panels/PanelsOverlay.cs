@@ -85,6 +85,39 @@ public static class PanelsOverlay {
             GameStats.Fps.ToString(CultureInfo.InvariantCulture) },
     ];
 
+    public static string LocalizedStatLabel(StatDef stat)
+        => stat == null ? "" : MainCore.Tr.Get(LocaleKey("PANEL_STAT_", stat.Id), stat.Label);
+
+    public static string LocalizedCategory(string category)
+        => MainCore.Tr.Get(LocaleKey("PANEL_CATEGORY_", category), category);
+
+    private static string LocaleKey(string prefix, string id) {
+        if(string.IsNullOrWhiteSpace(id)) {
+            return prefix;
+        }
+
+        StringBuilder key = new(prefix);
+        bool lastUnderscore = false;
+        foreach(char raw in id.Trim().ToUpperInvariant()) {
+            char c = char.IsLetterOrDigit(raw) ? raw : '_';
+            if(c == '_') {
+                if(lastUnderscore) {
+                    continue;
+                }
+                lastUnderscore = true;
+            } else {
+                lastUnderscore = false;
+            }
+            key.Append(c);
+        }
+
+        while(key.Length > prefix.Length && key[^1] == '_') {
+            key.Length--;
+        }
+
+        return key.ToString();
+    }
+
     private static string Bpm(bool tile) {
         GameStats.GetBpm(out float tbpm, out float cbpm);
         return (tile ? tbpm : cbpm).ToString("0.##", CultureInfo.InvariantCulture);
@@ -357,7 +390,7 @@ public static class PanelsOverlay {
                         continue;
                     }
 
-                    sb.Append(stat.Label).Append(c.LabelSeparator).AppendLine(value);
+                    sb.Append(LocalizedStatLabel(stat)).Append(c.LabelSeparator).AppendLine(value);
                 }
             }
 

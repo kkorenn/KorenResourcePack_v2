@@ -162,6 +162,9 @@ public static partial class GenerateUI {
         label.text = title;
         label.characterSpacing = -3f;
         label.raycastTarget = false;
+        if(parent == null || parent.name != "PanelsList") {
+            Localize(label, LocaleKeyFromText("SECTION", title), title);
+        }
 
         // Body: lays out the caller's rows and sizes to them. A RectMask2D
         // clips the slide during the open/close animation; once open we hand

@@ -32,7 +32,7 @@ internal static class PageJudgement {
         );
 
         // === Layout ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Layout";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_LAYOUT", "Layout");
 
         AddSlider(sec.Body, "Vertical Offset", "judgement_offsety",
             def.OffsetY, -100f, 200f, conf.OffsetY, "0 px", 1f,
@@ -47,7 +47,7 @@ internal static class PageJudgement {
             v => conf.Spacing = v, Apply, Save);
 
         // === Shadow ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Shadow";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_SHADOW", "Shadow");
 
         GenerateUI.Toggle(
             GenerateUI.Row(sec.Body),

@@ -9,6 +9,12 @@ using Koren.Compat.Interface;
 // (shown in-game and used for update checks).
 [assembly: MelonInfo(typeof(Loader), Info.Name, Info.Version, Info.Author, Info.GithubLink)]
 [assembly: MelonGame("7th Beat Games", "A Dance of Fire and Ice")]
+// Since the loader merge, Koren.dll is the melon assembly itself, so
+// MelonLoader's HarmonyInit would auto-PatchAll every [HarmonyPatch] class on
+// top of HarmonyService's own PatchAll — double-applying every patch (hits
+// counted twice, ChatterBlocker's duplicated SkyHook prefix swallowing every
+// key). HarmonyService stays the single owner of patch lifecycle.
+[assembly: HarmonyDontPatchAll]
 
 namespace Koren;
 

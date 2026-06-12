@@ -55,7 +55,7 @@ internal static class PageCombo {
             v => conf.OffsetY = v, Apply, Save);
 
         // === Label ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Label";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_LABEL", "Label");
 
         GenerateUI.Toggle(
             GenerateUI.Row(sec.Body),
@@ -117,7 +117,7 @@ internal static class PageCombo {
         );
 
         // === Count ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Count";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_COUNT", "Count");
 
         AddSlider(sec.Body, "Thickness", "combo_count_thickness",
             def.CountThickness, -0.5f, 0.5f, conf.CountThickness, "0.00", 0.01f,
@@ -155,7 +155,7 @@ internal static class PageCombo {
         );
 
         // === Animation ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Animation";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_ANIMATION", "Animation");
 
         GenerateUI.Toggle(
             GenerateUI.Row(sec.Body),
@@ -179,7 +179,7 @@ internal static class PageCombo {
             v => conf.LabelPulseOffsetY = v, null, Save);
 
         // === Color ===
-        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Color";
+        GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_COLOR", "Color");
 
         AddSlider(sec.Body, "Color Max Combo", "combo_colormax",
             def.ColorMax, 1f, 5000f, conf.ColorMax, "0", 1f,

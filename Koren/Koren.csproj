@@ -16,6 +16,11 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
 		<Configurations>Debug;Release;Release_IL2CPP;Debug_IL2CPP</Configurations>
+		<DistDir>$(MSBuildProjectDirectory)/../dist</DistDir>
+		<PackageStageRoot>$(BaseIntermediateOutputPath)dist-stage</PackageStageRoot>
+		<PackageStageModsDir>$(PackageStageRoot)/Mods</PackageStageModsDir>
+		<PackageStageDataDir>$(PackageStageRoot)/UserData/Koren</PackageStageDataDir>
+		<DistZipPath>$(DistDir)/Koren.zip</DistZipPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Configuration.Contains('IL2CPP'))">
@@ -26,6 +31,7 @@
 		<Reference Include="Newtonsoft.Json"><HintPath>$(GamePath)/$(GameData)/Managed/Newtonsoft.Json.dll</HintPath></Reference>
 		<Reference Include="0Harmony"><HintPath>$(GamePath)/MelonLoader/net35/0Harmony.dll</HintPath></Reference>
 		<Reference Include="MelonLoader"><HintPath>$(GamePath)/MelonLoader/net35/MelonLoader.dll</HintPath></Reference>
+		<Reference Include="UnityFileDialog" Condition="Exists('$(GamePath)/$(GameData)/Managed/UnityFileDialog.dll')"><HintPath>$(GamePath)/$(GameData)/Managed/UnityFileDialog.dll</HintPath><Private>false</Private></Reference>
 	</ItemGroup>
 
 	<ItemGroup Condition="!$(Configuration.Contains('IL2CPP'))">
@@ -89,7 +95,8 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>
 
-	<!-- Auto-install: drop Koren.dll into Mods and export language files to UserData/Koren.
+	<!-- Auto-install: drop Koren.dll into Mods, export language files to UserData/Koren,
+	     and package the same install layout into dist/Koren.zip.
 	     Also removes the pre-merge two-DLL layout (Mods/Koren.Loader.ML.dll + UserLibs/Koren.dll)
 	     so MelonLoader doesn't load the mod twice. -->
 	<Target Name="PostBuild" AfterTargets="Build">
@@ -103,5 +110,13 @@
 
 		<MakeDir Directories="$(GamePath)/UserData/Koren" />
 		<Copy SourceFiles="@(ExportFiles)" DestinationFiles="@(ExportFiles->'$(GamePath)/UserData/Koren/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+
+		<RemoveDir Directories="$(PackageStageRoot)" Condition="'$(TargetPath)' != ''" />
+		<MakeDir Directories="$(DistDir);$(PackageStageModsDir);$(PackageStageDataDir)" Condition="'$(TargetPath)' != ''" />
+		<Copy Condition="'$(TargetPath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(PackageStageModsDir)" />
+		<Copy Condition="'$(TargetPath)' != ''" SourceFiles="@(ExportFiles)" DestinationFiles="@(ExportFiles->'$(PackageStageDataDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Delete Files="$(DistZipPath)" Condition="'$(TargetPath)' != ''" TreatErrorsAsWarnings="true" />
+		<ZipDirectory SourceDirectory="$(PackageStageRoot)" DestinationFile="$(DistZipPath)" Condition="'$(TargetPath)' != ''" />
+		<Message Importance="high" Text="Zip: $(DistZipPath)" Condition="'$(TargetPath)' != ''" />
 	</Target>
 </Project>

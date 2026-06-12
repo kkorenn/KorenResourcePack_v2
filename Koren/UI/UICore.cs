@@ -421,12 +421,17 @@ public static class UICore {
             Menu.pivot = new(0, 0.5f);
 
             Menu.sizeDelta = new(MENU_WIDTH, -TOP_BAR_HEIGHT);
-            Menu.anchoredPosition = MenuClosedPosition;
+            Menu.anchoredPosition = MenuOpenPosition;
 
             var image = menu.AddComponent<Image>();
             image.color = UIColors.MenuBG;
 
             menuCanvasGroup = Menu.gameObject.AddComponent<CanvasGroup>();
+            menuCanvasGroup.alpha = 1f;
+            menuCanvasGroup.interactable = true;
+            menuCanvasGroup.blocksRaycasts = true;
+            isMenuOpen = true;
+            Page.offsetMin = new Vector2(MENU_WIDTH, 0f);
 
             // Menu Content
             GameObject content = new("Content");
