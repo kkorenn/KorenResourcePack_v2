@@ -31,6 +31,9 @@ internal static class PageJudgement {
             "Top-center row of hit counts per judgement, from Overload through Perfect to Miss."
         );
 
+        // === Layout ===
+        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Layout";
+
         AddSlider(sec.Body, "Vertical Offset", "judgement_offsety",
             def.OffsetY, -100f, 200f, conf.OffsetY, "0 px", 1f,
             v => conf.OffsetY = v, Apply, Save);
@@ -42,6 +45,9 @@ internal static class PageJudgement {
         AddSlider(sec.Body, "Spacing", "judgement_spacing",
             def.Spacing, -20f, 80f, conf.Spacing, "0 px", 1f,
             v => conf.Spacing = v, Apply, Save);
+
+        // === Shadow ===
+        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Shadow";
 
         GenerateUI.Toggle(
             GenerateUI.Row(sec.Body),

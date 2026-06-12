@@ -111,6 +111,7 @@ internal static class PageOverlay {
         PageProgressBar.AppendTo(content.transform);
         PageCombo.AppendTo(content.transform);
         PageJudgement.AppendTo(content.transform);
+        PageKeyViewer.AppendTo(content.transform);
 
         // === Panels ===
 
@@ -560,6 +561,19 @@ internal static class PageOverlay {
 
         GenerateUI.Toggle(
             GenerateUI.Row(sec.Body),
+            def.BackgroundEnabled,
+            panel.BackgroundEnabled,
+            v => { panel.BackgroundEnabled = v; PanelsOverlay.Apply(); Save(); },
+            "Background Panel",
+            idp + "_background"
+        );
+
+        // === Shadow ===
+
+        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Shadow";
+
+        GenerateUI.Toggle(
+            GenerateUI.Row(sec.Body),
             def.TextShadowEnabled,
             panel.TextShadowEnabled,
             v => { panel.TextShadowEnabled = v; PanelsOverlay.Apply(); Save(); },
@@ -589,16 +603,9 @@ internal static class PageOverlay {
             idp + "_shadow_color"
         );
 
-        GenerateUI.Toggle(
-            GenerateUI.Row(sec.Body),
-            def.BackgroundEnabled,
-            panel.BackgroundEnabled,
-            v => { panel.BackgroundEnabled = v; PanelsOverlay.Apply(); Save(); },
-            "Background Panel",
-            idp + "_background"
-        );
-
         // === Panel actions ===
+
+        GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)).text = "Actions";
 
         GenerateUI.Button(
             GenerateUI.Row(sec.Body),

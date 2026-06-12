@@ -45,11 +45,16 @@ public static class OttoIcon {
     // The idle (auto off) icon is the active color dimmed, same factor v1 used.
     private const float IdleDimFactor = 0.343f;
 
-    private static Color ActiveColor => Conf.GetColor();
+    // Vanilla's highBPM check (scnEditor.highBPM is private): tints Otto red
+    // while the level's top BPM is 300+.
+    private static bool IsHighBpm => scnGame.instance != null && scnGame.instance.highestBPM >= 300f;
+
+    private static Color ActiveColor =>
+        Conf.UseHighBpmColor && IsHighBpm ? Conf.GetHighBpmColor() : Conf.GetColor();
 
     private static Color IdleColor {
         get {
-            Color c = Conf.GetColor();
+            Color c = ActiveColor;
             return new Color(c.r * IdleDimFactor, c.g * IdleDimFactor, c.b * IdleDimFactor, c.a);
         }
     }
@@ -167,6 +172,9 @@ public static class OttoIcon {
         if(!applyStateValid) {
             return false;
         }
+        // Live color/transform must be checked too: OttoUpdate reasserts
+        // autoImage.color every frame, so a cache hit on intent alone would
+        // skip the re-apply and let the game's color win.
         return cachedEditor == editor
             && cachedImage == autoImage
             && cachedReplacement == replacement
@@ -175,7 +183,10 @@ public static class OttoIcon {
             && cachedPosition == targetPosition
             && cachedScale == targetScale
             && autoImage != null
-            && autoImage.sprite == replacement;
+            && autoImage.sprite == replacement
+            && autoImage.color == targetColor
+            && autoImage.rectTransform.anchoredPosition == targetPosition
+            && autoImage.rectTransform.localScale == targetScale;
     }
 
     private static void OverrideAutoSpriteArray(scnEditor editor, Sprite replacement) {
