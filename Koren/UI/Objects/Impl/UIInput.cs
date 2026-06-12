@@ -58,6 +58,11 @@ public sealed class UIInput : UIObject {
 
         SetupInputField();
 
+        // Seed the field's internal text, not just the label: TMP_InputField
+        // rewrites its label from the internal string on enable, so a value
+        // only painted onto the text component gets wiped to empty.
+        InputField.SetTextWithoutNotify(value ?? string.Empty);
+
         InputField.onValueChanged.AddListener(OnValueChanged);
 
         UpdateVisual(true);

@@ -328,6 +328,37 @@ internal static class PageVisuals {
             "otto_color"
         );
 
+        RectTransform highBpmColorRow = null;
+
+        GenerateUI.Toggle(
+            GenerateUI.Row(sec.Body),
+            def.UseHighBpmColor,
+            conf.UseHighBpmColor,
+            v => {
+                conf.UseHighBpmColor = v;
+                highBpmColorRow?.gameObject.SetActive(v);
+                OttoIcon.Refresh();
+                OttoIcon.Save();
+            },
+            "Separate High BPM Color",
+            "otto_highbpm_on"
+        ).Rect.AddToolTip(
+            "DESC_OTTO_HIGHBPM_ON",
+            "On: Otto uses the color below while the level's top BPM is 300+ (where vanilla turns him red). Off: the normal color is always used."
+        );
+
+        highBpmColorRow = GenerateUI.Row(sec.Body);
+        GenerateUI.ColorPicker(
+            highBpmColorRow,
+            def.GetHighBpmColor(),
+            conf.GetHighBpmColor(),
+            c => { conf.SetHighBpmColor(c); OttoIcon.Refresh(); },
+            c => { conf.SetHighBpmColor(c); OttoIcon.Refresh(); OttoIcon.Save(); },
+            "High BPM Color",
+            "otto_highbpm_color"
+        );
+        highBpmColorRow.gameObject.SetActive(conf.UseHighBpmColor);
+
         UISlider offsetX = GenerateUI.Slider(
             GenerateUI.Row(sec.Body),
             def.OffsetX, -100f, 100f, conf.OffsetX,

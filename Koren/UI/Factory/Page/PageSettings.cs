@@ -428,7 +428,8 @@ internal static class PageSettings {
         updateCheckButton.Label.gameObject.AddComponent<TextLocalization>().Init("CHECK_FOR_UPDATES", "Check for Updates");
 
         var updateStatusRow = GenerateUI.Row(content.transform);
-        updateStatusText = GenerateUI.AddText(updateStatusRow);
+        // noPad so the text lines up with the progress bar track below.
+        updateStatusText = GenerateUI.AddText(updateStatusRow, noPad: true);
         updateStatusText.text = "";
 
         {
