@@ -19,6 +19,10 @@ public sealed class ProgressBarSettings : ISettingsFile {
     public float Rounding = 4f;
     public float OutlineThickness = 0f;
 
+    // When a run starts mid-chart (checkpoint / editor play-from-tile), start
+    // the bar already filled up to that point instead of empty.
+    public bool PrefillStart = false;
+
     public float FillR = 0.97f, FillG = 0.99f, FillB = 1.00f, FillA = 0.96f;
     public float BackR = 0.05f, BackG = 0.05f, BackB = 0.06f, BackA = 0.80f;
     public float OutlineColR = 0.98f, OutlineColG = 0.99f, OutlineColB = 1.00f, OutlineColA = 0.68f;
@@ -74,6 +78,7 @@ public sealed class ProgressBarSettings : ISettingsFile {
             [nameof(TopOffset)] = TopOffset,
             [nameof(Rounding)] = Rounding,
             [nameof(OutlineThickness)] = OutlineThickness,
+            [nameof(PrefillStart)] = PrefillStart,
             [nameof(FillR)] = FillR,
             [nameof(FillG)] = FillG,
             [nameof(FillB)] = FillB,
@@ -97,6 +102,7 @@ public sealed class ProgressBarSettings : ISettingsFile {
         TopOffset = IOUtils.Read(token, nameof(TopOffset), TopOffset);
         Rounding = IOUtils.Read(token, nameof(Rounding), Rounding);
         OutlineThickness = IOUtils.Read(token, nameof(OutlineThickness), OutlineThickness);
+        PrefillStart = IOUtils.Read(token, nameof(PrefillStart), PrefillStart);
         FillR = IOUtils.Read(token, nameof(FillR), FillR);
         FillG = IOUtils.Read(token, nameof(FillG), FillG);
         FillB = IOUtils.Read(token, nameof(FillB), FillB);

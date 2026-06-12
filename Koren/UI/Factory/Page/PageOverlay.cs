@@ -489,17 +489,9 @@ internal static class PageOverlay {
             (PanelAnchor)panel.Anchor,
             anchors,
             AnchorName,
-            v => {
-                panel.Anchor = (int)v;
-                // Offsets are relative to the anchor; jumping anchors keeps
-                // the old offset meaningless, so snap to the new corner's
-                // default inset and let the user drag from there.
-                Vector2 def = PanelConfig.DefaultOffset(v);
-                panel.PosX = def.x;
-                panel.PosY = def.y;
-                Save();
-                PanelsOverlay.Rebuild();
-            },
+            // Snaps the offset to the new corner's default inset and rebuilds
+            // without re-syncing this panel's stale live position.
+            v => PanelsOverlay.SetAnchor(panel, v),
             idp + "_anchor",
             260f,
             "Anchor"

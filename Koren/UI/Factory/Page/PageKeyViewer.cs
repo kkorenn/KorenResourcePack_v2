@@ -137,6 +137,7 @@ internal static class PageKeyViewer {
         int selectedSlot = -1;
         bool listening = false;
         var previewBoxes = new Dictionary<int, (Image fill, Image border, TextMeshProUGUI label)>();
+        var statBoxes = new List<(Image fill, Image border, TextMeshProUGUI label)>();
         UIInput labelInput = null;
 
         void RefreshPreviewVisuals() {
@@ -147,6 +148,22 @@ internal static class PageKeyViewer {
                 border.color = selected ? UIColors.ObjectActive : conf.GetOutline();
                 label.color = conf.GetText();
                 label.text = selected && listening ? "..." : KeyViewerOverlay.LabelFor(style, slot);
+            }
+
+            // KPS/Total boxes follow the same colors, dimmed — recolored here
+            // so live color edits update them like the key boxes.
+            foreach((Image fill, Image border, TextMeshProUGUI label) in statBoxes) {
+                Color dim = conf.GetBg();
+                dim.a *= 0.5f;
+                fill.color = dim;
+
+                Color dimBorder = conf.GetOutline();
+                dimBorder.a *= 0.5f;
+                border.color = dimBorder;
+
+                Color dimText = conf.GetText();
+                dimText.a *= 0.6f;
+                label.color = dimText;
             }
         }
 
@@ -184,6 +201,7 @@ internal static class PageKeyViewer {
                 Object.Destroy(preview.GetChild(i).gameObject);
             }
             previewBoxes.Clear();
+            statBoxes.Clear();
             selectedSlot = -1;
             listening = false;
             labelInput?.Set("", invoke: false);
@@ -220,29 +238,23 @@ internal static class PageKeyViewer {
                 previewBoxes[slot.Slot] = (fill, border, label);
             }
 
-            // Stat boxes: shown for layout fidelity, not clickable.
+            // Stat boxes: shown for layout fidelity, not clickable. Colors are
+            // applied by RefreshPreviewVisuals below.
             foreach(KeyViewerOverlay.StatSlot slot in statSlots) {
                 (Image fill, Image border) = KeyViewerOverlay.NewBoxVisual(
                     slot.Total ? "PreviewTotal" : "PreviewKps", preview, slot.X, slot.Y, slot.W, slot.H
                 );
-                Color dim = conf.GetBg();
-                dim.a *= 0.5f;
-                fill.color = dim;
-                Color dimBorder = conf.GetOutline();
-                dimBorder.a *= 0.5f;
-                border.color = dimBorder;
 
                 TextMeshProUGUI label = KeyViewerOverlay.NewText(
                     fill.transform, "Label", slot.Total ? "Total" : "KPS", 16f
                 );
-                Color dimText = conf.GetText();
-                dimText.a *= 0.6f;
-                label.color = dimText;
                 RectTransform labelRect = label.rectTransform;
                 labelRect.anchorMin = Vector2.zero;
                 labelRect.anchorMax = Vector2.one;
                 labelRect.offsetMin = Vector2.zero;
                 labelRect.offsetMax = Vector2.zero;
+
+                statBoxes.Add((fill, border, label));
             }
 
             RefreshPreviewVisuals();
@@ -250,7 +262,16 @@ internal static class PageKeyViewer {
 
         KeyCaptureRunner runner = previewObj.AddComponent<KeyCaptureRunner>();
         runner.IsListening = () => listening;
-        runner.ShouldCancel = () => labelInput != null && labelInput.InputField.isFocused;
+        // Any focused input field (key label, slider value editors) means the
+        // user is typing, not rebinding.
+        runner.ShouldCancel = () => {
+            if(labelInput != null && labelInput.InputField.isFocused) {
+                return true;
+            }
+            GameObject sel = UnityEngine.EventSystems.EventSystem.current?.currentSelectedGameObject;
+            TMP_InputField field = sel != null ? sel.GetComponent<TMP_InputField>() : null;
+            return field != null && field.isFocused;
+        };
         runner.OnCaptured = OnKeyCaptured;
         runner.OnCancelled = CancelListening;
 

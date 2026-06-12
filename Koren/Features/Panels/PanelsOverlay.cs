@@ -196,13 +196,15 @@ public static class PanelsOverlay {
     }
 
     // Tears the live panel objects down and rebuilds them from config —
-    // called from the settings UI after add/delete/rename.
-    public static void Rebuild() {
+    // called from the settings UI after add/delete/rename. skipPositionSync:
+    // a panel whose config position was just rewritten (anchor change) and
+    // must not be clobbered by its live rect's old-anchor position.
+    public static void Rebuild(PanelConfig skipPositionSync = null) {
         if(canvasObj == null) {
             return;
         }
 
-        SyncPositionsToConfig();
+        SyncPositionsToConfig(skipPositionSync);
 
         foreach(LivePanel p in panels) {
             if(p.Rect != null) {
@@ -213,6 +215,20 @@ public static class PanelsOverlay {
 
         BuildPanels();
         Apply();
+    }
+
+    // Changes a panel's anchor preset. Offsets are relative to the anchor, so
+    // the old offset is meaningless at the new corner — snap to the new
+    // corner's default inset. The rebuild skips syncing this panel: its live
+    // rect still holds the old-anchor position, which would overwrite the
+    // fresh default and strand the panel off-screen.
+    public static void SetAnchor(PanelConfig config, PanelAnchor anchor) {
+        config.Anchor = (int)anchor;
+        Vector2 def = PanelConfig.DefaultOffset(anchor);
+        config.PosX = def.x;
+        config.PosY = def.y;
+        Save();
+        Rebuild(config);
     }
 
     private static void BuildPanels() {
@@ -268,9 +284,9 @@ public static class PanelsOverlay {
         Save();
     }
 
-    private static void SyncPositionsToConfig() {
+    private static void SyncPositionsToConfig(PanelConfig skip = null) {
         foreach(LivePanel p in panels) {
-            if(p.Rect != null && p.Config != null) {
+            if(p.Rect != null && p.Config != null && p.Config != skip) {
                 p.Config.PosX = p.Rect.anchoredPosition.x;
                 p.Config.PosY = p.Rect.anchoredPosition.y;
             }
@@ -303,7 +319,10 @@ public static class PanelsOverlay {
         dragRect.offsetMin = Vector2.zero;
         dragRect.offsetMax = Vector2.zero;
         drag.AddComponent<EmptyGraphic>().raycastTarget = true;
-        drag.AddComponent<DragHandler>();
+        ReorganizeHandle handle = drag.AddComponent<ReorganizeHandle>();
+        handle.Target = rect;
+        handle.GetName = () => config.Name;
+        handle.OnMoved = Save;
         drag.SetActive(false);
 
         GameObject textObj = new("Text");

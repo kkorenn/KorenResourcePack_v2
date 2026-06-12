@@ -86,7 +86,10 @@ public static class ComboOverlay {
         dragRect.offsetMin = Vector2.zero;
         dragRect.offsetMax = Vector2.zero;
         drag.AddComponent<EmptyGraphic>().raycastTarget = true;
-        drag.AddComponent<DragHandler>();
+        ReorganizeHandle handle = drag.AddComponent<ReorganizeHandle>();
+        handle.Target = root;
+        handle.GetName = () => MainCore.Tr.Get("COMBO", "Combo");
+        handle.OnMoved = Save;
         drag.SetActive(false);
 
         updater = canvasObj.AddComponent<Updater>();

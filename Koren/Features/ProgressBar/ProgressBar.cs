@@ -260,9 +260,13 @@ public static class ProgressBarOverlay {
                 now = start;
             }
 
+            // PrefillStart: a mid-chart run starts with the bar already filled
+            // up to the start point, instead of an empty bar growing from it.
+            float fillFrom = Conf.PrefillStart ? 0f : start;
+
             float totalW = Conf.Width;
-            float startX = totalW * start;
-            float fillW = Mathf.Clamp(totalW * (now - start), 0f, totalW);
+            float startX = totalW * fillFrom;
+            float fillW = Mathf.Clamp(totalW * (now - fillFrom), 0f, totalW);
 
             fillContainer.anchoredPosition = new Vector2(startX, 0f);
             fillContainer.sizeDelta = new Vector2(fillW, 0f);

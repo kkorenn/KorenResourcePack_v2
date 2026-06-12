@@ -259,17 +259,7 @@ public static class KeyViewerOverlay {
             }
         }
 
-        GameObject drag = new("Drag");
-        dragObj = drag;
-        drag.transform.SetParent(root, false);
-        RectTransform dragRect = drag.AddComponent<RectTransform>();
-        dragRect.anchorMin = Vector2.zero;
-        dragRect.anchorMax = Vector2.one;
-        dragRect.offsetMin = Vector2.zero;
-        dragRect.offsetMax = Vector2.zero;
-        drag.AddComponent<EmptyGraphic>().raycastTarget = true;
-        drag.AddComponent<DragHandler>();
-        drag.SetActive(false);
+        AddReorganizeHandle();
 
         Apply();
         SyncKeysToKeyLimiter();
@@ -529,6 +519,12 @@ public static class KeyViewerOverlay {
             }
         }
 
+        AddReorganizeHandle();
+
+        Apply();
+    }
+
+    private static void AddReorganizeHandle() {
         GameObject drag = new("Drag");
         dragObj = drag;
         drag.transform.SetParent(root, false);
@@ -538,10 +534,11 @@ public static class KeyViewerOverlay {
         dragRect.offsetMin = Vector2.zero;
         dragRect.offsetMax = Vector2.zero;
         drag.AddComponent<EmptyGraphic>().raycastTarget = true;
-        drag.AddComponent<DragHandler>();
+        ReorganizeHandle handle = drag.AddComponent<ReorganizeHandle>();
+        handle.Target = root;
+        handle.GetName = () => MainCore.Tr.Get("KEYVIEWER_TITLE", "Key Viewer");
+        handle.OnMoved = Save;
         drag.SetActive(false);
-
-        Apply();
     }
 
     private static List<DmNoteSpec> ParseDmNoteSpecs() {

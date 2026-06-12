@@ -192,6 +192,10 @@ public static class UICore {
 
         IsReorganizing = false;
 
+        // Drop any element selection (outline + position panel) right away —
+        // the per-overlay drag surfaces deactivate on their next Update.
+        Reorganizer.Deselect();
+
         if(Panel != null) {
             Panel.gameObject.SetActive(true);
         }
@@ -950,6 +954,7 @@ public static class UICore {
     public static void Dispose() {
         MainCore.Tr.OnLoadEnd -= _onPageSettings;
         MainCore.Tr.OnLoadEnd -= _onRefresh;
+        Reorganizer.Dispose();
         UpdateToast.Dispose();
         Tooltip.Dispose();
         UnityEngine.Object.Destroy(canvasObj);

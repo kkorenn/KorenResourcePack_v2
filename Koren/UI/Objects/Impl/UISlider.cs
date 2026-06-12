@@ -103,9 +103,9 @@ public class UISlider : UIObject {
         UpdateVisual();
     }
 
-    public void SetOnlyValue(float value) {
+    public void SetOnlyValue(float value, bool noAnimate = false) {
         Value = Mathf.Clamp(ApplyFilter(value), Min, Max);
-        UpdateVisual(false);
+        UpdateVisual(noAnimate);
     }
 
     public float Normalize() => Mathf.InverseLerp(Min, Max, Value);

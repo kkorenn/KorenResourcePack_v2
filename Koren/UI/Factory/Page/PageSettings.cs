@@ -595,7 +595,7 @@ internal static class PageSettings {
         var fontTextTr = fontText.gameObject.AddComponent<TextLocalization>().Init("FONT", "Font");
 
         var fontRow = GenerateUI.Row(content.transform);
-        GenerateUI.DropDown(
+        var fontDropdown = GenerateUI.DropDown(
             fontRow,
             FontManager.DefaultName,
             FontManager.CurrentName,
@@ -604,6 +604,9 @@ internal static class PageSettings {
             name => FontManager.SetFont(name, true),
             "font_dropdown"
         );
+        // Render each option in the face it names (e.g. the "JetBrains Mono"
+        // row draws in JetBrains Mono).
+        fontDropdown.ItemFont = FontManager.GetFont;
         objects[fontTextTr] = (fontLabelRow.gameObject, fontRow.gameObject);
     }
 

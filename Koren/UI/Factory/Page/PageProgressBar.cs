@@ -26,6 +26,18 @@ internal static class PageProgressBar {
             "progressbar_enabled"
         );
 
+        GenerateUI.Toggle(
+            GenerateUI.Row(sec.Body),
+            def.PrefillStart,
+            conf.PrefillStart,
+            v => { conf.PrefillStart = v; Save(); },
+            "Pre-fill to Start Position",
+            "progressbar_prefillstart"
+        ).Rect.AddToolTip(
+            "DESC_PROGRESSBAR_PREFILLSTART",
+            "When a run starts mid-chart (checkpoint or editor play), the bar starts already filled up to that point instead of starting empty."
+        );
+
         // === Size ===
         GenerateUI.Localize(GenerateUI.AddTextH1(GenerateUI.Row(sec.Body)), "HEADING_SIZE", "Size");
 

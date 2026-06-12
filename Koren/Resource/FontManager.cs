@@ -94,7 +94,13 @@ public static class FontManager {
         }
     }
 
-    // Re-points every existing TMP text under the mod root at the current font.
+    // Builds (and caches) the TMP asset for a bundled font by display name.
+    // Falls back to the default font for unknown names. Used by the settings
+    // font picker to render each option in its own face.
+    public static TMP_FontAsset GetFont(string name) => Resolve(name) ?? defaultFont;
+
+    // Re-points every existing TMP text under the mod root at the current
+    // font. Texts marked FontExempt manage their own font (font-picker rows).
     public static void ApplyToAll() {
         if(MainCore.Root == null || Current == null) {
             return;
@@ -102,7 +108,7 @@ public static class FontManager {
 
         TMP_Text[] texts = MainCore.Root.GetComponentsInChildren<TMP_Text>(true);
         for(int i = 0; i < texts.Length; i++) {
-            if(texts[i] != null) {
+            if(texts[i] != null && texts[i].GetComponent<FontExempt>() == null) {
                 texts[i].font = Current;
             }
         }
@@ -136,3 +142,8 @@ public static class FontManager {
         }
     }
 }
+
+// Marks a TMP text that picks its own font (e.g. the font dropdown's option
+// rows, each rendered in the face it names) so FontManager.ApplyToAll leaves
+// it alone when the global font changes.
+public sealed class FontExempt : MonoBehaviour { }

@@ -1,4 +1,5 @@
-﻿using Koren.Core;
+﻿using System.Globalization;
+using Koren.Core;
 using Koren.Localization;
 using Koren.Resource;
 using Koren.UI.Objects.Impl;
@@ -273,9 +274,126 @@ public static partial class GenerateUI {
             }
         }, trigger);
 
+        AddSliderValueEditor(slider, rect, valueText, () => Apply(defaultValue));
+
         slider.Set(Apply(value), false);
 
         return slider;
+    }
+
+    // Click-to-type for sliders: the value readout on the right is a click
+    // target that swaps to an input field, so exact values don't have to be
+    // hit with the slider itself. Enter/click-away applies (filtered and
+    // clamped like any slider change), Esc restores.
+    private static void AddSliderValueEditor(
+        UISlider slider,
+        RectTransform rect,
+        TextMeshProUGUI valueText,
+        Func<float> applyDefault
+    ) {
+        // Hidden input field overlaying the value area.
+        GameObject editObj = new("ValueEdit");
+        editObj.transform.SetParent(rect, false);
+
+        RectTransform editRect = editObj.AddComponent<RectTransform>();
+        editRect.anchorMin = new Vector2(1f, 0f);
+        editRect.anchorMax = new Vector2(1f, 1f);
+        editRect.pivot = new Vector2(1f, 0.5f);
+        editRect.anchoredPosition = Vector2.zero;
+        editRect.sizeDelta = new Vector2(140f, 0f);
+        editObj.AddComponent<RectMask2D>();
+
+        TMP_InputField editField = editObj.AddComponent<TMP_InputField>();
+
+        TextMeshProUGUI editText = AddText(editObj.transform, true);
+        editText.alignment = TextAlignmentOptions.Right;
+        editText.rectTransform.offsetMax = new Vector2(-16f, 0f);
+
+        editField.textViewport = editRect;
+        editField.textComponent = editText;
+        editField.lineType = TMP_InputField.LineType.SingleLine;
+        editField.contentType = TMP_InputField.ContentType.DecimalNumber;
+
+        editObj.SetActive(false);
+
+        bool editing = false;
+
+        void EndEdit(string raw) {
+            if(!editing) {
+                return;
+            }
+            editing = false;
+
+            editObj.SetActive(false);
+            valueText.gameObject.SetActive(true);
+
+            if(float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out float v)
+                || float.TryParse(raw, out v)) {
+                slider.Set(v);
+                slider.OnComplete?.Invoke(slider.Value);
+            } else {
+                // Unparseable input — just restore the readout.
+                slider.UpdateVisual(true);
+            }
+        }
+
+        void BeginEdit() {
+            if(editing) {
+                return;
+            }
+            editing = true;
+
+            valueText.gameObject.SetActive(false);
+            editObj.SetActive(true);
+            editField.SetTextWithoutNotify(
+                slider.Value.ToString("0.###", CultureInfo.InvariantCulture)
+            );
+            editField.Select();
+            editField.ActivateInputField();
+        }
+
+        editField.onEndEdit.AddListener(EndEdit);
+
+        // Click zone over the readout. Its EventTrigger swallows the press, so
+        // clicking the number edits it instead of jumping the slider.
+        GameObject zone = new("ValueEditZone");
+        zone.transform.SetParent(rect, false);
+
+        RectTransform zoneRect = zone.AddComponent<RectTransform>();
+        zoneRect.anchorMin = new Vector2(1f, 0f);
+        zoneRect.anchorMax = new Vector2(1f, 1f);
+        zoneRect.pivot = new Vector2(1f, 0.5f);
+        zoneRect.anchoredPosition = Vector2.zero;
+        zoneRect.sizeDelta = new Vector2(110f, 0f);
+
+        zone.AddComponent<EmptyGraphic>().raycastTarget = true;
+
+        EventTrigger zoneTrigger = zone.AddComponent<EventTrigger>();
+        UnityUtils.AddClickEvent(zoneTrigger, e => {
+            switch(e.button) {
+                case PointerEventData.InputButton.Left:
+                    BeginEdit();
+                    break;
+
+                case PointerEventData.InputButton.Middle:
+                    if(MainCore.Conf.MiddleClickToDefault) {
+                        slider.Set(applyDefault());
+                        slider.OnComplete?.Invoke(slider.Value);
+                    }
+                    break;
+            }
+        });
+
+        // Hover tint on the number as the "this is editable" affordance.
+        UnityUtils.AddEvent(EventTriggerType.PointerEnter, _ => {
+            if(!editing) {
+                valueText.color = UIColors.ObjectActiveLightBright;
+            }
+        }, zoneTrigger);
+
+        UnityUtils.AddEvent(EventTriggerType.PointerExit, _ => {
+            valueText.color = Color.white;
+        }, zoneTrigger);
     }
 
     public static UIDropDown<T> DropDown<T>(

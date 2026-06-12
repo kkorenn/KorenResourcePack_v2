@@ -112,8 +112,14 @@ public static class JudgementOverlay {
         dragRect.anchorMax = Vector2.one;
         dragRect.offsetMin = Vector2.zero;
         dragRect.offsetMax = Vector2.zero;
+        // The row layout group must not size the drag surface — without this
+        // it gets laid out to zero width and the overlay can't be grabbed.
+        drag.AddComponent<LayoutElement>().ignoreLayout = true;
         drag.AddComponent<EmptyGraphic>().raycastTarget = true;
-        drag.AddComponent<DragHandler>();
+        ReorganizeHandle handle = drag.AddComponent<ReorganizeHandle>();
+        handle.Target = root;
+        handle.GetName = () => MainCore.Tr.Get("JUDGEMENT", "Judgement");
+        handle.OnMoved = Save;
         drag.SetActive(false);
 
         updater = canvasObj.AddComponent<Updater>();

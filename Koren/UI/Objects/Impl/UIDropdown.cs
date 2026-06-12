@@ -47,6 +47,13 @@ public class UIDropDown<T> : UIObject {
 
     public Action OnLayoutChanged;
 
+    // Optional per-option font (the settings font picker renders every option
+    // in its own face). Resolved lazily on expand so the page build doesn't
+    // pay for constructing every font asset up front.
+    public Func<T, TMP_FontAsset> ItemFont;
+
+    private readonly List<(T item, TextMeshProUGUI text)> rowTexts = [];
+
     private GTween triangleSeq;
     private GTween changeSeq;
 
@@ -133,11 +140,42 @@ public class UIDropDown<T> : UIObject {
     public void SetExpanded(bool expanded) {
         Expanded = expanded;
 
+        if(expanded) {
+            ApplyItemFonts();
+        }
+
         ListObject?.SetActive(expanded);
 
         UpdateVisual();
 
         OnLayoutChanged?.Invoke();
+    }
+
+    private void ApplyItemFonts() {
+        if(ItemFont == null) {
+            return;
+        }
+
+        foreach((T item, TextMeshProUGUI text) in rowTexts) {
+            if(text == null) {
+                continue;
+            }
+
+            TMP_FontAsset font = ItemFont(item);
+            if(font == null) {
+                continue;
+            }
+
+            if(text.font != font) {
+                text.font = font;
+            }
+
+            // Keep FontManager.ApplyToAll from resetting the row to the
+            // global font when the user picks one.
+            if(text.GetComponent<FontExempt>() == null) {
+                text.gameObject.AddComponent<FontExempt>();
+            }
+        }
     }
 
     public void ToggleExpanded() => SetExpanded(!Expanded);
@@ -191,6 +229,7 @@ public class UIDropDown<T> : UIObject {
         foreach(Transform child in ListObject.transform) {
             Object.Destroy(child.gameObject);
         }
+        rowTexts.Clear();
 
         foreach(T item in Values) {
             GameObject row = new("Row");
@@ -209,6 +248,7 @@ public class UIDropDown<T> : UIObject {
             rowText.textWrappingMode = TextWrappingModes.NoWrap;
             rowText.overflowMode = TextOverflowModes.Ellipsis;
             rowText.rectTransform.offsetMax = new(-16f, 0f);
+            rowTexts.Add((item, rowText));
 
             EventTrigger trigger = row.AddComponent<EventTrigger>();
 
@@ -241,6 +281,10 @@ public class UIDropDown<T> : UIObject {
 
                 SetExpanded(false);
             });
+        }
+
+        if(Expanded) {
+            ApplyItemFonts();
         }
     }
 
