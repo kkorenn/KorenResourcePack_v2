@@ -530,8 +530,11 @@ public static class UICore {
             var versionRect = version.AddComponent<RectTransform>();
             versionRect.anchorMin = Vector2.zero;
             versionRect.anchorMax = new(1f, 0f);
-            versionRect.offsetMin = new(2f, 0f);
-            versionRect.offsetMax = Vector2.zero;
+            // Bottom-anchored, so height comes from the offsets. offsetMax.y was 0
+            // -> a zero-height box, which pushed the glyphs below the Menu's bottom
+            // edge and clipped them. Give it an 18px tall strip 2px off the bottom.
+            versionRect.offsetMin = new(2f, 2f);
+            versionRect.offsetMax = new(0f, 20f);
             versionRect.pivot = Vector2.zero;
             var versionText = version.AddComponent<TextMeshProUGUI>();
             versionText.text = $"v{Info.DisplayVersion}";
