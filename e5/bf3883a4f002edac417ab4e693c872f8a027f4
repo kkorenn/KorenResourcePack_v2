@@ -1,0 +1,19 @@
+Koren/UI/UICore.cs
+  s_d3f6042fb177f4::t_f534b4da18b2db 533-537
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "e5bf3883a4f002edac417ab4e693c872f8a027f4",
+  "prompts": {},
+  "sessions": {
+    "s_d3f6042fb177f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c042076-d172-44e3-94ee-2535285f16cb",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
