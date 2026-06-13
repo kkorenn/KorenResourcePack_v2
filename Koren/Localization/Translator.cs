@@ -39,8 +39,11 @@ public class Translator {
     private readonly string KTLKey;
     private readonly string ExpectedKTLValue;
 
-    private Dictionary<string, Dictionary<string, string>> translations = [];
-    private Dictionary<string, Dictionary<string, string[]>> translationsArr = [];
+    // volatile + atomic reference swap: Load() runs on a background Task and
+    // publishes new dictionaries here while the main thread reads them via
+    // Get/HasKey/GetArr (tooltips). Never mutate a published dict in place.
+    private volatile Dictionary<string, Dictionary<string, string>> translations = [];
+    private volatile Dictionary<string, Dictionary<string, string[]>> translationsArr = [];
 
     /// <summary>
     /// Constant representing the fallback language code.
@@ -155,8 +158,11 @@ public class Translator {
 
         Log($"{LOG_PREFIX}Starting to load translations from: {baseLangFolderPath}");
 
-        translations = [];
-        translationsArr = [];
+        // Build into locals and publish via a single atomic reference swap at the
+        // end, so the main thread never observes a half-cleared/half-populated
+        // dictionary (was an InvalidOperationException / torn-read race).
+        Dictionary<string, Dictionary<string, string>> newTranslations = [];
+        Dictionary<string, Dictionary<string, string[]>> newTranslationsArr = [];
 
         string[] files;
 
@@ -166,6 +172,8 @@ public class Translator {
             FailState = TranslationFailState.ErrorReadingDirectory;
             Log($"{LOG_PREFIX_ERROR}Error reading directory: {baseLangFolderPath}");
             Log($"[Translator Exception] {e.GetType().Name}: {e.Message}");
+            translations = newTranslations;
+            translationsArr = newTranslationsArr;
             Finish();
             return;
         }
@@ -175,6 +183,8 @@ public class Translator {
         if(files.Length == 0) {
             FailState = TranslationFailState.FileDoesNotExist;
             Log($"{LOG_PREFIX_WARNING}No translation files found");
+            translations = newTranslations;
+            translationsArr = newTranslationsArr;
             Finish();
             return;
         }
@@ -215,11 +225,11 @@ public class Translator {
                     }
 
                     if(stringDict.Count > 0) {
-                        translations[property.Name] = stringDict;
+                        newTranslations[property.Name] = stringDict;
                     }
 
                     if(arrayDict.Count > 0) {
-                        translationsArr[property.Name] = arrayDict;
+                        newTranslationsArr[property.Name] = arrayDict;
                     }
                 }
             } catch(Exception e) {
@@ -230,18 +240,19 @@ public class Translator {
         }
 
         // Determine overall state after processing.
-        if(translations.Count == 0 && translationsArr.Count == 0) {
+        if(newTranslations.Count == 0 && newTranslationsArr.Count == 0) {
             FailState = TranslationFailState.NoValidTranslationFound;
             Log($"{LOG_PREFIX_WARNING}No valid translations were found in any files.");
         } else if(FailState != TranslationFailState.SomeFailure) {
             FailState = TranslationFailState.Success;
         }
 
-        translations = translations
+        // Atomic publish: order into fresh dictionaries, then swap the field refs.
+        translations = newTranslations
             .OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-        translationsArr = translationsArr
+        translationsArr = newTranslationsArr
             .OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
@@ -435,8 +446,10 @@ public class Translator {
     /// Releases resources used by the Translator.
     /// </summary>
     public void Release() {
-        translations.Clear();
-        translationsArr.Clear();
+        // Atomic swap, not in-place Clear(), so a concurrent reader can't trip on
+        // a mid-clear dictionary (same publish contract as Load()).
+        translations = [];
+        translationsArr = [];
         logAction = null;
         OnLoadEnd = delegate { };
     }

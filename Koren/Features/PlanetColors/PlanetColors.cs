@@ -51,7 +51,7 @@ public static partial class PlanetColors {
     private static bool applying;
 
     private static readonly Dictionary<int, int> rendererSlots = [];
-    private static readonly Dictionary<string, MemberInfo> memberCache = [];
+    private static readonly Dictionary<(Type, string), MemberInfo> memberCache = [];
     private static readonly Dictionary<string, MethodInfo> colorMethodCache = [];
     private static readonly object[] colorInvokeArgs = new object[1];
     private static MethodInfo setParticleSystemColorMethod;
@@ -499,7 +499,10 @@ public static partial class PlanetColors {
         if(type == null || string.IsNullOrEmpty(name)) {
             return null;
         }
-        string key = type.FullName + "." + name;
+        // Tuple key: (Type, string) has structural equality and, as a struct
+        // dictionary key, allocates nothing — unlike the old `type.FullName + "."
+        // + name` concat that built a throwaway string on every per-frame call.
+        var key = (type, name);
         if(memberCache.TryGetValue(key, out MemberInfo cached)) {
             return cached;
         }

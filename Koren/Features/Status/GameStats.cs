@@ -129,6 +129,15 @@ public static class GameStats {
     public static float Best => PlayCount.PlayCount.BestForCurrentMap();
     public static float BestStart => PlayCount.PlayCount.BestStartForCurrentMap();
 
+    // The time texts only change once a second (FormatTime truncates to whole
+    // seconds), but the getters are polled every frame per panel. Cache the
+    // formatted string keyed on the truncated seconds so the ~5-7 string allocs
+    // happen ~1×/sec instead of 60-240×/sec.
+    private static int musicTimeCurSec = -1, musicTimeLenSec = -1;
+    private static string musicTimeCache = "0:00 / 0:00";
+    private static int mapTimeSec = -1, mapTimeTotalSec = int.MinValue;
+    private static string mapTimeCache = "0:00";
+
     public static string MusicTimeText {
         get {
             try {
@@ -137,8 +146,15 @@ public static class GameStats {
                     return "0:00 / 0:00";
                 }
 
-                bool hour = a.clip.length >= 3600f;
-                return FormatTime(a.time, hour) + " / " + FormatTime(a.clip.length, hour);
+                int curSec = (int)Mathf.Max(0f, a.time);
+                int lenSec = (int)Mathf.Max(0f, a.clip.length);
+                if(curSec != musicTimeCurSec || lenSec != musicTimeLenSec) {
+                    musicTimeCurSec = curSec;
+                    musicTimeLenSec = lenSec;
+                    bool hour = a.clip.length >= 3600f;
+                    musicTimeCache = FormatTime(a.time, hour) + " / " + FormatTime(a.clip.length, hour);
+                }
+                return musicTimeCache;
             } catch {
                 return "0:00 / 0:00";
             }
@@ -196,16 +212,23 @@ public static class GameStats {
                     t = 0f;
                 }
 
-                if(total > 0f) {
-                    if(t > total) {
-                        t = total;
-                    }
-
-                    bool hour = total >= 3600f;
-                    return FormatTime(t, hour) + " / " + FormatTime(total, hour);
+                if(total > 0f && t > total) {
+                    t = total;
                 }
 
-                return FormatTime(t);
+                int tSec = (int)t;
+                int totalSec = total > 0f ? (int)total : -1;
+                if(tSec != mapTimeSec || totalSec != mapTimeTotalSec) {
+                    mapTimeSec = tSec;
+                    mapTimeTotalSec = totalSec;
+                    if(total > 0f) {
+                        bool hour = total >= 3600f;
+                        mapTimeCache = FormatTime(t, hour) + " / " + FormatTime(total, hour);
+                    } else {
+                        mapTimeCache = FormatTime(t);
+                    }
+                }
+                return mapTimeCache;
             } catch {
                 return "0:00";
             }

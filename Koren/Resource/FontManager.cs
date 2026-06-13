@@ -22,6 +22,9 @@ public static class FontManager {
 
     private static TMP_FontAsset defaultFont;
     private static readonly Dictionary<string, TMP_FontAsset> cache = [];
+    // Source Font objects backing the dynamically-built cache assets, kept so
+    // Dispose can destroy them (TMP_FontAsset.CreateFontAsset does not own them).
+    private static readonly List<Font> sourceFonts = [];
     private static readonly Dictionary<string, string> fontFiles = [];
     private static string[] available;
 
@@ -135,11 +138,56 @@ public static class FontManager {
             Font font = new(path);
             TMP_FontAsset asset = TMP_FontAsset.CreateFontAsset(font);
             cache[name] = asset;
+            sourceFonts.Add(font);
             return asset;
         } catch(Exception e) {
             MainCore.Log.Wrn($"[FontManager] build '{name}' failed: {e.Message}");
             return null;
         }
+    }
+
+    // Destroys every dynamically-built font asset (and its generated atlas
+    // textures + material) and the source Font objects, then clears the caches.
+    // The default font is owned by ResourceManager, so it is left untouched.
+    public static void Dispose() {
+        Current = defaultFont;
+        CurrentName = DefaultName;
+
+        foreach(TMP_FontAsset asset in cache.Values) {
+            DestroyFontAsset(asset);
+        }
+        cache.Clear();
+
+        foreach(Font font in sourceFonts) {
+            if(font != null) {
+                UnityEngine.Object.Destroy(font);
+            }
+        }
+        sourceFonts.Clear();
+
+        fontFiles.Clear();
+        available = null;
+    }
+
+    private static void DestroyFontAsset(TMP_FontAsset asset) {
+        if(asset == null) {
+            return;
+        }
+
+        if(asset.material != null) {
+            UnityEngine.Object.Destroy(asset.material);
+        }
+
+        Texture2D[] atlases = asset.atlasTextures;
+        if(atlases != null) {
+            foreach(Texture2D tex in atlases) {
+                if(tex != null) {
+                    UnityEngine.Object.Destroy(tex);
+                }
+            }
+        }
+
+        UnityEngine.Object.Destroy(asset);
     }
 }
 

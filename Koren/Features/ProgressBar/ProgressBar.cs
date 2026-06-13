@@ -249,10 +249,10 @@ public static class ProgressBarOverlay {
                 return;
             }
 
-            // Persist live drag position so Apply()-driven repositions don't
-            // fight the user. Mirrors StatusOverlay's pattern.
-            Conf.OffsetX = bar.anchoredPosition.x;
-            Conf.TopOffset = -bar.anchoredPosition.y;
+            // No position writeback here: the bar is never draggable (dragObj is
+            // force-disabled above), so anchoredPosition only ever equals what
+            // Apply() set from Conf — mirroring it back into Conf every frame is a
+            // no-op round-trip. Apply() is the sole writer of position.
 
             float start = Mathf.Clamp01(GameStats.RunStartProgress);
             float now = Mathf.Clamp01(GameStats.Progress);

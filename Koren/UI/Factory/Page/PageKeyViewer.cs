@@ -576,7 +576,7 @@ internal static class PageKeyViewer {
             v => { conf.DmShortNoteThresholdMs = v; Apply(); }, Save);
 
         AddSlider(dmNoteBody, "Short Note Min Length", "keyviewer_dm_short_min",
-            def.DmShortNoteMinLengthPx, 1f, 999f, conf.DmShortNoteMinLengthPx, "0 px", 1f,
+            def.DmShortNoteMinLengthPx, 1f, 9999f, conf.DmShortNoteMinLengthPx, "0 px", 1f,
             v => { conf.DmShortNoteMinLengthPx = v; Apply(); }, Save);
 
         AddSlider(dmNoteBody, "Key Display Delay", "keyviewer_dm_key_delay",

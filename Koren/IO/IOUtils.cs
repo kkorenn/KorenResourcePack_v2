@@ -19,37 +19,9 @@ public static class IOUtils {
         }
     }
     #endregion
-    #region Enum
-    public static TEnum ReadEnum<TEnum>(JToken token, string key, TEnum fallback)
-        where TEnum : struct, Enum {
-        var value = token[key];
-
-        if(value == null) {
-            return fallback;
-        }
-
-        try {
-            if(value.Type == JTokenType.Integer) {
-                return (TEnum)Enum.ToObject(typeof(TEnum), value.Value<int>());
-            }
-
-            if(value.Type == JTokenType.String) {
-                var str = value.Value<string>();
-
-                if(Enum.TryParse<TEnum>(str, true, out var result)) {
-                    return result;
-                }
-            }
-        } catch {
-            return fallback;
-        }
-
-        return fallback;
-    }
-
-    public static JValue WriteEnum<TEnum>(TEnum value)
-        where TEnum : struct, Enum => new(value.ToString());
-    #endregion
+    // Enums persist as ints via the plain Read/Write overloads (rename-resilient).
+    // The former ReadEnum/WriteEnum helpers were unused and inconsistent (name vs
+    // int) — removed.
     #region Vector2
     public static Vector2 Read(JToken token, string key, Vector2 fallback) {
         var value = token[key];

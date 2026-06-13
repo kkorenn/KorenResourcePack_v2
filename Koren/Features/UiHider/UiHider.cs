@@ -185,21 +185,32 @@ public static partial class UiHider {
         }
     }
 
+    // Resolved field/property per (type, member), so the per-frame hide loop does
+    // one dict hit + reflective get instead of two AccessTools lookups each call.
+    // The member identity is stable for a type, so the cache never goes stale.
+    private static readonly Dictionary<(Type, string), MemberInfo> memberCache = [];
+
     internal static object GetMemberValue(object owner, string memberName) {
         if(owner == null || string.IsNullOrEmpty(memberName)) {
             return null;
         }
 
         Type type = owner.GetType();
-        FieldInfo field = AccessTools.Field(type, memberName);
-        if(field != null) {
-            try { return field.GetValue(owner); } catch { }
+        var key = (type, memberName);
+        if(!memberCache.TryGetValue(key, out MemberInfo member)) {
+            member = (MemberInfo)AccessTools.Field(type, memberName)
+                  ?? AccessTools.Property(type, memberName);
+            memberCache[key] = member;
         }
 
-        PropertyInfo property = AccessTools.Property(type, memberName);
-        if(property != null) {
-            try { return property.GetValue(owner, null); } catch { }
-        }
+        try {
+            if(member is FieldInfo field) {
+                return field.GetValue(owner);
+            }
+            if(member is PropertyInfo property) {
+                return property.GetValue(owner, null);
+            }
+        } catch { }
 
         return null;
     }

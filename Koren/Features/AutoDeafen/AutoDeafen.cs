@@ -22,7 +22,8 @@ public static class AutoDeafen {
     public static AutoDeafenSettings Conf => ConfMgr?.Data;
 
     private static DiscordRpc rpc;
-    private static string configKey;
+    private static string configClientId;
+    private static string configToken;
     private static bool desiredDeaf;
     private static string status = "off";
 
@@ -75,9 +76,16 @@ public static class AutoDeafen {
             return;
         }
 
-        string nextConfigKey = BuildConfigKey();
-        if(rpc == null || !string.Equals(configKey, nextConfigKey, StringComparison.Ordinal)) {
-            Restart(nextConfigKey);
+        // Compare the client-id and token directly instead of building a combined
+        // key string every tick (the concat was a per-frame allocation just to
+        // detect a settings edit). Trim() returns the same instance when there's
+        // nothing to trim, so this path normally allocates nothing.
+        string clientId = DiscordOAuthServer.ClientId;
+        string token = Trim(Conf.DiscordAccessToken);
+        if(rpc == null
+           || !string.Equals(configClientId, clientId, StringComparison.Ordinal)
+           || !string.Equals(configToken, token, StringComparison.Ordinal)) {
+            Restart(clientId, token);
         }
 
         // Capture the game's authoritative first-tile signal once per run —
@@ -135,7 +143,8 @@ public static class AutoDeafen {
         }
         DiscordOAuthServer.Stop();
         desiredDeaf = false;
-        configKey = null;
+        configClientId = null;
+        configToken = null;
         suppressUntilRestart = false;
         runStartCaptured = false;
     }
@@ -165,11 +174,12 @@ public static class AutoDeafen {
         catch { return false; }
     }
 
-    private static void Restart(string nextConfigKey) {
+    private static void Restart(string clientId, string token) {
         StopRpc();
-        configKey = nextConfigKey;
+        configClientId = clientId;
+        configToken = token;
         status = "starting";
-        rpc = new DiscordRpc(DiscordOAuthServer.ClientId, Trim(Conf.DiscordAccessToken));
+        rpc = new DiscordRpc(clientId, token);
         rpc.Start();
     }
 
@@ -181,11 +191,9 @@ public static class AutoDeafen {
         try { rpc.Stop(); } catch { }
         rpc = null;
         desiredDeaf = false;
-        configKey = null;
+        configClientId = null;
+        configToken = null;
     }
-
-    private static string BuildConfigKey()
-        => DiscordOAuthServer.ClientId + "\n" + Trim(Conf.DiscordAccessToken);
 
     internal static void SaveAccessToken(string token) {
         if(string.IsNullOrEmpty(token) || Conf == null) {

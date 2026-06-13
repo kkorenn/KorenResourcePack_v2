@@ -167,6 +167,10 @@ public sealed class KorenRuntime {
         services.Dispose();
 
         Sprite.Dispose();
+        // Destroy the dynamically-built font assets (atlas + material + source
+        // Font) before ResourceManager tears down the default font they fall
+        // back to.
+        Koren.Resource.FontManager.Dispose();
         Resource.Dispose();
 
         if(RootObject != null) {
