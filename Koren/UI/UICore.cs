@@ -937,10 +937,20 @@ public static class UICore {
         UIColors.Palette previous = UIColors.Current;
         MainCore.Conf.SetAccentColor(accent);
         UIColors.ApplyAccent(MainCore.Conf.GetAccentColor());
+
+        // Live preview while dragging the picker. This remaps existing colours
+        // by matching the old palette, which is only approximate — for a near
+        // gray/black accent several palette roles collapse to the same colour,
+        // so the match can't tell them apart and the UI drifts toward one tone.
         RefreshTheme(previous);
 
         if(save) {
             MainCore.ConfMgr.Save();
+            // On commit, rebuild the UI so every widget re-reads its colour
+            // straight from the palette role — the only way to recover cleanly
+            // after the lossy live remap (e.g. dragging through black). Deferred
+            // so we don't tear down the colour picker mid-callback.
+            MainThread.Enqueue(Rebuild);
         }
     }
 
