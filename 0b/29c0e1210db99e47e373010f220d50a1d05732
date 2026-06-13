@@ -1,0 +1,86 @@
+Koren/Features/AutoDeafen/AutoDeafen.cs
+  s_d3f6042fb177f4::t_20dd37dd8fe05d 79-88
+  s_d3f6042fb177f4::t_438768a681b3c6 194-195
+  s_d3f6042fb177f4::t_1c116caac0e20b 25-26
+  s_d3f6042fb177f4::t_cceb6b15da3775 146-147
+  s_d3f6042fb177f4::t_9b431aba8595d3 177,179-180,182
+Koren/Features/KeyViewer/KeyViewerSettings.cs
+  s_d3f6042fb177f4::t_dac18edc88f08f 279-281
+Koren/Features/Combo/ComboOverlay.cs
+  s_d3f6042fb177f4::t_55e5beec5955d0 238-246
+  s_d3f6042fb177f4::t_9f1bfe5a606f43 268-273,279,283,285,289,295-318,320-322,324,326-355,359,362-365
+Koren/Features/UiHider/UiHider.cs
+  s_d3f6042fb177f4::t_93dcd0badf512b 188-192,199-203,206-213
+Koren/Resource/ResourceManager.cs
+  s_d3f6042fb177f4::t_b81f16cb3425e1 183-195,201-206
+  s_d3f6042fb177f4::t_bfc01c7f0ef578 131-135,141
+  s_d3f6042fb177f4::t_e50d74e1ffe5fe 44-46
+Koren/Features/Panels/PanelsOverlay.cs
+  s_d3f6042fb177f4::t_535f391026d44d 128-133,140
+  s_d3f6042fb177f4::t_3c50328754624d 273-275
+  s_d3f6042fb177f4::t_e5c80ca73a0fc3 377-382
+  s_d3f6042fb177f4::t_c3d17781e0734e 461-465,477-478,480-490,499-500,503-508
+Koren/Features/Judgement/JudgementOverlay.cs
+  s_d3f6042fb177f4::t_f5cf78a10b50df 216-221,229-231,237-239,249-250,256-260,264-267
+  s_d3f6042fb177f4::t_1225700c4d80fc 194-195
+Koren/Features/ProgressBar/ProgressBar.cs
+  s_d3f6042fb177f4::t_33767320683f2e 252-255
+Koren/UI/Utility/TMPTextShadow.cs
+  s_d3f6042fb177f4::t_dae683a49dba73 224,226-229,239,244-252
+  s_d3f6042fb177f4::t_fce0c2cf6365b1 27-28,32-35,47,52-54,72-83,89-92,96-99,103-113,115-116,118-123,125-132,135-136,138,148
+Koren/Core/KorenRuntime.cs
+  s_d3f6042fb177f4::t_7d13e3767ae51a 170-173
+Koren/Features/KeyViewer/KeyViewerOverlay.cs
+  s_d3f6042fb177f4::t_2edfadbd5e36fd 2175-2178,2180,2182
+  s_d3f6042fb177f4::t_a057c78edec177 2006-2008
+  s_d3f6042fb177f4::t_5b5ee00976f46f 2142-2147,2152-2157
+Koren/UI/Factory/Page/PageKeyViewer.cs
+  s_d3f6042fb177f4::t_c2c16dc0d5a18b 579
+Koren/Resource/FontManager.cs
+  s_d3f6042fb177f4::t_70dc798ee1e6a7 141,148-162,164-177,179-184,186-189
+  s_d3f6042fb177f4::t_1c77b832cf41e9 25-27
+  s_d3f6042fb177f4::t_82bc52b6a9519f 163,178,185,190
+Koren/Async/MainThread.cs
+  s_d3f6042fb177f4::t_33c8b838504b89 23-25
+Koren/Features/Status/GameStats.cs
+  s_d3f6042fb177f4::t_71970f140a6e6e 215-216,219-231
+  s_d3f6042fb177f4::t_833eb175137d35 132-140,149-157
+Koren/Features/Status/Bpm.cs
+  s_d3f6042fb177f4::t_4c3702e17e88ba 60-64
+Koren/Features/Tweaks/Tweaks.cs
+  s_d3f6042fb177f4::t_f20186f169fbba 220
+  s_d3f6042fb177f4::t_dc1a7cf3e279d2 431-434
+Koren/Features/AutoDeafen/DiscordOAuthServer.cs
+  s_d3f6042fb177f4::t_f57cfe0acff65f 73-76,78,81,84-85
+Koren/Localization/Translator.cs
+  s_d3f6042fb177f4::t_ead08cae01089e 42-46
+  s_d3f6042fb177f4::t_e01f564bd06e0a 449-452
+  s_d3f6042fb177f4::t_9d65c7fb8ff09d 228,232
+  s_d3f6042fb177f4::t_dc0fc40cb8754c 161-165,175-176,186-187
+  s_d3f6042fb177f4::t_eac1192c5cecf7 243,250-251,255
+Koren/Features/PlanetColors/PlanetColors.cs
+  s_d3f6042fb177f4::t_f23e03e2ae0a5d 54
+  s_d3f6042fb177f4::t_36ff7ee48956f9 502-505
+Koren/GTweens/Source/Interpolators/SystemColorInterpolator.cs
+  s_d3f6042fb177f4::t_a79de69bdd30d8 19-28,32-34
+Koren/IO/IOUtils.cs
+  s_d3f6042fb177f4::t_7721ab5096ff9d 22-24
+Koren/Resource/ProceduralTexture.cs
+  s_d3f6042fb177f4::t_5b745f8467d15d 62-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "0b29c0e1210db99e47e373010f220d50a1d05732",
+  "prompts": {},
+  "sessions": {
+    "s_d3f6042fb177f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c042076-d172-44e3-94ee-2535285f16cb",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
