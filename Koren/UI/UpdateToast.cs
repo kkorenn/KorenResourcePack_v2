@@ -12,11 +12,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI;
 

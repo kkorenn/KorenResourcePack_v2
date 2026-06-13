@@ -12,11 +12,7 @@ using GTweens.Extensions;
 using GTweens.Tweens;
 using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Generator;
 

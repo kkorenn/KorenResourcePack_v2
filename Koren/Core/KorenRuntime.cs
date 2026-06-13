@@ -6,6 +6,7 @@ using Koren.Core.Service;
 using Koren.Features.PlayCount;
 using Koren.Features.Combo;
 using Koren.Features.EffectRemover;
+using Koren.Features.Optimizer;
 using Koren.Features.Judgement;
 using Koren.Features.KeyViewer;
 using Koren.Features.OttoIcon;
@@ -135,10 +136,15 @@ public sealed class KorenRuntime {
         services.Add(playCount);
         services.Add(harmonyService);
 
+        // Engine-level performance toggles (GC scheduling, process priority,
+        // background execution). Static feature, so it just registers its tick.
+        Optimizer.Initialize();
+
         ticks.Add(playCount);
 
         ticks.Add(uiService);
         ticks.Add(tweenService);
+        ticks.Add(Optimizer.Ticker);
 
         services.Initialize(Logger);
 
@@ -209,6 +215,7 @@ public sealed class KorenRuntime {
             Tweaks.RefreshAll();
             PlanetColors.Refresh();
             OttoIcon.Refresh();
+            Optimizer.Apply();
 
             OnModEnabledChanged?.Invoke(true, isDispose);
 
@@ -230,6 +237,7 @@ public sealed class KorenRuntime {
             PlanetColors.Restore();
             OttoIcon.Restore();
             UiHider.Restore();
+            Optimizer.Restore();
             Features.AutoDeafen.AutoDeafen.Stop();
 
             Logger.Msg("Mod Disabled");

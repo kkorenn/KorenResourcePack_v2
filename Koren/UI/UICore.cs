@@ -17,11 +17,7 @@ using Koren.Tween;
 using GTweens.Easings;
 using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI;
 

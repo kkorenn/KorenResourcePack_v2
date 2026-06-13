@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Koren.Core;
 using Koren.Localization;
 using Koren.Resource;
@@ -16,11 +16,7 @@ using GTweens.Builders;
 using Koren.Tween;
 using GTweenExtensions = GTweens.Extensions.GTweenExtensions;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Generator;
 

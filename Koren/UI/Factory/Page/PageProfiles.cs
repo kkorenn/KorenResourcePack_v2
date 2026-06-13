@@ -11,11 +11,7 @@ using UnityEngine.UI;
 using UnityFileDialog;
 using Object = UnityEngine.Object;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Factory.Page;
 

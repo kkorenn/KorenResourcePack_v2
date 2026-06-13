@@ -10,11 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.Features.KeyViewer;
 
@@ -1663,18 +1659,14 @@ public static class KeyViewerOverlay {
     private sealed class RainGraphic : MaskableGraphic {
         private List<RawRain> active;
         private float now;
-        private float roundingPx;
-
-        private readonly List<float> rows = new(16);
 
         public void SetSource(List<RawRain> source) {
             active = source;
             SetVerticesDirty();
         }
 
-        public void SetFrame(float frameTime, float rounding) {
+        public void SetFrame(float frameTime) {
             now = frameTime;
-            roundingPx = rounding;
             SetVerticesDirty();
         }
 
@@ -1701,32 +1693,21 @@ public static class KeyViewerOverlay {
             }
 
             float dropY = raw.Reverse ? raw.BaseY + raw.TrackHeight - dFar : raw.BaseY + dNear;
-            Rect r = new(
-                layer.xMin + raw.AnchorX - raw.Width * 0.5f,
-                layer.yMax + dropY,
-                raw.Width,
-                height
-            );
+            float xMin = layer.xMin + raw.AnchorX - (raw.Width * 0.5f);
+            float xMax = xMin + raw.Width;
+            float yMin = layer.yMax + dropY;
+            float yMax = yMin + height;
 
-            float radius = Mathf.Clamp(roundingPx, 0f, Mathf.Min(r.width * 0.5f, r.height * 0.5f));
+            // Plain vertex-coloured quad — no rounded corners. Matches the
+            // original KRP rain: 4 verts / 2 tris per drop, the cheapest a drop
+            // can be. The top/bottom colour gradient and the fade are both linear
+            // in distance and distance is linear in Y, so a single quad
+            // reproduces them exactly — except across the fade boundary, where
+            // the alpha kinks. Split into two quads there (as the original did),
+            // one quad otherwise.
+            Color cMin = ColorForY(raw, dNear, dFar, yMin, yMin, height);
+            Color cMax = ColorForY(raw, dNear, dFar, yMax, yMin, height);
 
-            rows.Clear();
-            rows.Add(r.yMin);
-            rows.Add(r.yMax);
-
-            const int ArcSegments = 4;
-            if(radius > 0.5f) {
-                rows.Add(r.yMin + radius);
-                rows.Add(r.yMax - radius);
-                for(int k = 1; k < ArcSegments; k++) {
-                    float a = (k / (float)ArcSegments) * (Mathf.PI * 0.5f);
-                    float dy = radius * (1f - Mathf.Cos(a));
-                    rows.Add(r.yMin + dy);
-                    rows.Add(r.yMax - dy);
-                }
-            }
-
-            // Keep the alpha kink at the fade boundary as its own row.
             if(raw.FadePx > 0.5f && raw.TrackHeight > 0.5f) {
                 float fadeStartD = raw.TrackHeight - raw.FadePx;
                 float span = dFar - dNear;
@@ -1734,66 +1715,32 @@ public static class KeyViewerOverlay {
                     float tB = raw.Reverse
                         ? (fadeStartD - dFar) / (dNear - dFar)
                         : (fadeStartD - dNear) / span;
-                    if(tB > 0f && tB < 1f) {
-                        rows.Add(r.yMin + (tB * r.height));
+                    if(tB > 0.0001f && tB < 0.9999f) {
+                        float yMid = yMin + (tB * height);
+                        Color cMid = ColorForY(raw, dNear, dFar, yMid, yMin, height);
+                        AddQuad(vh, xMin, yMin, xMax, yMid, cMin, cMid);
+                        AddQuad(vh, xMin, yMid, xMax, yMax, cMid, cMax);
+                        return;
                     }
                 }
             }
 
-            rows.Sort();
+            AddQuad(vh, xMin, yMin, xMax, yMax, cMin, cMax);
+        }
 
-            int prevIdx = -1;
-            float prevY = 0f;
+        private static void AddQuad(VertexHelper vh, float xMin, float yMin, float xMax, float yMax, Color bottom, Color top) {
+            int idx = vh.currentVertCount;
             UIVertex v = UIVertex.simpleVert;
-
-            for(int n = 0; n < rows.Count; n++) {
-                float rowY = rows[n];
-                if(prevIdx >= 0 && Mathf.Abs(rowY - prevY) < 0.001f) {
-                    continue;
-                }
-
-                EdgeX(rowY, r, radius, out float lx, out float rx);
-                Color c = ColorForY(raw, dNear, dFar, rowY, r);
-
-                int idx = vh.currentVertCount;
-                v.position = new Vector3(lx, rowY, 0f); v.color = c; vh.AddVert(v);
-                v.position = new Vector3(rx, rowY, 0f); v.color = c; vh.AddVert(v);
-
-                if(prevIdx >= 0) {
-                    vh.AddTriangle(prevIdx, prevIdx + 1, idx + 1);
-                    vh.AddTriangle(prevIdx, idx + 1, idx);
-                }
-
-                prevIdx = idx;
-                prevY = rowY;
-            }
+            v.position = new Vector3(xMin, yMin, 0f); v.color = bottom; vh.AddVert(v);
+            v.position = new Vector3(xMax, yMin, 0f); v.color = bottom; vh.AddVert(v);
+            v.position = new Vector3(xMax, yMax, 0f); v.color = top; vh.AddVert(v);
+            v.position = new Vector3(xMin, yMax, 0f); v.color = top; vh.AddVert(v);
+            vh.AddTriangle(idx, idx + 1, idx + 2);
+            vh.AddTriangle(idx + 2, idx + 3, idx);
         }
 
-        // Left/right edge X at a given Y, pulling in over the rounded corners.
-        private static void EdgeX(float y, Rect r, float radius, out float left, out float right) {
-            left = r.xMin;
-            right = r.xMax;
-            if(radius <= 0.5f) {
-                return;
-            }
-
-            float cy;
-            if(y < r.yMin + radius) {
-                cy = r.yMin + radius;
-            } else if(y > r.yMax - radius) {
-                cy = r.yMax - radius;
-            } else {
-                return;
-            }
-
-            float dy = y - cy;
-            float dx = radius - Mathf.Sqrt(Mathf.Max(0f, (radius * radius) - (dy * dy)));
-            left = r.xMin + dx;
-            right = r.xMax - dx;
-        }
-
-        private static Color ColorForY(RawRain raw, float dNear, float dFar, float y, Rect r) {
-            float t = r.height <= 0.0001f ? 0f : (y - r.yMin) / r.height;
+        private static Color ColorForY(RawRain raw, float dNear, float dFar, float y, float yMin, float height) {
+            float t = height <= 0.0001f ? 0f : (y - yMin) / height;
             float d = raw.Reverse
                 ? Mathf.Lerp(dFar, dNear, t)
                 : Mathf.Lerp(dNear, dFar, t);
@@ -1893,7 +1840,6 @@ public static class KeyViewerOverlay {
             }
 
             float now = Time.unscaledTime;
-            float rounding = Mathf.Max(0f, Conf.RainRounding);
 
             for(int r = 0; r < rows.Length; r++) {
                 RainRow row = rows[r];
@@ -1918,7 +1864,7 @@ public static class KeyViewerOverlay {
                 }
 
                 if(dirty) {
-                    row.Graphic.SetFrame(now, rounding);
+                    row.Graphic.SetFrame(now);
                 }
             }
         }

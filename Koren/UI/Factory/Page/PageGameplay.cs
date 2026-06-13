@@ -13,11 +13,7 @@ using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using static UnityEngine.EventSystems.PointerEventData;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Factory.Page;
 

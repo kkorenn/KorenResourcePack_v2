@@ -1,14 +1,8 @@
-﻿using Koren.Core;
+using Koren.Core;
 using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using Koren.Compat.OVC;
-
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.Resource;
 
@@ -97,7 +91,7 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
         // full chain after decoding; trilinear blends between mip levels.
         Texture2D texture = new(2, 2, TextureFormat.RGBA32, true, true);
 
-        if(!OVC_Texture2D.LoadImage(texture, data)) {
+        if(!texture.LoadImage(data)) {
             Object.Destroy(texture);
             return null;
         }

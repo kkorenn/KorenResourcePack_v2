@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using GTweens.Tweens;
 using GTweens.Extensions;
@@ -6,11 +6,7 @@ using GTweens.Easings;
 using GTweens.Builders;
 using Koren.Core;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Objects.Impl;
 

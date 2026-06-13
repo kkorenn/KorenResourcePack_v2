@@ -1,14 +1,10 @@
-﻿using Koren.Core;
+using Koren.Core;
 using Koren.Localization;
 using Koren.Resource;
 using UnityEngine;
 using UnityEngine.UI;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Factory.Page;
 

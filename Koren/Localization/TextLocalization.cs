@@ -1,11 +1,7 @@
-﻿using Koren.Core;
+using Koren.Core;
 using UnityEngine;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.Localization;
 

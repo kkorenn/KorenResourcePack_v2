@@ -1,3 +1,4 @@
+using Koren.Features.Optimizer;
 using Koren.Features.Tweaks;
 using Koren.UI.Generator;
 using Koren.UI.Objects.Impl;
@@ -91,6 +92,84 @@ internal static class PageTweaks {
         blockScroll.Rect.AddToolTip(
             "DESC_TW_SCROLL",
             "Ignores mouse wheel input while a level is being played, so accidental scrolling can't affect the game mid-run."
+        );
+
+        // === Optimizer: engine/runtime performance toggles ===
+        // These tune how the engine runs (GC, process priority, background
+        // execution); none change how a level looks. Distinct from the Effect
+        // Remover, which strips visual events out of the chart itself.
+        Optimizer.EnsureConf();
+        OptimizerSettings opt = Optimizer.Conf;
+        OptimizerSettings optDef = new();
+
+        var optimizerSec = GenerateUI.Collapsible(content.transform, "Optimizer", startExpanded: false);
+
+        var smoothGc = GenerateUI.Toggle(
+            GenerateUI.Row(optimizerSec.Body),
+            optDef.SmoothGC,
+            opt.SmoothGC,
+            v => {
+                opt.SmoothGC = v;
+                Optimizer.Apply();
+                Optimizer.Save();
+            },
+            "Smooth GC",
+            "opt_smoothgc"
+        );
+        smoothGc.Rect.AddToolTip(
+            "DESC_OPT_SMOOTHGC",
+            "Holds off garbage collection while a level is playing and runs it when the run ends, so a GC pause can't land mid-run and nudge your timing. The heap grows during the run (a safety collect kicks in on very long levels). Best paired with Clean Heap On Load."
+        );
+
+        var collectOnLoad = GenerateUI.Toggle(
+            GenerateUI.Row(optimizerSec.Body),
+            optDef.CollectOnLevelLoad,
+            opt.CollectOnLevelLoad,
+            v => {
+                opt.CollectOnLevelLoad = v;
+                Optimizer.Apply();
+                Optimizer.Save();
+            },
+            "Clean Heap On Load",
+            "opt_collectonload"
+        );
+        collectOnLoad.Rect.AddToolTip(
+            "DESC_OPT_COLLECTONLOAD",
+            "Runs a garbage collection every time a scene loads, so each run starts from a clean heap. The load screen already hitches, so the collection is free here."
+        );
+
+        var boostPriority = GenerateUI.Toggle(
+            GenerateUI.Row(optimizerSec.Body),
+            optDef.BoostProcessPriority,
+            opt.BoostProcessPriority,
+            v => {
+                opt.BoostProcessPriority = v;
+                Optimizer.Apply();
+                Optimizer.Save();
+            },
+            "Boost Process Priority",
+            "opt_priority"
+        );
+        boostPriority.Rect.AddToolTip(
+            "DESC_OPT_PRIORITY",
+            "Asks the OS to give the game more consistent CPU time (Above Normal priority). Takes effect on Windows; ignored where the system doesn't allow it (usually macOS/Linux)."
+        );
+
+        var runInBg = GenerateUI.Toggle(
+            GenerateUI.Row(optimizerSec.Body),
+            optDef.RunInBackground,
+            opt.RunInBackground,
+            v => {
+                opt.RunInBackground = v;
+                Optimizer.Apply();
+                Optimizer.Save();
+            },
+            "Run In Background",
+            "opt_runinbg"
+        );
+        runInBg.Rect.AddToolTip(
+            "DESC_OPT_RUNINBG",
+            "Keeps the game running at full speed when its window loses focus, so a run or practice session doesn't stall when you alt-tab."
         );
 
         var mainMenuSec = GenerateUI.Collapsible(content.transform, "Main Menu", startExpanded: false);

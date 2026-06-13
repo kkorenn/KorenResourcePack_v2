@@ -8,11 +8,7 @@ using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using static UnityEngine.EventSystems.PointerEventData;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Factory.Page;
 
@@ -373,10 +369,6 @@ internal static class PageKeyViewer {
         AddSlider(simpleBody, "Rain Fade", "keyviewer_rainfade",
             def.RainFade, 0f, 300f, conf.RainFade, "0 px", 5f,
             v => conf.RainFade = v, Save);
-
-        AddSlider(simpleBody, "Rain Rounding", "keyviewer_rainrounding",
-            def.RainRounding, 0f, 40f, conf.RainRounding, "0 px", 1f,
-            v => conf.RainRounding = v, Save);
 
         UISlider rainWidth = AddSlider(simpleBody, "Rain Width (0 = key width)", "keyviewer_rainwidth",
             def.RainWidth, 0f, 100f, conf.RainWidth, "0 px", 1f,

@@ -50,8 +50,7 @@ public static class ProceduralTexture {
     private static Texture2D Generate(int size, CoverageFn coverage) {
         Texture2D tex = new(size, size, TextureFormat.RGBA32, true, true);
 
-        // SetPixel over SetPixels32: scalar calls avoid managed-array interop
-        // under IL2CPP, and the textures are small enough that speed is moot.
+        // SetPixel over SetPixels32: textures are small so scalar calls are fine.
         for(int y = 0; y < size; y++) {
             for(int x = 0; x < size; x++) {
                 float a = Mathf.Clamp01(coverage(x, y));

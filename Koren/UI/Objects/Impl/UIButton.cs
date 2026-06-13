@@ -5,11 +5,7 @@ using Koren.Tween;
 using GTweens.Easings;
 using Koren.Core;
 
-#if IL2CPP
-using Il2CppTMPro;
-#else
 using TMPro;
-#endif
 
 namespace Koren.UI.Objects.Impl;
 
