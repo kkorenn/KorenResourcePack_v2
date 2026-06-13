@@ -1,0 +1,134 @@
+Koren/UI/Factory/Page/PageProfiles.cs
+  s_b7bb973b707edc::t_3f9a30be93c2a0 1-379
+Koren/Resource/Export/Lang/ko-KR.json
+  s_b7bb973b707edc::t_ef1eb135d33fd2 99-100
+  s_b7bb973b707edc::t_a74c7c360af6a9 379-397
+  s_7b03489e9832b6::t_3f5dc209335d38 342
+  s_b7bb973b707edc::t_402e9570c15b58 91
+  s_b7bb973b707edc::t_8d2c17bd3ad42b 322
+  s_7b03489e9832b6::t_1f543660d5ff0b 288
+Koren/Features/Judgement/JudgementOverlay.cs
+  s_b7bb973b707edc::t_f39f52e3638d47 221-225,231,237,242-255
+Koren/UI/Factory/Page/PageGameplay.cs
+  s_7b03489e9832b6::t_b9a2489887a0c3 5
+  s_7b03489e9832b6::t_616191afc76592 243,250-260
+  s_7b03489e9832b6::t_1e1838f21f8367 297,301-309,311-315,324-330
+  s_7b03489e9832b6::t_327270e219977b 340-342,351-353
+  s_7b03489e9832b6::t_484aa1f9b78a5b 31
+  s_7b03489e9832b6::t_b98ee5a56e3aba 93-94,99,207-208,213,442-443,448,479-480,485,601-602,607
+Koren/Features/Status/Bpm.cs
+  s_7b03489e9832b6::t_fd4affd65f6909 1-4,13-44
+Koren/Features/Panels/PanelsOverlay.cs
+  s_b7bb973b707edc::t_064ebf03be2b88 417-419
+  s_7b03489e9832b6::t_69ca5d35cfe6c4 67-68
+  s_b7bb973b707edc::t_d5ec783523f8b2 414-416
+  s_7b03489e9832b6::t_7c7f4ab861cb7a 515,517-518
+Koren/UI/Factory/Page/PageProgressBar.cs
+  s_7b03489e9832b6::t_60bbfeebe002dc 18-19,21
+Koren/UI/Factory/Page/PageVisuals.cs
+  s_7b03489e9832b6::t_b98ee5a56e3aba 75-76,82,292-293,303,377-378,388,479-480,490
+  s_7b03489e9832b6::t_f03014db9764ee 682-683,689
+Koren/UI/Factory/MenuFactory.cs
+  s_b7bb973b707edc::t_7d672ad9984b87 55
+  s_b7bb973b707edc::t_3d8434d7e3f9a8 71-73
+Koren/UI/Factory/Page/PageKeyViewer.cs
+  s_7b03489e9832b6::t_bc7e2856a1d3e3 71-73
+  s_7b03489e9832b6::t_69b416ff8caeb5 307
+  s_7b03489e9832b6::t_af7e686356293f 34-35,37
+Koren/IO/SettingsFile.cs
+  s_b7bb973b707edc::t_a61a30375f9b94 97-113
+  s_b7bb973b707edc::t_4856290bdf49b7 7-61,64-66,72-75
+  s_b7bb973b707edc::t_e8bac692ac6844 168-169
+Koren/UI/Objects/UIObject.cs
+  s_b7bb973b707edc::t_f9da5b4361cb20 59-62,65,69-72,76-77,85-88
+  s_b7bb973b707edc::t_5a5805fb87d1e5 102-112
+Koren/Core/KorenRuntime.cs
+  s_b7bb973b707edc::t_922d7da0b45a16 102-106
+  s_b7bb973b707edc::t_e3d29826a02c3d 151-154
+Koren/Features/Panels/StatColor.cs
+  s_7b03489e9832b6::t_0c56fbfe26c6c5 151,153
+  s_7b03489e9832b6::t_3056087e0948f8 123
+Koren/IO/ProfileManager.cs
+  s_b7bb973b707edc::t_a4fcbcaa1718e9 1-27,29-314
+  s_b7bb973b707edc::t_3da48a99ae60b9 28
+Koren/UI/Utility/Reorganizer.cs
+  s_b7bb973b707edc::t_a2c3e000383e6f 239-244
+build.json
+  s_b7bb973b707edc::t_e0381bba10bb0a 3
+Koren/UI/Factory/Page/PageJudgement.cs
+  s_7b03489e9832b6::t_0c10b08d86e2d6 20-21,23
+Koren/Features/KeyViewer/KeyViewerOverlay.cs
+  s_7b03489e9832b6::t_b17794ea4d0e79 268-283
+  s_7b03489e9832b6::t_194b1a53009cec 1216-1219
+Koren/UI/Factory/PageFactory.cs
+  s_b7bb973b707edc::t_e95b09102ad0fc 34
+Koren/UI/UICore.cs
+  s_b7bb973b707edc::t_fac3cf5a3f1741 387-391
+  s_b7bb973b707edc::t_00008b7652de68 33
+  s_b7bb973b707edc::t_118c451dd132f5 631-650
+  s_b7bb973b707edc::t_3247f51c8f2d02 999-1005
+  s_b7bb973b707edc::t_5f2c83b15be054 1015-1023
+  s_b7bb973b707edc::t_9a890b2501c9fe 975-998,1006-1007,1011
+Koren/Resource/SpriteManager.cs
+  s_b7bb973b707edc::t_156167181583bb 345-346
+  s_b7bb973b707edc::t_ce8eec1d6d1174 26
+Koren/Features/Panels/PanelsSettings.cs
+  s_b7bb973b707edc::t_3d406e6a1944ee 214
+  s_b7bb973b707edc::t_5b122ca6ba4b7b 173
+  s_b7bb973b707edc::t_8e5d2c93277060 109-112
+Koren/Features/Status/GameStats.cs
+  s_7b03489e9832b6::t_741f41067ceb13 112-115
+Koren/Core/Info.cs
+  s_b7bb973b707edc::t_e0381bba10bb0a 18
+  h_6eeb8441a8a159 13
+Koren/UI/Factory/Page/PageCombo.cs
+  s_7b03489e9832b6::t_0c10b08d86e2d6 25-26,28
+Koren/UI/Factory/Page/PageSettings.cs
+  s_b7bb973b707edc::t_48529688688a7d 53-56
+Koren/UI/Generator/GenerateUI.Collapsible.cs
+  s_7b03489e9832b6::t_8f5b3f860ce430 161-210,217
+  s_7b03489e9832b6::t_154276d0181ff7 94-105
+Koren/Resource/ResourceManager.cs
+  s_b7bb973b707edc::t_5ecfb0ac2ec6ce 205
+  s_b7bb973b707edc::t_020c0681ce72aa 38
+Koren/UI/Factory/Page/PageSearch.cs
+  s_b7bb973b707edc::t_6864f7f3dca59c 143
+Koren/UI/Factory/Page/PageOverlay.cs
+  s_b7bb973b707edc::t_421a8bc3e4cfda 679-690
+Koren/Resource/Export/Lang/en-US.json
+  s_b7bb973b707edc::t_8698bc19031881 322
+  s_7b03489e9832b6::t_901b973e089446 288
+  s_7b03489e9832b6::t_4088a9bd2037bf 342
+  s_b7bb973b707edc::t_b7876ce8d2223e 379-397
+  s_b7bb973b707edc::t_bd9c30183fba85 99-100
+  s_b7bb973b707edc::t_672955d4a3d991 91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "f1d7ba486c1e0698538c8e9277d52878118c1a62",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_7b03489e9832b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d37c3eb-0a4b-4322-98e2-2cb35d5546f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_b7bb973b707edc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0a52d035-b3a7-4dde-b2d6-8b9c55b595c6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
