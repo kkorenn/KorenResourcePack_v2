@@ -191,6 +191,8 @@ public static class JudgementOverlay {
     private sealed class Updater : MonoBehaviour {
         private readonly int[] cached = new int[Judgement.Slots];
         private bool cacheValid;
+        private float lastFontSize = float.NaN;
+        private TMP_FontAsset lastFont;
 
         private void Update() {
             if(root == null) {
@@ -211,10 +213,12 @@ public static class JudgementOverlay {
                 return;
             }
 
-            // Drag writes the position; mirror it back into the settings so
-            // it persists (saved on dispose / via the page sliders).
-            Conf.OffsetX = root.anchoredPosition.x;
-            Conf.OffsetY = root.anchoredPosition.y - BottomMargin;
+            // Position only changes while dragging in Reorganize mode; mirroring
+            // it back into Conf every frame otherwise is a no-op round-trip.
+            if(isReorganizing) {
+                Conf.OffsetX = root.anchoredPosition.x;
+                Conf.OffsetY = root.anchoredPosition.y - BottomMargin;
+            }
 
             TMP_FontAsset font = FontManager.Current;
             float fontSize = FontSize();
@@ -222,13 +226,17 @@ public static class JudgementOverlay {
 
             // First pass: set everything that feeds the layout (font, size,
             // text). Shadows are synced separately, after the layout settles.
-            bool changed = !cacheValid;
+            // `changed` also folds in font/size changes so the second pass and
+            // layout rebuild still fire on a real font or size edit.
+            bool changed = !cacheValid || fontSize != lastFontSize || font != lastFont;
             for(int i = 0; i < labels.Length; i++) {
                 TextMeshProUGUI label = labels[i];
                 if(label.font != font) {
                     label.font = font;
                 }
-                label.fontSize = fontSize;
+                if(label.fontSize != fontSize) {
+                    label.fontSize = fontSize;
+                }
 
                 int count = Judgement.SlotCount(i);
                 if(!cacheValid || count != cached[i]) {
@@ -238,20 +246,25 @@ public static class JudgementOverlay {
                 }
             }
             cacheValid = true;
+            lastFontSize = fontSize;
+            lastFont = font;
 
             // The HorizontalLayoutGroup repositions the labels when a digit
             // count (or size) changes, but that rebuild only lands after
             // Update. The shadow copies each label's rect, so without forcing
             // the rebuild now it would read last frame's positions and ghost a
-            // second set of digits for one frame on every hit. Rebuild only
-            // when something actually changed to avoid per-frame layout cost.
+            // second set of digits for one frame on every hit. Both the rebuild
+            // and the shadow re-sync only need to run when something changed —
+            // on a no-hit frame (the common case) the geometry is identical, so
+            // re-syncing 9 labels' shadows (sibling scans + material churn) every
+            // frame was pure waste. Live shadow edits go through Apply().
             if(changed) {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(root);
-            }
 
-            // Second pass: sync the shadow against the now-final geometry.
-            for(int i = 0; i < labels.Length; i++) {
-                ApplyTextStyle(labels[i], fontSize);
+                // Second pass: sync the shadow against the now-final geometry.
+                for(int i = 0; i < labels.Length; i++) {
+                    ApplyTextStyle(labels[i], fontSize);
+                }
             }
         }
     }

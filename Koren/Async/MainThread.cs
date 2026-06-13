@@ -20,7 +20,9 @@ public class MainThread : MonoBehaviour {
             try {
                 action();
             } catch(Exception e) {
-                MainCore.Log.Err(e.Message);
+                // Sink for every queued main-thread callback — log type + stack,
+                // not just Message, or a background-originated NRE is unreadable.
+                MainCore.Log.Err(e.ToString());
             }
         }
     }

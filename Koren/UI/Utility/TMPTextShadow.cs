@@ -24,12 +24,14 @@ public static class TMPTextShadow {
             return;
         }
 
-        DisableUnderlay(text);
-
-        RectTransform shadowRoot = GetOrCreateRoot(text);
-        if(shadowRoot == null) {
+        ShadowRoot root = GetOrCreateRoot(text);
+        if(root == null) {
             return;
         }
+
+        DisableUnderlay(text, root);
+
+        RectTransform shadowRoot = root.Rect;
 
         bool on = enabled && text.gameObject.activeSelf && color.a > 0.001f;
         shadowRoot.gameObject.SetActive(on);
@@ -42,13 +44,14 @@ public static class TMPTextShadow {
 
         float soft = Mathf.Clamp(softness, 0f, 50f);
         int layerCount = soft > 0.001f ? 9 : 1;
-        EnsureLayerCount(shadowRoot, layerCount);
+        EnsureLayerCount(root, layerCount);
 
         Vector2 baseOffset = new(offsetX, offsetY);
         float spread = soft * 0.25f;
 
-        for(int i = 0; i < shadowRoot.childCount; i++) {
-            TextMeshProUGUI layer = shadowRoot.GetChild(i).GetComponent<TextMeshProUGUI>();
+        List<TextMeshProUGUI> layers = root.Layers;
+        for(int i = 0; i < layers.Count; i++) {
+            TextMeshProUGUI layer = layers[i];
             bool active = i < layerCount;
             layer.gameObject.SetActive(active);
             if(!active) {
@@ -66,37 +69,73 @@ public static class TMPTextShadow {
         }
     }
 
-    private static RectTransform GetOrCreateRoot(TextMeshProUGUI text) {
+    // The shadow root used to be re-found every call via a foreach over the
+    // parent's children + GetComponent<ShadowRoot> on each — a sibling scan
+    // that also boxed Transform's enumerator (per-frame GC). A ShadowLink on
+    // the text GameObject caches the resolved root: the fast path is one cheap
+    // GetComponent, no scan, no boxing, and the link dies with the text (no
+    // static-dictionary leak across UI rebuilds).
+    private static ShadowRoot GetOrCreateRoot(TextMeshProUGUI text) {
+        ShadowLink link = text.GetComponent<ShadowLink>();
+        if(link != null && link.Root != null && link.Root.Rect != null) {
+            return link.Root;
+        }
+
         Transform parent = text.transform.parent;
         if(parent == null) {
             return null;
         }
 
+        ShadowRoot root = null;
+
+        // Slow path: adopt an existing marker (link lost but GO survived) before
+        // creating a new one. Runs once per text, not per frame.
         foreach(Transform child in parent) {
             ShadowRoot marker = child.GetComponent<ShadowRoot>();
             if(marker != null && marker.Target == text) {
-                return (RectTransform)child;
+                root = marker;
+                root.Rect = (RectTransform)child;
+                RebuildLayerCache(root);
+                break;
             }
         }
 
-        GameObject obj = new(RootName);
-        obj.transform.SetParent(parent, false);
+        if(root == null) {
+            GameObject obj = new(RootName);
+            obj.transform.SetParent(parent, false);
 
-        RectTransform rect = obj.AddComponent<RectTransform>();
-        LayoutElement le = obj.AddComponent<LayoutElement>();
-        le.ignoreLayout = true;
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            LayoutElement le = obj.AddComponent<LayoutElement>();
+            le.ignoreLayout = true;
 
-        ShadowRoot root = obj.AddComponent<ShadowRoot>();
-        root.Target = text;
+            root = obj.AddComponent<ShadowRoot>();
+            root.Target = text;
+            root.Rect = rect;
 
-        KeepRootBehindTarget(text, rect);
-        return rect;
+            KeepRootBehindTarget(text, rect);
+        }
+
+        if(link == null) {
+            link = text.gameObject.AddComponent<ShadowLink>();
+        }
+        link.Root = root;
+        return root;
     }
 
-    private static void EnsureLayerCount(RectTransform root, int count) {
-        while(root.childCount < count) {
+    private static void RebuildLayerCache(ShadowRoot root) {
+        root.Layers.Clear();
+        for(int i = 0; i < root.Rect.childCount; i++) {
+            TextMeshProUGUI tmp = root.Rect.GetChild(i).GetComponent<TextMeshProUGUI>();
+            if(tmp != null) {
+                root.Layers.Add(tmp);
+            }
+        }
+    }
+
+    private static void EnsureLayerCount(ShadowRoot root, int count) {
+        while(root.Layers.Count < count) {
             GameObject obj = new("Layer");
-            obj.transform.SetParent(root, false);
+            obj.transform.SetParent(root.Rect, false);
 
             RectTransform rect = obj.AddComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
@@ -106,6 +145,7 @@ public static class TMPTextShadow {
 
             TextMeshProUGUI tmp = obj.AddComponent<TextMeshProUGUI>();
             tmp.raycastTarget = false;
+            root.Layers.Add(tmp);
         }
     }
 
@@ -181,9 +221,12 @@ public static class TMPTextShadow {
         };
     }
 
-    private static void DisableUnderlay(TextMeshProUGUI text) {
+    private static void DisableUnderlay(TextMeshProUGUI text, ShadowRoot root) {
         Material mat = text.fontMaterial;
-        if(mat == null) {
+        if(mat == null || ReferenceEquals(mat, root.UnderlayDisabledMat)) {
+            // Underlay is permanently off and never re-enabled, so the 6 idempotent
+            // material writes only need to run once per material instance (the
+            // instance changes on a font swap, which re-triggers this).
             return;
         }
 
@@ -193,9 +236,19 @@ public static class TMPTextShadow {
         mat.SetFloat("_UnderlayOffsetY", 0f);
         mat.SetFloat("_UnderlaySoftness", 0f);
         mat.SetFloat("_UnderlayDilate", 0f);
+        root.UnderlayDisabledMat = mat;
     }
 
     private sealed class ShadowRoot : MonoBehaviour {
         public TextMeshProUGUI Target;
+        public RectTransform Rect;
+        public Material UnderlayDisabledMat;
+        public readonly List<TextMeshProUGUI> Layers = new();
+    }
+
+    // Cached pointer from a text to its ShadowRoot, attached to the text's own
+    // GameObject so lookup is one GetComponent and the cache can't outlive it.
+    private sealed class ShadowLink : MonoBehaviour {
+        public ShadowRoot Root;
     }
 }

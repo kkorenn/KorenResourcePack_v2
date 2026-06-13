@@ -59,7 +59,9 @@ public static class ProceduralTexture {
             }
         }
 
-        tex.Apply(true);
+        // makeNoLongerReadable: drop the CPU pixel copy — these are only ever
+        // GPU-sampled as UI sprites, never GetPixel'd.
+        tex.Apply(true, true);
         tex.filterMode = FilterMode.Trilinear;
         tex.wrapMode = TextureWrapMode.Clamp;
         return tex;

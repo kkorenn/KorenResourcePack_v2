@@ -235,6 +235,15 @@ public static class ComboOverlay {
 
     private sealed class Updater : MonoBehaviour {
         private int cachedCount = -1;
+        // Last-applied state for the idle change-guard (NaN/default forces the
+        // first frame to apply). Lets Update skip the TMP re-measure + shadow
+        // re-apply when the combo number, size and color are all unchanged.
+        private float lastValueSize = float.NaN;
+        private Color lastColor;
+        private bool lastCaptionShown;
+        private float lastCaptionSize = float.NaN;
+        private float lastLabelKick = float.NaN;
+        private float lastBlockH = float.NaN;
 
         private void Update() {
             if(root == null || valueText == null) {
@@ -256,61 +265,104 @@ public static class ComboOverlay {
                 return;
             }
 
-            Conf.OffsetX = root.anchoredPosition.x;
-            Conf.OffsetY = GetOffsetYFromPosition(root.anchoredPosition.y);
+            // Position only changes while dragging in Reorganize mode; mirroring
+            // it into Conf every frame otherwise is a no-op round-trip.
+            if(isReorganizing) {
+                Conf.OffsetX = root.anchoredPosition.x;
+                Conf.OffsetY = GetOffsetYFromPosition(root.anchoredPosition.y);
+            }
 
             // Only reassign the font when it actually changes — setting .font
             // rebuilds the material instance and would wipe the shadow/thickness
             // we baked in, so re-apply those right after.
             TMP_FontAsset font = FontManager.Current;
+            bool fontChanged = false;
             if(valueText.font != font) {
                 valueText.font = font;
                 ApplyValueMaterial();
+                fontChanged = true;
             }
+            bool captionFontChanged = false;
             if(captionText != null && captionText.font != font) {
                 captionText.font = font;
                 ApplyCaptionMaterial();
+                captionFontChanged = true;
             }
 
             int count = isReorganizing && Combo.Count <= 0 ? 42 : Combo.Count;
-            if(count != cachedCount) {
-                cachedCount = count;
-                valueText.text = count.ToString(CultureInfo.InvariantCulture);
-            }
-
             (float pulse, float pulseIntensity) = Combo.EvaluatePulse(Conf.CountPulseScale, Conf.PulseDuration);
             float valueSize = Conf.FontSize * pulse;
-            valueText.fontSize = valueSize;
-            valueText.color = Conf.GetComboColor(count);
+            Color color = Conf.GetComboColor(count);
 
-            Vector2 pref = valueText.GetPreferredValues(valueText.text);
-            valueText.rectTransform.sizeDelta = new Vector2(Mathf.Max(pref.x, 200f), pref.y);
-            ApplyValueMaterial();
+            // Idle guard: skip the value mesh re-measure + material/shadow re-apply
+            // when the number, pulse-scaled size and color are all unchanged (the
+            // common case — pulse settles to exactly 1f between hits). The color
+            // compare self-adapts: an animated combo color re-applies every frame,
+            // a static one doesn't. Live shadow/thickness edits re-apply through
+            // ApplyCountShadow/ApplyCaptionShadow, not this path.
+            bool valueChanged = fontChanged
+                || count != cachedCount
+                || valueSize != lastValueSize
+                || color != lastColor;
 
+            if(valueChanged) {
+                if(count != cachedCount) {
+                    cachedCount = count;
+                    valueText.text = count.ToString(CultureInfo.InvariantCulture);
+                }
+                valueText.fontSize = valueSize;
+                valueText.color = color;
+
+                Vector2 pref = valueText.GetPreferredValues(valueText.text);
+                valueText.rectTransform.sizeDelta = new Vector2(Mathf.Max(pref.x, 200f), pref.y);
+                ApplyValueMaterial();
+
+                lastValueSize = valueSize;
+                lastColor = color;
+            }
+
+            bool captionShown = captionText != null && Conf.ShowCaption;
             float captionSize = valueSize * Conf.CaptionScale;
-            if(captionText != null && Conf.ShowCaption) {
-                captionText.fontSize = captionSize;
-                captionText.color = Color.white;
-                Vector2 capPref = captionText.GetPreferredValues(captionText.text);
-                captionText.rectTransform.sizeDelta = new Vector2(Mathf.Max(capPref.x, 200f), capPref.y);
-                // Caption sits below the value; LabelPulseOffsetY kicks it up by
-                // the pulse intensity (0 by default = no kick).
-                float labelKick = pulseIntensity * Conf.LabelPulseOffsetY;
-                captionText.rectTransform.anchoredPosition = new Vector2(
-                    0f,
-                    -(valueText.rectTransform.sizeDelta.y + CaptionGap + Conf.CaptionOffsetY) + labelKick
-                );
-                ApplyCaptionMaterial();
-            } else if(captionText != null) {
-                ApplyCaptionMaterial();
+            float labelKick = pulseIntensity * Conf.LabelPulseOffsetY;
+
+            if(captionText != null) {
+                if(captionShown) {
+                    bool captionChanged = captionFontChanged
+                        || valueChanged
+                        || !lastCaptionShown
+                        || captionSize != lastCaptionSize
+                        || labelKick != lastLabelKick;
+                    if(captionChanged) {
+                        captionText.fontSize = captionSize;
+                        captionText.color = Color.white;
+                        Vector2 capPref = captionText.GetPreferredValues(captionText.text);
+                        captionText.rectTransform.sizeDelta = new Vector2(Mathf.Max(capPref.x, 200f), capPref.y);
+                        // Caption sits below the value; LabelPulseOffsetY kicks it up
+                        // by the pulse intensity (0 by default = no kick).
+                        captionText.rectTransform.anchoredPosition = new Vector2(
+                            0f,
+                            -(valueText.rectTransform.sizeDelta.y + CaptionGap + Conf.CaptionOffsetY) + labelKick
+                        );
+                        ApplyCaptionMaterial();
+                        lastCaptionSize = captionSize;
+                        lastLabelKick = labelKick;
+                    }
+                } else if(lastCaptionShown || captionFontChanged) {
+                    // Caption just turned off (or font swapped while off): one apply
+                    // to settle its shadow, then leave it untouched each frame.
+                    ApplyCaptionMaterial();
+                }
+                lastCaptionShown = captionShown;
             }
 
             float blockH = valueText.rectTransform.sizeDelta.y;
-            if(captionText != null && Conf.ShowCaption) {
+            if(captionShown) {
                 blockH += CaptionGap + captionText.rectTransform.sizeDelta.y + Conf.CaptionOffsetY;
             }
-
-            root.sizeDelta = new Vector2(768f, blockH);
+            if(blockH != lastBlockH) {
+                root.sizeDelta = new Vector2(768f, blockH);
+                lastBlockH = blockH;
+            }
         }
     }
 }

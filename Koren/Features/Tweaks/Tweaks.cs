@@ -217,7 +217,7 @@ public static partial class Tweaks {
     private static readonly Dictionary<int, int> particleMaxParticleStates = [];
     private static readonly Dictionary<int, bool> lightUpDisableGlowStates = [];
     private static readonly Dictionary<int, bool> planetGlowEnabledStates = [];
-    private static readonly Dictionary<string, MemberInfo> planetRendererMemberCache = [];
+    private static readonly Dictionary<(Type, string), MemberInfo> planetRendererMemberCache = [];
     private static readonly HashSet<int> suppressNextRandomColorFloorIds = [];
 
     private static readonly ffxCheckpoint[] EmptyCheckpoints = [];
@@ -428,7 +428,10 @@ public static partial class Tweaks {
         if(type == null || string.IsNullOrEmpty(name)) {
             return null;
         }
-        string key = type.FullName + "." + name;
+        // Tuple key: (Type, string) has structural equality and, as a struct
+        // dictionary key, allocates nothing — unlike the old `type.FullName + "."
+        // + name` concat that built a throwaway string on every per-frame call.
+        var key = (type, name);
         if(planetRendererMemberCache.TryGetValue(key, out MemberInfo cached)) {
             return cached;
         }

@@ -125,14 +125,19 @@ public static class PanelsOverlay {
         return (tile ? tbpm : cbpm).ToString("0.##", CultureInfo.InvariantCulture);
     }
 
+    // Precomputed "0", "0.0" … "0.000000" so Pct (called per stat per panel per
+    // frame) doesn't rebuild `"0." + new string('0', d)` on every call.
+    private static readonly string[] PctFormats = {
+        "0", "0.0", "0.00", "0.000", "0.0000", "0.00000", "0.000000"
+    };
+
     private static string Pct(float ratio, PanelConfig p) {
         if(float.IsNaN(ratio) || float.IsInfinity(ratio)) {
             ratio = 0f;
         }
 
         int d = Mathf.Clamp(p.Decimals, 0, 6);
-        string fmt = d == 0 ? "0" : "0." + new string('0', d);
-        return (ratio * 100f).ToString(fmt, CultureInfo.InvariantCulture) + "%";
+        return (ratio * 100f).ToString(PctFormats[d], CultureInfo.InvariantCulture) + "%";
     }
 
     // ===== lifecycle =====
@@ -265,6 +270,9 @@ public static class PanelsOverlay {
                 p.Config.TextShadowSoftness,
                 p.Config.GetTextShadowColor()
             );
+            // FontSize/lineSpacing change the preferred size, which UpdatePanel
+            // only recomputes when the body changes — force one re-measure.
+            p.Dirty = true;
         }
 
         if(p.Background != null) {
@@ -366,6 +374,12 @@ public static class PanelsOverlay {
         public Image Background;
         public GameObject DragObj;
         public TextMeshProUGUI Text;
+
+        // Per-frame change-guard state (see UpdatePanel). LastBody = null forces
+        // the first render; Dirty is raised by Apply()/reactivation to force one
+        // re-measure when appearance changed but the body string did not.
+        public string LastBody;
+        public bool Dirty = true;
     }
 
     private sealed class Updater : MonoBehaviour {
@@ -444,6 +458,11 @@ public static class PanelsOverlay {
             bool active = body.Length > 0 || isReorganizing;
             if(p.Rect.gameObject.activeSelf != active) {
                 p.Rect.gameObject.SetActive(active);
+                // Re-show: shadow layers may have been disabled while hidden, so
+                // force a full text + shadow re-sync on the next applied frame.
+                if(active) {
+                    p.Dirty = true;
+                }
             }
 
             if(p.DragObj != null && p.DragObj.activeSelf != isReorganizing) {
@@ -455,8 +474,20 @@ public static class PanelsOverlay {
             }
 
             TMP_FontAsset font = FontManager.Current;
-            if(p.Text.font != font) {
+            bool fontChanged = p.Text.font != font;
+            if(fontChanged) {
                 p.Text.font = font;
+            }
+
+            // Only re-tessellate the TMP mesh, re-measure, and re-sync the drop
+            // shadow when something actually changed. For static-stat panels
+            // (FPS/BPM/checkpoints/attempts) the body is identical frame-to-frame,
+            // so this skips a full mesh rebuild + GetPreferredValues + shadow
+            // re-apply every frame — the per-frame TMP churn that caused stutter.
+            if(fontChanged || p.Dirty || body != p.LastBody) {
+                p.Text.text = body;
+                Vector2 pref = p.Text.GetPreferredValues(body);
+                p.Rect.sizeDelta = new Vector2(pref.x + PadX * 2f, pref.y + PadY * 2f);
                 TMPTextShadow.Apply(
                     p.Text,
                     p.Config.TextShadowEnabled,
@@ -465,23 +496,16 @@ public static class PanelsOverlay {
                     p.Config.TextShadowSoftness,
                     p.Config.GetTextShadowColor()
                 );
+                p.LastBody = body;
+                p.Dirty = false;
             }
 
-            p.Text.text = body;
-
-            Vector2 pref = p.Text.GetPreferredValues(p.Text.text);
-            p.Rect.sizeDelta = new Vector2(pref.x + PadX * 2f, pref.y + PadY * 2f);
-            TMPTextShadow.Apply(
-                p.Text,
-                p.Config.TextShadowEnabled,
-                p.Config.TextShadowX,
-                p.Config.TextShadowY,
-                p.Config.TextShadowSoftness,
-                p.Config.GetTextShadowColor()
-            );
-
-            p.Config.PosX = p.Rect.anchoredPosition.x;
-            p.Config.PosY = p.Rect.anchoredPosition.y;
+            // Position only changes in Reorganize mode (drag); writing it back
+            // every frame otherwise is a no-op round-trip against Apply()'s value.
+            if(isReorganizing) {
+                p.Config.PosX = p.Rect.anchoredPosition.x;
+                p.Config.PosY = p.Rect.anchoredPosition.y;
+            }
         }
 
         private static StatDef FindStat(string id) {

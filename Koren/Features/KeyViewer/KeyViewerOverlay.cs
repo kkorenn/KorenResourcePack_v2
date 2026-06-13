@@ -2003,7 +2003,9 @@ public static class KeyViewerOverlay {
     }
 
     private static void UpdateDmNote(float now) {
-        ApplyDmRuntimeSettings();
+        // dm* runtime caches are refreshed by Apply()/ParseDmNoteSpecs() on every
+        // settings change, so re-deriving them (8 reads + 8 Mathf.Clamp) every
+        // frame here was pure waste — removed.
 
         while(pressLog.Count > 0 && now - pressLog.Peek() > 1f) {
             pressLog.Dequeue();
@@ -2111,9 +2113,6 @@ public static class KeyViewerOverlay {
     }
 
     private sealed class Updater : MonoBehaviour {
-        private int lastKps = int.MinValue;
-        private int lastTotal = int.MinValue;
-
         private void Update() {
             if(root == null) {
                 return;
@@ -2140,16 +2139,22 @@ public static class KeyViewerOverlay {
             float now = Time.unscaledTime;
 
             if(Conf.IsDmNoteMode) {
-                Conf.DmOffsetX = root.anchoredPosition.x;
-                Conf.DmOffsetY = root.anchoredPosition.y;
+                // Position only moves while dragging in Reorganize mode; gate the
+                // writeback so it isn't a per-frame no-op round-trip otherwise.
+                if(isReorganizing) {
+                    Conf.DmOffsetX = root.anchoredPosition.x;
+                    Conf.DmOffsetY = root.anchoredPosition.y;
+                }
                 UpdateDmNote(now);
                 return;
             }
 
-            // Drag writes the position; mirror it back into the settings so
-            // it persists.
-            Conf.OffsetX = root.anchoredPosition.x;
-            Conf.OffsetY = root.anchoredPosition.y;
+            // Drag writes the position; mirror it back into the settings so it
+            // persists. Only the drag (Reorganize mode) can move root.
+            if(isReorganizing) {
+                Conf.OffsetX = root.anchoredPosition.x;
+                Conf.OffsetY = root.anchoredPosition.y;
+            }
 
             // KPS window: drop presses older than one second.
             while(pressLog.Count > 0 && now - pressLog.Peek() > 1f) {
@@ -2167,15 +2172,14 @@ public static class KeyViewerOverlay {
                 }
 
                 if(box.IsStat) {
+                    // Per-box LastShown (not persistent updater fields), so the
+                    // cache dies with the box on Rebuild/ResetCounts and a fresh
+                    // box never gets stuck on "0" when its restored value happens
+                    // to equal the pre-rebuild value.
                     int value = box.IsKps ? pressLog.Count : totalCount;
-                    int last = box.IsKps ? lastKps : lastTotal;
-                    if(value != last) {
+                    if(box.Value != null && box.LastShown != value) {
                         box.Value.text = value.ToString(CultureInfo.InvariantCulture);
-                        if(box.IsKps) {
-                            lastKps = value;
-                        } else {
-                            lastTotal = value;
-                        }
+                        box.LastShown = value;
                     }
                     continue;
                 }

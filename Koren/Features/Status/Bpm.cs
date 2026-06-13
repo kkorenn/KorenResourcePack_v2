@@ -57,8 +57,11 @@ internal static class Bpm {
 
             double speed = controller.planetarySystem != null ? controller.planetarySystem.speed : 1.0;
             tileBpm = (float)(conductor.bpm * conductor.song.pitch * speed);
-            actualBpm = floor.nextfloor
-                ? (float)(60.0 / (floor.nextfloor.entryTime - floor.entryTime) * conductor.song.pitch)
+            // Guard a zero/near-zero tile duration (e.g. midspin): 60/dt would be
+            // IEEE Infinity (no exception), which renders as garbage in the panel.
+            double dt = floor.nextfloor ? floor.nextfloor.entryTime - floor.entryTime : 0.0;
+            actualBpm = floor.nextfloor && dt > 1e-9
+                ? (float)(60.0 / dt * conductor.song.pitch)
                 : tileBpm;
         } catch {
             tileBpm = 0f;

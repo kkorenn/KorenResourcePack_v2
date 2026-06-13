@@ -276,10 +276,10 @@ public sealed class KeyViewerSettings : ISettingsFile {
         DmShowCounter = IOUtils.Read(token, nameof(DmShowCounter), DmShowCounter);
         bool hasSingleFade = token[nameof(DmFadePx)] != null;
         DmFadePx = Mathf.Clamp(IOUtils.Read(token, nameof(DmFadePx), DmFadePx), 0f, 2000f);
+        // Only DmFadeTopPx is read — it feeds the legacy (!hasSingleFade)
+        // migration below. The other three split fields are always derived from
+        // DmFadePx, so reading them here was dead work.
         DmFadeTopPx = Mathf.Clamp(IOUtils.Read(token, nameof(DmFadeTopPx), DmFadeTopPx), 0f, 500f);
-        DmFadeBottomPx = Mathf.Clamp(IOUtils.Read(token, nameof(DmFadeBottomPx), DmFadeBottomPx), 0f, 500f);
-        DmReverseFadeTopPx = Mathf.Clamp(IOUtils.Read(token, nameof(DmReverseFadeTopPx), DmReverseFadeTopPx), 0f, 500f);
-        DmReverseFadeBottomPx = Mathf.Clamp(IOUtils.Read(token, nameof(DmReverseFadeBottomPx), DmReverseFadeBottomPx), 0f, 500f);
         if(!hasSingleFade && token[nameof(DmFadeTopPx)] != null) {
             DmFadePx = DmFadeTopPx;
         }

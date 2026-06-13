@@ -70,14 +70,19 @@ internal static class DiscordOAuthServer {
             return "";
         }
 
+        // CSRF state: a fresh random token the capture page echoes back and the
+        // callback handler verifies (returnedState != expectedState -> reject).
+        // Guid "N" is hex, so URL-safe without escaping.
+        string state = Guid.NewGuid().ToString("N");
         lock(gate) {
-            expectedState = "";
+            expectedState = state;
         }
 
-        // Fixed shape; only client_id is substituted.
+        // Fixed shape; client_id and the CSRF state token are substituted.
         return "https://discord.com/oauth2/authorize?client_id=" + Escape(ClientId) +
             "&response_type=token&redirect_uri=http%3A%2F%2F127.0.0.1%3A5672%2F" +
-            "&scope=identify+rpc+rpc.voice.write";
+            "&scope=identify+rpc+rpc.voice.write" +
+            "&state=" + state;
     }
 
     private static bool StartLocked() {

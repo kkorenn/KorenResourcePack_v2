@@ -41,6 +41,9 @@ public enum Asset {
 
 public sealed class ResourceManager(Assembly assembly, string resourcePath) : IDisposable {
     private readonly Dictionary<string, object> cache = [];
+    // Source Font objects behind the cached TMP assets, kept so Dispose can
+    // destroy them (CreateFontAsset doesn't take ownership).
+    private readonly List<Font> sourceFonts = [];
 
     public byte[] Load(string path) {
         if(string.IsNullOrWhiteSpace(path)) {
@@ -125,12 +128,17 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
             Directory.CreateDirectory(directory);
         }
 
-        File.WriteAllBytes(tempPath, data);
+        // Only rewrite the temp file when it's missing or a different size —
+        // CreateFontAsset only needs the bytes on disk once.
+        if(!File.Exists(tempPath) || new FileInfo(tempPath).Length != data.Length) {
+            File.WriteAllBytes(tempPath, data);
+        }
 
         Font font = new(tempPath);
         TMP_FontAsset asset = TMP_FontAsset.CreateFontAsset(font);
 
         cache[path] = asset;
+        sourceFonts.Add(font);
         return asset;
     }
 
@@ -172,10 +180,30 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
                     break;
 
                 case TMP_FontAsset font:
+                    // Destroy the generated atlas + material too — they're
+                    // separate Unity objects not freed by destroying the asset.
+                    if(font.material != null) {
+                        Object.Destroy(font.material);
+                    }
+                    Texture2D[] atlases = font.atlasTextures;
+                    if(atlases != null) {
+                        foreach(Texture2D tex in atlases) {
+                            if(tex != null) {
+                                Object.Destroy(tex);
+                            }
+                        }
+                    }
                     Object.Destroy(font);
                     break;
             }
         }
+
+        foreach(Font font in sourceFonts) {
+            if(font != null) {
+                Object.Destroy(font);
+            }
+        }
+        sourceFonts.Clear();
 
         cache.Clear();
     }
