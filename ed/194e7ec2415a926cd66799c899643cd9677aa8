@@ -1,0 +1,24 @@
+Koren/Features/Judgement/Judgement.cs
+  s_dd769be96dd0cf::t_c159980be02d0a 73-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "ed194e7ec2415a926cd66799c899643cd9677aa8",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_dd769be96dd0cf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e2a7d8e6-74fb-4b9c-9988-5cf798c63328",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
