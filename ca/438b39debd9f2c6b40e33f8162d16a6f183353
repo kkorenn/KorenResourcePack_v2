@@ -1,0 +1,20 @@
+Koren/Features/OttoIcon/OttoIcon.cs
+  s_67a4078f144550::t_30de7e2a32557c 75-78
+  s_67a4078f144550::t_f64f9f4eb5be95 117,119-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "ca438b39debd9f2c6b40e33f8162d16a6f183353",
+  "prompts": {},
+  "sessions": {
+    "s_67a4078f144550": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a6a3625e-b3cb-4857-a2c2-401a79b86a27",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
