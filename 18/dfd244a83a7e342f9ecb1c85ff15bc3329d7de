@@ -1,0 +1,20 @@
+Koren/Features/ProgressBar/ProgressBar.cs
+  s_67a4078f144550::t_456a0989dfc863 281-289,292-295,297
+  s_67a4078f144550::t_cc601382d145a7 233-240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "18dfd244a83a7e342f9ecb1c85ff15bc3329d7de",
+  "prompts": {},
+  "sessions": {
+    "s_67a4078f144550": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a6a3625e-b3cb-4857-a2c2-401a79b86a27",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
