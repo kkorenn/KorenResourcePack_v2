@@ -1,0 +1,20 @@
+Koren/Features/SongTitle/SongTitleOverlay.cs
+  s_67a4078f144550::t_5a3623a4fc5bd5 34-43
+  s_67a4078f144550::t_ea2b5d1d898833 216-232
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "b93652f703fd15ed35a3aa92f9b3f2faefa1754a",
+  "prompts": {},
+  "sessions": {
+    "s_67a4078f144550": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a6a3625e-b3cb-4857-a2c2-401a79b86a27",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
