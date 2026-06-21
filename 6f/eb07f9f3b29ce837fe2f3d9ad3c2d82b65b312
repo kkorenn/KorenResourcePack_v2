@@ -1,0 +1,20 @@
+Koren/Features/Panels/PanelsOverlay.cs
+  s_67a4078f144550::t_25311fb3b0aa70 527
+  s_67a4078f144550::t_fccbad039dcdeb 485-488
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "6feb07f9f3b29ce837fe2f3d9ad3c2d82b65b312",
+  "prompts": {},
+  "sessions": {
+    "s_67a4078f144550": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a6a3625e-b3cb-4857-a2c2-401a79b86a27",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
