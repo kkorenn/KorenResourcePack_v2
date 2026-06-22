@@ -1,0 +1,61 @@
+native/koren_encoder/koren_encoder.c
+  s_2ce0cbf934eb7e::t_e7672390a5be63 1-385
+native/bundle_macos.sh
+  s_2ce0cbf934eb7e::t_9da6b5489cdb5e 1-55
+Koren/Resource/Export/Lang/en-US.json
+  s_2ce0cbf934eb7e::t_91612c10fe5edb 73-80,176-196,267
+Koren/Features/Recorder/RecorderSettings.cs
+  s_2ce0cbf934eb7e::t_f99552bc438b9c 1-81
+Koren/Features/Recorder/Recorder.cs
+  s_2ce0cbf934eb7e::t_f12177caafaef5 1-126
+Koren/Features/Recorder/Native/NativeEncoder.cs
+  s_2ce0cbf934eb7e::t_fd3c9a879abdfc 1-101,116-197
+  s_2ce0cbf934eb7e::t_5e7b32cca984b6 102-115
+Koren/Features/Recorder/Native/KorenNativeLibrary.cs
+  s_2ce0cbf934eb7e::t_80e82f53451a1c 1-89
+native/build.sh
+  s_2ce0cbf934eb7e::t_ff3e1815993f29 1-56
+.gitignore
+  s_2ce0cbf934eb7e::t_2a6030c59de321 7-11
+Koren/UI/Factory/Page/PageEditor.cs
+  s_2ce0cbf934eb7e::t_c8edfac88388e7 11
+  s_2ce0cbf934eb7e::t_beaa29fd032072 233-234
+native/koren_encoder/koren_encoder.h
+  s_2ce0cbf934eb7e::t_527b565781218b 1-87
+native/koren_encoder/test_encoder.c
+  s_2ce0cbf934eb7e::t_b176c574e454f7 1-72
+Koren/Koren.csproj
+  s_2ce0cbf934eb7e::t_d72ca2f3ed175d 171
+  s_2ce0cbf934eb7e::t_d4cb35b99433f6 165
+  s_2ce0cbf934eb7e::t_3b16f23fdfafb8 157-160
+  s_2ce0cbf934eb7e::t_5d426765aee76e 89
+  s_2ce0cbf934eb7e::t_f258cd587b2d7e 62
+Koren/Resource/Export/Lang/ko-KR.json
+  s_2ce0cbf934eb7e::t_91612c10fe5edb 73-80,176-196,267
+native/koren_encoder/CMakeLists.txt
+  s_2ce0cbf934eb7e::t_e2ba0ddadd20bd 1-35
+Koren/UI/Factory/Page/PageEditorRenderer.cs
+  s_2ce0cbf934eb7e::t_af5505a280e69e 1-274
+Koren/Features/Recorder/RecorderSession.cs
+  s_2ce0cbf934eb7e::t_58d9b8e69b0854 155
+  s_2ce0cbf934eb7e::t_70a7eb042ad096 1-154,156-205,207-281
+  s_2ce0cbf934eb7e::t_022af23da651c1 206
+Koren/Core/KorenRuntime.cs
+  s_2ce0cbf934eb7e::t_c02a6522b3ac11 274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "8a8999a92c1ba0d75cedbe1340fd7459a471e55a",
+  "prompts": {},
+  "sessions": {
+    "s_2ce0cbf934eb7e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3470af4d-a7c9-4642-a941-4138dbbbd47b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
