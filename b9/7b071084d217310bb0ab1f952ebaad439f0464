@@ -1,0 +1,52 @@
+Koren/Features/Interop/SettingsImporter.cs
+  s_b79b7848789222::t_79e7d4814b3bc6 1240-1246
+  s_b79b7848789222::t_f9e95c13d44599 30
+  s_b79b7848789222::t_250bb72f4aa1b6 119-123,130-131,133
+  s_b79b7848789222::t_691eec5dc9ba02 252
+  s_b79b7848789222::t_8ef84ea2f7e4b8 279-281
+  s_b79b7848789222::t_813844a99f63e6 307-313
+  s_b79b7848789222::t_7f9fb264f91205 160-169,173-251,253-263
+  s_b79b7848789222::t_13ca63fde54e3a 111-116
+  s_b79b7848789222::t_1ccf2a266071f0 264,854-953,958-1217
+  s_b79b7848789222::t_f81f90b5797d09 141-144
+  s_b79b7848789222::t_432f9a1174081a 327
+  s_b79b7848789222::t_134c41eb7d9750 954-957
+  s_b79b7848789222::t_e7c040eb41a13c 1387-1399
+  s_b79b7848789222::t_722fadaf390bce 1421
+Koren/UI/Factory/Page/PageImport.cs
+  s_b79b7848789222::t_8b315e093ebb16 16-18
+  s_b79b7848789222::t_8fd1bd672d6071 173-174
+Koren/Resource/Export/Lang/ko-KR.json
+  s_2ce0cbf934eb7e::t_52508d6f5f2451 696
+Koren/Resource/Export/Lang/en-US.json
+  s_2ce0cbf934eb7e::t_ade34c24ab2fb8 696
+Koren/Features/Interop/UmmInterop.cs
+  s_b79b7848789222::t_e14adb99c11ce4 36
+  s_b79b7848789222::t_ce740fe7af0237 21
+  s_b79b7848789222::t_ff9f0816d28bac 103-104,106,108-119
+  s_b79b7848789222::t_d0078fe4756199 120-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "b97b071084d217310bb0ab1f952ebaad439f0464",
+  "prompts": {},
+  "sessions": {
+    "s_2ce0cbf934eb7e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3470af4d-a7c9-4642-a941-4138dbbbd47b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_b79b7848789222": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "70572a01-0597-4c40-9957-e38fd42be2d3",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
