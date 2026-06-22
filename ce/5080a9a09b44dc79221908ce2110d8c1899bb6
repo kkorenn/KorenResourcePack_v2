@@ -1,0 +1,21 @@
+Koren/Features/EffectRemover/EffectRemover.cs
+  s_39992a2ca3d13d::t_f9dc2c6a7a8b05 43-44
+  s_39992a2ca3d13d::t_c8275d4f3feea0 371-375
+  s_39992a2ca3d13d::t_926cc7713848f4 45-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "ce5080a9a09b44dc79221908ce2110d8c1899bb6",
+  "prompts": {},
+  "sessions": {
+    "s_39992a2ca3d13d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a8d2cf7-42f0-49c7-beba-f4086b2471cc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
