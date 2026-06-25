@@ -1,0 +1,30 @@
+Quartz/Features/GameOverlayFont/GameOverlayFont.cs
+  s_cf50ce232d5419::t_57e0baa38e07bb 128
+  s_cf50ce232d5419::t_b1072347c723bc 207,210
+  s_cf50ce232d5419::t_5389c173fffa66 39
+  s_cf50ce232d5419::t_e4e4a6389acd74 176,194
+Quartz/UI/Factory/Page/PageDeveloper.cs
+  s_cf50ce232d5419::t_2daa9c1c9f3a78 106
+Quartz/Features/Editor/EditorFloorReadout.cs
+  s_cf50ce232d5419::t_b0dcfd4e12aac4 225
+Quartz/UI/Utility/TMPTextShadow.cs
+  s_cf50ce232d5419::t_c25487589f6e9f 244
+Quartz/Features/SongTitle/SongTitleOverlay.cs
+  s_cf50ce232d5419::t_9da92b4040ce3b 115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "efd8c28615df8b40b2ad4a5d03a5491b3ac504ac",
+  "prompts": {},
+  "sessions": {
+    "s_cf50ce232d5419": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f7a7af13-c87f-47ca-8868-33a32289fb08",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
