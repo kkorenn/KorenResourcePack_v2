@@ -1,0 +1,22 @@
+Quartz/Features/UiHider/UiHider.cs
+  s_dc1f075fbe38b8::t_2b50cad89afb9c 87,91-99
+  s_dc1f075fbe38b8::t_875efa3412934b 317-349
+  s_dc1f075fbe38b8::t_845e46ced5cedd 100
+  s_dc1f075fbe38b8::t_fbdd46f12e7da3 350
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "c4397d0f07cd7c68e1f5666ca4d675d13245f5eb",
+  "prompts": {},
+  "sessions": {
+    "s_dc1f075fbe38b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "46b78786-8beb-4a78-b7ad-77edb83d49b6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
