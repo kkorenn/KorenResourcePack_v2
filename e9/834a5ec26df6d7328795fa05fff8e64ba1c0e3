@@ -1,0 +1,39 @@
+Quartz/Features/Recorder/RecorderSettings.cs
+  s_cd5973353e746e::t_e095eaf18f6be2 77-88
+  s_cd5973353e746e::t_ee3323c75f9645 141
+  s_cd5973353e746e::t_435ba162a80d59 89-90
+  s_cd5973353e746e::t_aa7feb32508540 117
+Quartz/Resource/Export/Lang/en-US.json
+  s_cd5973353e746e::t_e5055779d08f94 187
+  s_cd5973353e746e::t_65f0e3c5034c98 76
+Quartz/Resource/Export/Lang/ko-KR.json
+  s_cd5973353e746e::t_60d8bee51559f6 76
+  s_cd5973353e746e::t_e81b7a712c0a38 187
+Quartz/UI/Factory/Page/PageEditorRenderer.cs
+  s_cd5973353e746e::t_ddc44febfa0a0b 145-149,151-156,158-159
+  s_cd5973353e746e::t_531f30f91a9de1 144,150,157
+Quartz/Features/Recorder/RecorderSession.cs
+  s_cd5973353e746e::t_856934a98e829f 180,182
+  s_cd5973353e746e::t_57c5b8b38a1732 300
+  s_cd5973353e746e::t_5cbd476656b9cf 500-536
+  s_cd5973353e746e::t_09d2c14735d04d 292-297
+  s_cd5973353e746e::t_76734a99436066 70
+  s_cd5973353e746e::t_16ea0f6b07196a 301
+  s_cd5973353e746e::t_aebf995a1276d4 167-179,181
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "e9834a5ec26df6d7328795fa05fff8e64ba1c0e3",
+  "prompts": {},
+  "sessions": {
+    "s_cd5973353e746e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a4d9fae6-2ba8-4d00-8df3-aed25eff019c",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
