@@ -1,0 +1,33 @@
+Quartz/Resource/Export/Lang/en-US.json
+  s_c76e08335c3fd0::t_8f57d3723aa88e 77
+  s_c76e08335c3fd0::t_71b3e8bc0da353 189
+Quartz/Features/Recorder/RecorderSettings.cs
+  s_c76e08335c3fd0::t_5f747fd9b5066f 130
+  s_c76e08335c3fd0::t_651b9fde4a2969 93-102
+  s_c76e08335c3fd0::t_aa3e89481c66a1 155
+Quartz/Resource/Export/Lang/ko-KR.json
+  s_c76e08335c3fd0::t_d50377e5971a9f 77
+  s_c76e08335c3fd0::t_4d22dcf7a67425 189
+Quartz/UI/Factory/Page/PageEditorRenderer.cs
+  s_c76e08335c3fd0::t_9c359e02157e44 160-175
+Quartz/Features/Recorder/RecorderSession.cs
+  s_c76e08335c3fd0::t_f796221d2ba817 71-72
+  s_c76e08335c3fd0::t_2f4cebdbfb48e2 242-249
+  s_c76e08335c3fd0::t_2d55db83af75f2 549-596
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "dd25ba00e4738a833cc553463c9072a5bd852196",
+  "prompts": {},
+  "sessions": {
+    "s_c76e08335c3fd0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fefdf0f1-157a-4654-bf47-644755921496",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
