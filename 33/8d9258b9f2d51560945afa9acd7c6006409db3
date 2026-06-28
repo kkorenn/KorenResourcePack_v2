@@ -1,0 +1,24 @@
+Quartz/Features/KeyViewer/KeyViewerOverlay.cs
+  s_86c1eda2010685::t_de61adc82d79c6 874-882,887-895
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "338d9258b9f2d51560945afa9acd7c6006409db3",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_86c1eda2010685": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4bf2aabb-0bac-473d-bb38-c9894c171039",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
