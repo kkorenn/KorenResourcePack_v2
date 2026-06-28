@@ -1,0 +1,19 @@
+build.json
+  s_1b0a15ad2a4762::t_ac2a592081fa14 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "6b71647781b71c0d6821d659d01280eb72185b2d",
+  "prompts": {},
+  "sessions": {
+    "s_1b0a15ad2a4762": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f0e72-4146-7880-afb4-bb4422432731",
+        "model": "unknown"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
