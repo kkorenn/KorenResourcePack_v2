@@ -303,16 +303,27 @@ internal static class PageProfiles {
             GenerateUI.Localize(label, "PRESET_" + preset.Name.ToUpperInvariant(), preset.Name);
 
             string presetPath = preset.Path;
-            UIButton applyBtn = GenerateUI.Button(
+            UIButton applyBtn = null;
+            applyBtn = GenerateUI.Button(
                 row,
                 () => {
-                    string applied = ProfileManager.ApplyPreset(presetPath);
-                    if(statusText != null) {
-                        statusText.text = applied != null
-                            ? string.Format(Tr("PROFILE_STATUS_PRESET_APPLIED", "Applied preset '{0}'."), applied)
-                            : Tr("PROFILE_STATUS_PRESET_FAILED", "Couldn't apply preset.");
-                    }
-                    RebuildList();
+                    applyBtn?.SetBlocked(true);
+
+                    // ApplyPreset swaps and reloads every settings file, so the
+                    // whole settings UI must be rebuilt for the new colors/text/
+                    // etc to show — each widget bakes its value in at Create time.
+                    // Run outside the click dispatch that lives on the object the
+                    // rebuild destroys (same as SelectProfile).
+                    MainThread.Enqueue(() => {
+                        if(ProfileManager.ApplyPreset(presetPath) != null) {
+                            UICore.Rebuild();
+                        } else {
+                            if(statusText != null) {
+                                statusText.text = Tr("PROFILE_STATUS_PRESET_FAILED", "Couldn't apply preset.");
+                            }
+                            RebuildList();
+                        }
+                    });
                 },
                 "Apply",
                 "preset_apply"
