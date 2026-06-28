@@ -186,6 +186,7 @@ public static class PanelsOverlay {
     private const float PadY = 10f;
 
     private static GameObject canvasObj;
+    private static GraphicRaycaster raycaster;
     private static readonly List<LivePanel> panels = [];
     private static Updater updater;
 
@@ -221,7 +222,8 @@ public static class PanelsOverlay {
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
 
-        canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster = canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster.enabled = false;
 
         BuildPanels();
 
@@ -238,6 +240,7 @@ public static class PanelsOverlay {
 
         Object.Destroy(canvasObj);
         canvasObj = null;
+        raycaster = null;
         panels.Clear();
         updater = null;
     }
@@ -442,6 +445,9 @@ public static class PanelsOverlay {
         private void Update() {
             bool isReorganizing = UICore.IsReorganizing;
             bool show = (IsEnabled && GameStats.InGame) || isReorganizing;
+            if(raycaster != null && raycaster.enabled != isReorganizing) {
+                raycaster.enabled = isReorganizing;
+            }
             float now = Time.unscaledTime;
             bool stateChanged = show != lastShow || isReorganizing != lastReorganizing;
             bool refreshText = stateChanged || now >= nextTextRefresh;

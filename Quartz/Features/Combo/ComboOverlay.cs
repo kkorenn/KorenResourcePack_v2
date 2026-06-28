@@ -23,6 +23,7 @@ public static class ComboOverlay {
     public static ComboSettings Conf => ConfMgr.Data;
 
     private static GameObject canvasObj;
+    private static GraphicRaycaster raycaster;
     private static RectTransform root;
     private static TextMeshProUGUI valueText;
     private static TextMeshProUGUI captionText;
@@ -62,7 +63,8 @@ public static class ComboOverlay {
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
 
-        canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster = canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster.enabled = false;
 
         GameObject rootObj = new("ComboRoot");
         rootObj.transform.SetParent(canvasObj.transform, false);
@@ -186,6 +188,7 @@ public static class ComboOverlay {
 
         Object.Destroy(canvasObj);
         canvasObj = null;
+        raycaster = null;
         root = null;
         valueText = null;
         captionText = null;
@@ -271,6 +274,9 @@ public static class ComboOverlay {
             bool isReorganizing = UICore.IsReorganizing;
             // Gated by the master Overlay enable as well as Combo's own toggle.
             bool show = (Panels.PanelsOverlay.IsEnabled && Conf.Enabled && GameStats.InGame) || isReorganizing;
+            if(raycaster != null && raycaster.enabled != isReorganizing) {
+                raycaster.enabled = isReorganizing;
+            }
             if(root.gameObject.activeSelf != show) {
                 root.gameObject.SetActive(show);
             }

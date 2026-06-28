@@ -31,6 +31,7 @@ public static class JudgementOverlay {
     private const float BottomMargin = 6.5f;
 
     private static GameObject canvasObj;
+    private static GraphicRaycaster raycaster;
     private static RectTransform root;
     // Multi-label row (CompactRow = false): nine labels in a HorizontalLayoutGroup.
     private static HorizontalLayoutGroup rowLayout;
@@ -99,7 +100,8 @@ public static class JudgementOverlay {
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
 
-        canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster = canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster.enabled = false;
 
         GameObject rowObj = new("JudgementRow");
         rowObj.transform.SetParent(canvasObj.transform, false);
@@ -285,6 +287,7 @@ public static class JudgementOverlay {
 
         Object.Destroy(canvasObj);
         canvasObj = null;
+        raycaster = null;
         root = null;
         rowLayout = null;
         rowLabel = null;
@@ -314,6 +317,9 @@ public static class JudgementOverlay {
 
             bool isReorganizing = UICore.IsReorganizing;
             bool show = (Panels.PanelsOverlay.IsEnabled && Conf.Enabled && GameStats.InGame) || isReorganizing;
+            if(raycaster != null && raycaster.enabled != isReorganizing) {
+                raycaster.enabled = isReorganizing;
+            }
             if(root.gameObject.activeSelf != show) {
                 root.gameObject.SetActive(show);
             }

@@ -74,7 +74,9 @@ public static class ProgressBarOverlay {
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
 
-        canvasObj.AddComponent<GraphicRaycaster>();
+        // The progress bar is not draggable/interactive, so keep this canvas out
+        // of Unity's EventSystem raycast list during gameplay.
+        canvasObj.AddComponent<GraphicRaycaster>().enabled = false;
 
         GameObject barObj = new("Bar");
         barObj.transform.SetParent(canvasObj.transform, false);

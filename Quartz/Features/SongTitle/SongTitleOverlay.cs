@@ -27,6 +27,7 @@ public static class SongTitleOverlay {
     public static SongTitleSettings Conf => ConfMgr.Data;
 
     private static GameObject canvasObj;
+    private static GraphicRaycaster raycaster;
     private static RectTransform root;
     private static TextMeshProUGUI text;
     private static GameObject dragObj;
@@ -91,7 +92,8 @@ public static class SongTitleOverlay {
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
 
-        canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster = canvasObj.AddComponent<GraphicRaycaster>();
+        raycaster.enabled = false;
 
         GameObject titleObj = new("SongTitle");
         titleObj.transform.SetParent(canvasObj.transform, false);
@@ -197,6 +199,7 @@ public static class SongTitleOverlay {
 
         Object.Destroy(canvasObj);
         canvasObj = null;
+        raycaster = null;
         root = null;
         text = null;
         dragObj = null;
@@ -286,6 +289,9 @@ public static class SongTitleOverlay {
 
             bool isReorganizing = UICore.IsReorganizing;
             bool show = (PanelsOverlay.IsEnabled && Conf.Enabled && GameStats.InGame) || isReorganizing;
+            if(raycaster != null && raycaster.enabled != isReorganizing) {
+                raycaster.enabled = isReorganizing;
+            }
             if(root.gameObject.activeSelf != show) {
                 root.gameObject.SetActive(show);
             }
