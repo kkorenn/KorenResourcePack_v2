@@ -1,0 +1,28 @@
+Quartz/Features/AutoDeafen/NativeKeySender.cs
+  s_71a7a3840e6654::t_557c0b7b5398a8 38
+  s_71a7a3840e6654::t_cf0f9a76afdc31 28-37
+Quartz/Features/AutoDeafen/AutoDeafen.cs
+  s_71a7a3840e6654::t_dbbac4c5d5d07e 173-184,187,195,197,199-203
+  s_71a7a3840e6654::t_ce7834c9caa791 171-172,185-186,188-194,196,198,204-206
+Quartz/Features/ChatterBlocker/ChatterBlocker.cs
+  s_71a7a3840e6654::t_c4f05ef0ad8e59 46-50
+  s_71a7a3840e6654::t_0c7fd92dfa4fb3 267-270
+  s_71a7a3840e6654::t_3e044ea90c2eba 124-130,140-144
+  s_71a7a3840e6654::t_230255734deed6 271-273
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "cbfd1bac3caed3430f1425e90bbe0ab2d3c5ef8a",
+  "prompts": {},
+  "sessions": {
+    "s_71a7a3840e6654": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6ca3bdea-8296-4275-b209-9afa82c99b52",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
