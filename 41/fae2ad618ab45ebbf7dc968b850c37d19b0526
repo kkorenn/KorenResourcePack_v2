@@ -1,0 +1,20 @@
+Quartz/Features/Judgement/JudgementOverlay.cs
+  s_1ae6f317b929f6::t_97c82ac372a333 479-483
+  s_1ae6f317b929f6::t_62d3a60255f4c0 312-316
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "41fae2ad618ab45ebbf7dc968b850c37d19b0526",
+  "prompts": {},
+  "sessions": {
+    "s_1ae6f317b929f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "237265ec-42b3-43e7-b4a2-337967883d36",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
