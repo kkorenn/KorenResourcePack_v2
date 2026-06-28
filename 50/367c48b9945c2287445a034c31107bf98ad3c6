@@ -1,0 +1,23 @@
+README.kr.md
+  s_41aabd21c03bf2::t_a4d753210177fa 11-13,25,35-36,43,56,58-60
+README.md
+  s_41aabd21c03bf2::t_a4d753210177fa 11-13,24,33-34,40,52,54-56
+Quartz/Core/Info.cs
+  s_41aabd21c03bf2::t_a4d753210177fa 41,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "50367c48b9945c2287445a034c31107bf98ad3c6",
+  "prompts": {},
+  "sessions": {
+    "s_41aabd21c03bf2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e96f1902-f123-4675-87c0-eb21bfc57169",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
