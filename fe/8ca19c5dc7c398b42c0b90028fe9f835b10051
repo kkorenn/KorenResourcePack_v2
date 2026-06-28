@@ -1,0 +1,19 @@
+Quartz/Features/Interop/XPerfectBridge.cs
+  s_1ae6f317b929f6::t_c7fec2e4a27bde 49-51,57-64,66,68,70-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "fe8ca19c5dc7c398b42c0b90028fe9f835b10051",
+  "prompts": {},
+  "sessions": {
+    "s_1ae6f317b929f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "237265ec-42b3-43e7-b4a2-337967883d36",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
