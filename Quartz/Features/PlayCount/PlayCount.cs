@@ -74,30 +74,40 @@ public sealed class PlayCount : IRuntimeService, IRuntimeTick {
         return playDatas.TryGetValue(currentMapKey, out PlayData d) ? d.TotalAttempts : 0;
     }
 
+    // Best = the run with the largest clean *span* of tiles, not the run that
+    // reached the farthest tile. A 0%–30% run (span 30%) beats a 90%–100% run
+    // (span 10%). Returns the end (high-water mark) of whichever run wins.
     public static float BestForCurrentMap() {
         if(string.IsNullOrEmpty(currentMapKey)) {
             return 0f;
         }
 
-        float stored = playDatas.TryGetValue(currentMapKey, out PlayData d) ? d.BestProgress : 0f;
-        return Mathf.Max(stored, bestObservedThisRun);
+        playDatas.TryGetValue(currentMapKey, out PlayData d);
+        float storedStart = d?.BestStartProgress ?? 0f;
+        float storedEnd = d?.BestProgress ?? 0f;
+        return LiveRunWins(storedStart, storedEnd) ? bestObservedThisRun : storedEnd;
     }
 
-    // Where the displayed best run began (0 = first tile). While the live run
-    // is beating the stored best, that's the live run's start; otherwise the
-    // start recorded with the stored best.
+    // Where the displayed best run began (0 = first tile). While the live run's
+    // span beats the stored best's span, that's the live run's start; otherwise
+    // the start recorded with the stored best.
     public static float BestStartForCurrentMap() {
         if(string.IsNullOrEmpty(currentMapKey)) {
             return 0f;
         }
 
         playDatas.TryGetValue(currentMapKey, out PlayData d);
-        float stored = d?.BestProgress ?? 0f;
-        if(bestObservedThisRun > stored) {
-            return CurrentRunStart();
-        }
-        return d?.BestStartProgress ?? 0f;
+        float storedStart = d?.BestStartProgress ?? 0f;
+        float storedEnd = d?.BestProgress ?? 0f;
+        return LiveRunWins(storedStart, storedEnd) ? CurrentRunStart() : storedStart;
     }
+
+    // Span of a run = high-water end minus its start tile (clamped at 0).
+    private static float SpanOf(float start, float end) => Mathf.Max(0f, end - start);
+
+    // True when the live in-run span beats the stored best's span.
+    private static bool LiveRunWins(float storedStart, float storedEnd) =>
+        SpanOf(CurrentRunStart(), bestObservedThisRun) > SpanOf(storedStart, storedEnd);
 
     private static float CurrentRunStart() {
         try {
@@ -161,9 +171,10 @@ public sealed class PlayCount : IRuntimeService, IRuntimeTick {
         }
 
         PlayData d = For(currentMapKey);
-        if(bestObservedThisRun > d.BestProgress) {
+        float runStart = CurrentRunStart();
+        if(SpanOf(runStart, bestObservedThisRun) > SpanOf(d.BestStartProgress, d.BestProgress)) {
             d.BestProgress = bestObservedThisRun;
-            d.BestStartProgress = CurrentRunStart();
+            d.BestStartProgress = runStart;
             dirty = true;
         }
 
@@ -176,21 +187,23 @@ public sealed class PlayCount : IRuntimeService, IRuntimeTick {
         }
 
         PlayData d = For(currentMapKey);
+        float runStart = CurrentRunStart();
         if(!runHadFail) {
             // Clean clear (no Miss/Overload all run, No Fail on or off) — the
-            // only way Best reaches 100%.
-            if(1f > d.BestProgress) {
+            // only way Best reaches 100%. Still gated on span: a checkpoint
+            // clear (e.g. 90%→100%, span 10%) won't beat a bigger earlier run.
+            if(SpanOf(runStart, 1f) > SpanOf(d.BestStartProgress, d.BestProgress)) {
                 d.BestProgress = 1f;
-                d.BestStartProgress = CurrentRunStart();
+                d.BestStartProgress = runStart;
                 dirty = true;
             }
             bestObservedThisRun = 1f;
         } else {
             // Reached the end but failed along the way (e.g. No Fail carried the
             // run past a Miss). Persist only the frozen clean prefix, never 100%.
-            if(bestObservedThisRun > d.BestProgress) {
+            if(SpanOf(runStart, bestObservedThisRun) > SpanOf(d.BestStartProgress, d.BestProgress)) {
                 d.BestProgress = bestObservedThisRun;
-                d.BestStartProgress = CurrentRunStart();
+                d.BestStartProgress = runStart;
                 dirty = true;
             }
         }
