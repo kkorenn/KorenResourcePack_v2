@@ -97,6 +97,38 @@ internal static class PageGameplay {
             conf.Enabled
         );
 
+        // Mode: Shortcut (taps your Discord deafen keybind — Windows only) vs Bot
+        // (drives Discord's RPC with your own OAuth app — every platform).
+        // Shortcut is the default but only offered on Windows; elsewhere the bot
+        // path is forced, so the picker is hidden and a note explains why.
+        // Switching rebuilds the page so the right rows show, like Effect Remover.
+        if(AutoDeafen.ShortcutSupported) {
+            GenerateUI.DropDown(
+                GenerateUI.Row(sec.Body),
+                AutoDeafenSettings.ModeShortcut,
+                conf.IsShortcut ? AutoDeafenSettings.ModeShortcut : AutoDeafenSettings.ModeBot,
+                new[] { AutoDeafenSettings.ModeShortcut, AutoDeafenSettings.ModeBot },
+                m => MainCore.Tr.Get(
+                    m == AutoDeafenSettings.ModeShortcut ? "AD_MODE_SHORTCUT" : "AD_MODE_BOT",
+                    m == AutoDeafenSettings.ModeShortcut ? "Shortcut" : "Bot"),
+                v => {
+                    conf.Mode = v;
+                    AutoDeafen.Save();
+                    UICore.Rebuild();
+                },
+                "ad_mode",
+                260f,
+                "Mode"
+            );
+        } else {
+            var note = GenerateUI.AddText(GenerateUI.Row(sec.Body, 30f));
+            GenerateUI.Localize(note, "AD_SHORTCUT_WINDOWS_ONLY",
+                "Shortcut mode is Windows-only — using Bot mode.");
+            note.fontSize = 17f;
+            note.color = new Color(1f, 1f, 1f, 0.45f);
+        }
+
+        // Common rows (both modes).
         UISlider pct = GenerateUI.Slider(
             GenerateUI.Row(sec.Body),
             def.DeafenAtPercent, 0f, 100f, conf.DeafenAtPercent,
@@ -123,8 +155,48 @@ internal static class PageGameplay {
             "ad_start"
         );
 
+        if(AutoDeafen.EffectiveMode == AutoDeafenSettings.ModeShortcut) {
+            CreateAutoDeafenShortcut(sec.Body, conf);
+        } else {
+            CreateAutoDeafenBot(sec.Body, conf, def);
+        }
+
+        var statusRow = GenerateUI.Row(sec.Body);
+        var statusText = GenerateUI.AddText(statusRow);
+        statusText.fontSize = 19f;
+        statusText.color = new Color(1f, 1f, 1f, 0.6f);
+        statusRow.gameObject.AddComponent<AutoDeafenStatusLabel>().Label = statusText;
+    }
+
+    // Shortcut mode: tap the chord that matches Discord's "Toggle Deafen" global
+    // shortcut. Four independent modifier toggles + a base key, matching v1.
+    private static void CreateAutoDeafenShortcut(Transform body, AutoDeafenSettings conf) {
+        var hint = GenerateUI.AddText(GenerateUI.Row(body, 30f));
+        GenerateUI.Localize(hint, "AD_SHORTCUT_HINT",
+            "Set this to match your Discord 'Toggle Deafen' keybind.");
+        hint.fontSize = 16f;
+        hint.color = new Color(1f, 1f, 1f, 0.45f);
+
+        GenerateUI.Toggle(
+            GenerateUI.Row(body), true, conf.ShortcutCtrl,
+            v => { conf.ShortcutCtrl = v; AutoDeafen.Save(); }, "Keybind Ctrl", "ad_kb_ctrl");
+        GenerateUI.Toggle(
+            GenerateUI.Row(body), true, conf.ShortcutShift,
+            v => { conf.ShortcutShift = v; AutoDeafen.Save(); }, "Keybind Shift", "ad_kb_shift");
+        GenerateUI.Toggle(
+            GenerateUI.Row(body), false, conf.ShortcutAlt,
+            v => { conf.ShortcutAlt = v; AutoDeafen.Save(); }, "Keybind Alt", "ad_kb_alt");
+        GenerateUI.Toggle(
+            GenerateUI.Row(body), false, conf.ShortcutMeta,
+            v => { conf.ShortcutMeta = v; AutoDeafen.Save(); }, "Keybind Win", "ad_kb_meta");
+
+        DeafenKeyRow(body, conf);
+    }
+
+    // Bot mode: the user's own Discord OAuth app drives the RPC socket.
+    private static void CreateAutoDeafenBot(Transform body, AutoDeafenSettings conf, AutoDeafenSettings def) {
         GenerateUI.Input(
-            GenerateUI.Row(sec.Body),
+            GenerateUI.Row(body),
             def.DiscordClientId,
             conf.DiscordClientId,
             v => {
@@ -137,14 +209,14 @@ internal static class PageGameplay {
         );
 
         GenerateUI.Button(
-            GenerateUI.Row(sec.Body),
+            GenerateUI.Row(body),
             () => AutoDeafen.OpenAuthorizeUrl(),
             "Authorize (Open Discord)",
             "ad_authorize"
         );
 
         GenerateUI.Button(
-            GenerateUI.Row(sec.Body),
+            GenerateUI.Row(body),
             () => {
                 string url = AutoDeafen.AuthorizeUrl();
                 if(!string.IsNullOrEmpty(url)) {
@@ -156,24 +228,121 @@ internal static class PageGameplay {
         ).SetSecondary();
 
         GenerateUI.Button(
-            GenerateUI.Row(sec.Body),
+            GenerateUI.Row(body),
             () => AutoDeafen.OpenTutorial(),
             "Watch Tutorial",
             "ad_tutorial"
         ).SetSecondary();
 
         GenerateUI.Button(
-            GenerateUI.Row(sec.Body),
+            GenerateUI.Row(body),
             () => AutoDeafen.Unlink(),
             "Unlink",
             "ad_unlink"
         ).SetSecondary();
+    }
 
-        var statusRow = GenerateUI.Row(sec.Body);
-        var statusText = GenerateUI.AddText(statusRow);
-        statusText.fontSize = 19f;
-        statusText.color = new Color(1f, 1f, 1f, 0.6f);
-        statusRow.gameObject.AddComponent<AutoDeafenStatusLabel>().Label = statusText;
+    // The base-key picker for shortcut mode. Mirrors GenerateUI.KeyBind's row,
+    // but captures a single key only (modifiers are the four toggles above), so
+    // a two-modifier chord like Ctrl+Shift+D can be expressed.
+    private static void DeafenKeyRow(Transform parent, AutoDeafenSettings conf) {
+        RectTransform rect = GenerateUI.BackGround();
+        rect.SetParent(parent, false);
+        rect.name = "DeafenKey";
+
+        var label = GenerateUI.AddText(rect);
+        GenerateUI.Localize(label, "ad_key", "Discord Key");
+
+        GameObject box = new("DeafenKeyBox");
+        box.transform.SetParent(rect, false);
+        RectTransform boxRect = box.AddComponent<RectTransform>();
+        boxRect.anchorMin = new Vector2(1f, 0.5f);
+        boxRect.anchorMax = new Vector2(1f, 0.5f);
+        boxRect.pivot = new Vector2(1f, 0.5f);
+        boxRect.anchoredPosition = new Vector2(-16f, 0f);
+        boxRect.sizeDelta = new Vector2(220f, 36f);
+
+        Image boxImg = box.AddComponent<Image>();
+        boxImg.sprite = MainCore.Spr.Get(UISliceSprite.Circle256P2048);
+        boxImg.type = Image.Type.Sliced;
+        boxImg.color = UIColors.ObjectButton;
+        boxImg.raycastTarget = false;
+
+        var display = GenerateUI.AddText(box.transform, true);
+        display.alignment = TextAlignmentOptions.Center;
+        display.raycastTarget = false;
+        display.text = Keybind.KeyName((KeyCode)conf.ShortcutKey);
+
+        var capture = rect.gameObject.AddComponent<DeafenKeyCapture>();
+        capture.Display = display;
+        capture.Conf = conf;
+
+        GenerateUI.AddButton(rect.gameObject, btn => {
+            if(btn == InputButton.Left) {
+                capture.Begin();
+            }
+        });
+    }
+
+    // Per-frame single-key capture for the shortcut base key. Idle until Begin();
+    // then the next non-modifier key press commits. Escape cancels.
+    private sealed class DeafenKeyCapture : MonoBehaviour {
+        public TMP_Text Display;
+        public AutoDeafenSettings Conf;
+
+        private bool listening;
+        private static readonly KeyCode[] AllKeys = (KeyCode[])System.Enum.GetValues(typeof(KeyCode));
+
+        public void Begin() {
+            if(listening) {
+                return;
+            }
+            listening = true;
+            Keybind.Capturing = true;
+            Display.text = MainCore.Tr.Get("PRESS_A_KEY", "Press a key...");
+        }
+
+        private void Refresh() => Display.text = Keybind.KeyName((KeyCode)Conf.ShortcutKey);
+
+        private void Cancel() {
+            listening = false;
+            Keybind.Capturing = false;
+            Refresh();
+        }
+
+        private void OnDisable() {
+            if(listening) {
+                Cancel();
+            }
+        }
+
+        private void Update() {
+            if(!listening) {
+                return;
+            }
+
+            if(Input.GetKeyDown(KeyCode.Escape)) {
+                Cancel();
+                return;
+            }
+
+            for(int i = 0; i < AllKeys.Length; i++) {
+                KeyCode kc = AllKeys[i];
+                if(kc == KeyCode.None || (int)kc >= (int)KeyCode.Mouse0 || Keybind.IsModifier(kc)) {
+                    continue;
+                }
+                if(!Input.GetKeyDown(kc)) {
+                    continue;
+                }
+
+                Conf.ShortcutKey = (int)kc;
+                listening = false;
+                Keybind.Capturing = false;
+                Refresh();
+                AutoDeafen.Save();
+                return;
+            }
+        }
     }
 
     // Live status readout ("authorized / ready / deaf"); polled because both

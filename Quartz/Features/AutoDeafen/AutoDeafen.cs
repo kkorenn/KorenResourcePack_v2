@@ -48,8 +48,24 @@ public static class AutoDeafen {
 
     public static void Save() => ConfMgr?.RequestSave();
 
+    // Shortcut key injection is Windows-only, so everywhere else the bot path is
+    // forced regardless of the saved Mode (the Gameplay tab reflects this).
+    public static bool ShortcutSupported =>
+        Application.platform == RuntimePlatform.WindowsPlayer
+        || Application.platform == RuntimePlatform.WindowsEditor;
+
+    public static string EffectiveMode =>
+        ShortcutSupported && Conf != null && Conf.IsShortcut
+            ? AutoDeafenSettings.ModeShortcut
+            : AutoDeafenSettings.ModeBot;
+
     public static string Status {
         get {
+            if(EffectiveMode == AutoDeafenSettings.ModeShortcut) {
+                string shortcut = "shortcut " + ChordText();
+                return desiredDeaf ? shortcut + " / deaf" : shortcut;
+            }
+
             string rpcStatus = rpc != null ? rpc.Status : status;
             string oauthStatus = DiscordOAuthServer.Status;
             if(!string.IsNullOrEmpty(Trim(Conf?.DiscordAccessToken)) && !DiscordOAuthServer.Running) {
@@ -58,6 +74,20 @@ public static class AutoDeafen {
             string combined = oauthStatus + " / " + rpcStatus;
             return desiredDeaf ? combined + " / deaf" : combined;
         }
+    }
+
+    // Human-readable chord ("Ctrl+Shift+D") for the status readout.
+    public static string ChordText() {
+        if(Conf == null) {
+            return "";
+        }
+        System.Text.StringBuilder sb = new();
+        if(Conf.ShortcutCtrl) { sb.Append("Ctrl+"); }
+        if(Conf.ShortcutShift) { sb.Append("Shift+"); }
+        if(Conf.ShortcutAlt) { sb.Append("Alt+"); }
+        if(Conf.ShortcutMeta) { sb.Append(Keybind.IsMac ? "Cmd+" : "Win+"); }
+        sb.Append(Keybind.KeyName((KeyCode)Conf.ShortcutKey));
+        return sb.ToString();
     }
 
     private static void Tick(float progress01) {
@@ -71,22 +101,35 @@ public static class AutoDeafen {
 
         Conf.DeafenAtPercent = Mathf.Clamp(Conf.DeafenAtPercent, 0f, 100f);
 
-        if(string.IsNullOrWhiteSpace(Conf.DiscordAccessToken)) {
-            StopRpc();
-            status = "waiting for authorization";
-            return;
-        }
+        if(EffectiveMode == AutoDeafenSettings.ModeShortcut) {
+            // Shortcut mode needs no Discord app or token — tear down anything
+            // left running from bot mode so a runtime switch doesn't leak a
+            // socket or listener.
+            if(rpc != null) {
+                StopRpc();
+            }
+            if(DiscordOAuthServer.Running) {
+                DiscordOAuthServer.Stop();
+            }
+        } else {
+            if(string.IsNullOrWhiteSpace(Conf.DiscordAccessToken)) {
+                StopRpc();
+                status = "waiting for authorization";
+                return;
+            }
 
-        // Compare the client-id and token directly instead of building a combined
-        // key string every tick (the concat was a per-frame allocation just to
-        // detect a settings edit). Trim() returns the same instance when there's
-        // nothing to trim, so this path normally allocates nothing.
-        string clientId = DiscordOAuthServer.ClientId;
-        string token = Trim(Conf.DiscordAccessToken);
-        if(rpc == null
-           || !string.Equals(configClientId, clientId, StringComparison.Ordinal)
-           || !string.Equals(configToken, token, StringComparison.Ordinal)) {
-            Restart(clientId, token);
+            // Compare the client-id and token directly instead of building a
+            // combined key string every tick (the concat was a per-frame
+            // allocation just to detect a settings edit). Trim() returns the same
+            // instance when there's nothing to trim, so this normally allocates
+            // nothing.
+            string clientId = DiscordOAuthServer.ClientId;
+            string token = Trim(Conf.DiscordAccessToken);
+            if(rpc == null
+               || !string.Equals(configClientId, clientId, StringComparison.Ordinal)
+               || !string.Equals(configToken, token, StringComparison.Ordinal)) {
+                Restart(clientId, token);
+            }
         }
 
         // Capture the game's authoritative first-tile signal once per run —
@@ -105,8 +148,23 @@ public static class AutoDeafen {
 
         if(shouldDeaf != desiredDeaf) {
             desiredDeaf = shouldDeaf;
-            rpc?.SetDeaf(shouldDeaf);
+            ApplyDeaf(shouldDeaf);
             MainCore.Log.Msg("[AutoDeafen] desired deaf = " + shouldDeaf);
+        }
+    }
+
+    // Drive the deaf state through whichever backend the effective mode uses.
+    // Bot mode sets the state absolutely over RPC; shortcut mode taps the
+    // configured chord, which Discord treats as a toggle — so the same chord is
+    // sent for deaf and undeaf, and desiredDeaf tracking keeps them paired.
+    private static void ApplyDeaf(bool deaf) {
+        if(EffectiveMode == AutoDeafenSettings.ModeShortcut) {
+            NativeKeySender.SendChord(
+                Conf.ShortcutCtrl, Conf.ShortcutShift, Conf.ShortcutAlt, Conf.ShortcutMeta,
+                (KeyCode)Conf.ShortcutKey
+            );
+        } else {
+            rpc?.SetDeaf(deaf);
         }
     }
 
@@ -135,10 +193,13 @@ public static class AutoDeafen {
             return;
         }
         desiredDeaf = false;
-        try { rpc?.SetDeaf(false); } catch { }
+        try { ApplyDeaf(false); } catch { }
     }
 
     public static void Stop() {
+        // Release any active deafen first (while rpc is still live for bot mode,
+        // or by tapping the toggle once for shortcut mode) before tearing down.
+        Undeafen();
         if(rpc != null) {
             StopRpc();
         }
