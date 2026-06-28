@@ -1,0 +1,50 @@
+Quartz/Features/AutoDeafen/AutoDeafenSettings.cs
+  s_71a7a3840e6654::t_6970e4519b2a7d 1,5,18-41,50-55,65-70
+Quartz/Features/AutoDeafen/AutoDeafen.cs
+  s_71a7a3840e6654::t_1f42e5f91aa10f 196,200-202
+  s_71a7a3840e6654::t_6d4d6654a53cc3 151,156-167
+  s_71a7a3840e6654::t_c5003db57b739f 51-61,64-68,79-90
+  s_71a7a3840e6654::t_d584f0f745afe7 104-119,121-132
+  s_86c1eda2010685::t_90efe0e7cbafb9 91-92,168-170
+Quartz/UI/Factory/Page/PageGameplay.cs
+  s_71a7a3840e6654::t_95827d36e93acb 100-131,158-197,199,212,219,231,238,243,245-345
+Quartz/Resource/Export/Lang/en-US.json
+  s_71a7a3840e6654::t_ea67e13c3e8136 77
+  s_71a7a3840e6654::t_e34258e617062d 12-19,22-23
+Quartz/Features/AutoDeafen/NativeKeySender.cs
+  s_71a7a3840e6654::t_2fee30cb2a1da4 23
+  s_71a7a3840e6654::t_3efd252bf1242a 5-7
+  s_71a7a3840e6654::t_ef4628324c12da 1-4,8-22,24-123
+Quartz/Resource/Export/Lang/ko-KR.json
+  s_71a7a3840e6654::t_6b5e23f3e6dc60 12-19,22-23
+  s_71a7a3840e6654::t_8d5e9f138aa8cd 77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "e339788ad02bce88a2029c2e3d670f39923ead04",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_71a7a3840e6654": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6ca3bdea-8296-4275-b209-9afa82c99b52",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_86c1eda2010685": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4bf2aabb-0bac-473d-bb38-c9894c171039",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
