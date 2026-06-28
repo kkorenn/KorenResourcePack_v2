@@ -1,0 +1,41 @@
+Quartz/UI/Factory/Page/PageGameplay.cs
+  s_a9b831885e127a::t_b27e9906674568 458-459
+  s_a9b831885e127a::t_b8fb29a777d64f 369-443
+Quartz/Resource/Export/Lang/en-US.json
+  s_a9b831885e127a::t_b3ded11f1d27b7 433-435
+  s_a9b831885e127a::t_169de5ae90e957 122
+  s_a9b831885e127a::t_db672545ebb379 428
+Quartz/Resource/Export/Lang/ko-KR.json
+  s_a9b831885e127a::t_00158033935d87 433-435
+  s_a9b831885e127a::t_ce7de6242715f2 122
+  s_a9b831885e127a::t_7ce3b9725732fc 428
+Quartz/Features/KeyLimiter/KeyLimiter.cs
+  s_1ae6f317b929f6::t_7da34f4c7d2f60 426-435,437-445
+  s_a9b831885e127a::t_0a94788fb64957 151-214
+Quartz/Features/KeyLimiter/KeyLimiterSettings.cs
+  s_a9b831885e127a::t_43f9ca82fe662f 7-14,16-20,24-31,34-54,56-63,66-67,74-85,87-109,111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "405901c10b8ca63254911e22dc82c95622621039",
+  "prompts": {},
+  "sessions": {
+    "s_1ae6f317b929f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "237265ec-42b3-43e7-b4a2-337967883d36",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_a9b831885e127a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "43e801be-4359-467f-8978-5332198d4c42",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
