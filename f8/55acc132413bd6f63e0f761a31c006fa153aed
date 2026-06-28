@@ -1,0 +1,19 @@
+Quartz/Features/AutoDeafen/DiscordOAuthServer.cs
+  s_1ae6f317b929f6::t_4a2baf4755d15c 48-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f855acc132413bd6f63e0f761a31c006fa153aed",
+  "prompts": {},
+  "sessions": {
+    "s_1ae6f317b929f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "237265ec-42b3-43e7-b4a2-337967883d36",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
