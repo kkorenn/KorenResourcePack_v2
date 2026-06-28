@@ -309,6 +309,11 @@ public static class JudgementOverlay {
         // Compact row only: the inter-count gap is baked into the string, so a
         // Spacing/Size edit (which changes RowSpacing) must trigger a rebuild.
         private float lastRowSpacing = float.NaN;
+        // Dedicated cache for the formatted gap string. NOT keyed on lastRowSpacing:
+        // that is assigned rowSpacing earlier in the method (before the gap is
+        // built), so reusing it as the guard would never recompute.
+        private string lastGap;
+        private float lastGapSpacing = float.NaN;
 
         private void Update() {
             if(root == null) {
@@ -471,7 +476,11 @@ public static class JudgementOverlay {
 
             StringBuilder sb = rowBuilder;
             sb.Clear();
-            string gap = rowSpacing.ToString("0.##", CultureInfo.InvariantCulture);
+            if(lastGap == null || rowSpacing != lastGapSpacing) {
+                lastGap = rowSpacing.ToString("0.##", CultureInfo.InvariantCulture);
+                lastGapSpacing = rowSpacing;
+            }
+            string gap = lastGap;
             for(int i = 0; i < Judgement.Slots; i++) {
                 if(i > 0) {
                     sb.Append("<space=").Append(gap).Append("px>");
