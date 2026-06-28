@@ -614,6 +614,12 @@ public static class KeyLimiter {
 
     // ===== per-frame ticker =====
 
+    // Keys Unity's legacy Input can't report but the SkyHook hook can: the
+    // Korean Hangul/Hanja keys, which map to RightAlt/RightControl. Capture
+    // consults the hook-held state only for these so it can add them.
+    private static bool IsHookOnlyModifier(KeyCode key)
+        => key is KeyCode.RightControl or KeyCode.RightAlt;
+
     private static Ticker ticker;
 
     private static void EnsureTicker() {
@@ -678,6 +684,18 @@ public static class KeyLimiter {
                 bool held;
                 try { held = UnityEngine.Input.GetKey(key); }
                 catch { continue; }
+
+                // Unity's legacy Input is blind to the Korean Hangul/Hanja keys,
+                // which surface as RightAlt/RightControl — on a Korean layout the
+                // right-Ctrl/Alt position IS the Hanja/Hangul key. Without this the
+                // capture loop never sees them, so they can't be added to the
+                // allowed list. Fall back to the SkyHook-fed held state (the only
+                // path that sees them, still forwarded during capture), mirroring
+                // the KeyViewer's KeyHeld. Scoped to those modifiers so normal keys
+                // and the NumLock-off numpad keep using Input alone.
+                if(!held && IsHookOnlyModifier(key)) {
+                    held = HookKeyHeld(key);
+                }
 
                 if(held && !priming && !prevHeld.Contains(key)) {
                     prevHeld.Add(key);
