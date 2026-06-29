@@ -1,0 +1,22 @@
+Quartz/Features/KeyViewer/KeyViewerOverlay.cs
+  s_ef63b2402053c1::t_7221a4eca60e4d 724
+  s_ef63b2402053c1::t_270cbe6e16adc1 1620
+Quartz/Resource/Export/Lang/ko-KR.json
+  s_ef63b2402053c1::t_6126d5bd44c397 412,719
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "6637b01f2d4fc99b104d928fff3e1379107f571a",
+  "prompts": {},
+  "sessions": {
+    "s_ef63b2402053c1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f156c-1953-7190-be4d-a9efc7dd5e9d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
