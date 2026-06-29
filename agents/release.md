@@ -77,4 +77,4 @@ So `git log <prev-tag>..HEAD` — what `--dry-run` shows as `range:` — will re
 - Don't trust `range:` / the auto-draft as the changelog — it over-counts (step 4 exists for this).
 - Don't re-list a feature a prior build already announced.
 - Don't bump Version or change Channel as part of a routine release — that's a deliberate human call in `Info.cs`.
-- Don't push after publishing unless the user asks.
+- Don't ask 'you sure u want me to publish' just publish. just do it. i dont need u to keep asking me to confirm
