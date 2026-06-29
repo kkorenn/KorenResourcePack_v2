@@ -204,8 +204,6 @@
     "FONT_DELETED": "'{0}' 삭제됨.",
     "FONT_DEFAULT": "기본 (Cookie Run Bold)",
     "FONT_SAME_AS_OVERLAY": "오버레이 폰트와 동일",
-    "USE_FONT_IN_GAME_OVERLAY": "게임 내 오버레이에 폰트 적용",
-    "DESC_USE_FONT_IN_GAME_OVERLAY": "선택한 폰트를 모드 UI뿐 아니라 A Dance of Fire and Ice의 게임 내 오버레이(플레이 중 표시되는 레벨 제목과 아티스트)에도 적용합니다. 기본 SUIT 폰트는 게임 자체 폰트를 유지합니다.",
     "SETTINGS_FONT": "설정 창 폰트",
     "DESC_SETTINGS_FONT": "이 모드의 설정 창에 사용할 폰트입니다. \"오버레이 폰트와 동일\"은 위의 폰트 설정을 따릅니다.",
     "FXRM_ADVFILTERS": "고급 필터",

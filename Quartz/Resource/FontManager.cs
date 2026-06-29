@@ -23,22 +23,12 @@ public static class FontManager {
     // action row. Picked up by the settings page, never used as a real font.
     public const string AddSentinel = "koren-add-custom-font";
 
-    // Dropdown sentinel for "use the mod's overlay font" in the in-game-font
-    // picker. Stored as an empty CoreSettings.GameOverlayFontName.
+    // Dropdown sentinel for "use the mod's overlay font" in the settings-window
+    // font picker. Stored as an empty CoreSettings.SettingsFontName.
     public const string SameAsOverlay = "koren-overlay-font-same";
 
     public static TMP_FontAsset Current { get; private set; }
     public static string CurrentName { get; private set; } = DefaultName;
-
-    // Font for the in-game overlay (the GameOverlayFont feature). Follows the
-    // mod's overlay font when GameOverlayFontName is empty / "same as overlay",
-    // otherwise the named font (falling back to the default if it's gone).
-    public static TMP_FontAsset GameOverlayFontAsset {
-        get {
-            string name = MainCore.Conf?.GameOverlayFontName;
-            return string.IsNullOrEmpty(name) || name == SameAsOverlay ? Current : GetFont(name);
-        }
-    }
 
     // The settings-window canvas subtree (UICore's QuartzUICanvas). TMP texts
     // under it follow the settings-window font (MenuFontAsset); every other text
@@ -55,11 +45,6 @@ public static class FontManager {
             return string.IsNullOrEmpty(name) || name == SameAsOverlay ? Current : GetFont(name);
         }
     }
-
-    // Raised after the selected font changes (and after ApplyToAll re-points the
-    // mod's UI). The GameOverlayFont feature listens so it can re-apply the font
-    // to the game's own text when that option is on.
-    public static event Action OnFontChanged;
 
     // Raised whenever the set of importable fonts changes so open pickers can
     // rebuild their option rows without FontManager depending on UI classes.
@@ -190,8 +175,6 @@ public static class FontManager {
             MainCore.Conf.FontName = name == DefaultName ? "" : name;
             MainCore.ConfMgr.RequestSave();
         }
-
-        OnFontChanged?.Invoke();
     }
 
     // ===== custom font management =====
@@ -297,24 +280,17 @@ public static class FontManager {
         return true;
     }
 
-    // Keep per-window/game font overrides in step with a managed custom font
+    // Keep the settings-window font override in step with a managed custom font
     // rename/delete. Empty replacement means "follow the overlay font".
     private static void RetargetFontOverrides(string oldName, string replacement) {
         var conf = MainCore.Conf;
         if(conf == null) return;
 
-        bool changed = false;
         if(string.Equals(conf.SettingsFontName, oldName, StringComparison.OrdinalIgnoreCase)) {
             conf.SettingsFontName = replacement;
-            changed = true;
             ApplyMenuFont();
+            MainCore.ConfMgr.RequestSave();
         }
-        if(string.Equals(conf.GameOverlayFontName, oldName, StringComparison.OrdinalIgnoreCase)) {
-            conf.GameOverlayFontName = replacement;
-            changed = true;
-            OnFontChanged?.Invoke();
-        }
-        if(changed) MainCore.ConfMgr.RequestSave();
     }
 
     private static string UniqueName(string baseName) {
@@ -372,12 +348,6 @@ public static class FontManager {
     // render each option in its own face.
     public static TMP_FontAsset GetFont(string name) => Resolve(name) ?? defaultFont;
 
-    // The UnityEngine.Font backing the current selection, or null for the
-    // default (SUIT — a bundled TMP asset with no standalone font file) or a
-    // font that failed to build. ADOFAI's in-game HUD draws with a legacy
-    // UnityEngine.UI.Text, which needs a Font rather than the TMP_FontAsset that
-    // Current exposes; the GameOverlayFont feature uses this to drive it.
-
     // Re-points every existing TMP text under the mod root at its font: texts
     // under the settings window (MenuRoot) draw with the settings-window font
     // (MenuFontAsset), everything else with the overlay font (Current). When the
@@ -414,9 +384,17 @@ public static class FontManager {
         TMP_Text[] texts = menuRoot.GetComponentsInChildren<TMP_Text>(true);
         for(int i = 0; i < texts.Length; i++) {
             TMP_Text text = texts[i];
-            if(text != null && text.GetComponent<FontExempt>() == null) {
-                text.font = menuFont;
-            }
+            if(text == null || text.GetComponent<FontExempt>() != null) continue;
+
+            text.font = menuFont;
+            // A bare font swap doesn't re-tessellate an already-laid-out TMP label
+            // in this build — the same reason UICore.RefreshAllText force-meshes the
+            // menu after an atlas change. The main Font picker gets that refresh for
+            // free (it changes FontManager.Current, so the next menu open re-meshes),
+            // but a settings-window-only change leaves Current untouched, so nothing
+            // ever re-meshes and the new face never shows. Force the rebuild here so
+            // the pick takes effect.
+            text.ForceMeshUpdate(false, true);
         }
     }
 

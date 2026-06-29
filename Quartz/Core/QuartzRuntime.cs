@@ -7,7 +7,6 @@ using Quartz.Features.PlayCount;
 using Quartz.Features.Combo;
 using Quartz.Features.Editor;
 using Quartz.Features.EffectRemover;
-using Quartz.Features.GameOverlayFont;
 using Quartz.Features.Optimizer;
 using Quartz.Features.Judgement;
 using Quartz.Features.KeyViewer;
@@ -189,10 +188,6 @@ public sealed class QuartzRuntime {
 
         sw.Restart();
         FontManager.Initialize();
-        // Re-apply the font to ADOFAI's own text whenever the selection changes
-        // or a new scene loads.
-        FontManager.OnFontChanged += GameOverlayFont.ApplyFontChange;
-        GameOverlayFont.Initialize();
         Logger.Msg($"[Startup] FontManager took {sw.ElapsedMilliseconds} ms");
 
         Localization = new LocalizationService(Paths.LangPath, Config, Logger);
@@ -285,8 +280,6 @@ public sealed class QuartzRuntime {
         // Drop the persistent subscriptions this runtime added in Initialize.
         // Their targets are static, so without this a UnityModManager reload
         // would leave every prior session's handler live (see field comment).
-        Safe(() => FontManager.OnFontChanged -= GameOverlayFont.ApplyFontChange);
-        Safe(GameOverlayFont.Unhook);
         Safe(Optimizer.Unhook);
         Safe(() => {
             if(xperfectGuardHandler != null) {
@@ -347,7 +340,6 @@ public sealed class QuartzRuntime {
             PlanetColors.Refresh();
             OttoIcon.Refresh();
             Optimizer.Apply();
-            GameOverlayFont.Refresh();
             Nostalgia.Refresh();
 
             OnModEnabledChanged?.Invoke(true, isDispose);
@@ -372,7 +364,6 @@ public sealed class QuartzRuntime {
             OttoIcon.Restore();
             UiHider.Restore();
             Optimizer.Restore();
-            GameOverlayFont.Restore();
             EditorFeature.Restore();
             Nostalgia.Restore();
             Features.AutoDeafen.AutoDeafen.Stop();

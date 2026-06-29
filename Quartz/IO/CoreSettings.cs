@@ -15,17 +15,6 @@ public sealed class CoreSettings : ISettingsFile {
     public float UIScale = 0.85f;
     public string FontName = "";
 
-    // Apply FontName to A Dance of Fire and Ice's own in-game overlay (the
-    // scrHUDText title/artist HUD shown during play), not just the mod's UI.
-    // "Default (SUIT)" has no standalone font file, so it leaves the game's
-    // own localized font in place.
-    public bool ApplyFontToGameOverlay = true;
-
-    // Font for the in-game overlay when ApplyFontToGameOverlay is on. Empty means
-    // "follow the mod's overlay font (FontName)"; otherwise a font display name
-    // from the same picker, so the in-game text can use a different face.
-    public string GameOverlayFontName = "";
-
     // Font for the mod's own settings window. Empty means "follow the overlay
     // font (FontName)"; otherwise a font display name from the same picker, so
     // the settings window can use a different face than the gameplay overlays.
@@ -105,8 +94,6 @@ public sealed class CoreSettings : ISettingsFile {
             [nameof(MiddleClickToDefault)] = MiddleClickToDefault,
             [nameof(UIScale)] = UIScale,
             [nameof(FontName)] = FontName,
-            [nameof(ApplyFontToGameOverlay)] = ApplyFontToGameOverlay,
-            [nameof(GameOverlayFontName)] = GameOverlayFontName,
             [nameof(SettingsFontName)] = SettingsFontName,
             [nameof(ScrollSpeed)] = ScrollSpeed,
             [nameof(PanelOpacity)] = PanelOpacity,
@@ -134,8 +121,6 @@ public sealed class CoreSettings : ISettingsFile {
         MiddleClickToDefault = IOUtils.Read(token, nameof(MiddleClickToDefault), MiddleClickToDefault);
         UIScale = IOUtils.Read(token, nameof(UIScale), UIScale);
         FontName = IOUtils.Read(token, nameof(FontName), FontName);
-        ApplyFontToGameOverlay = IOUtils.Read(token, nameof(ApplyFontToGameOverlay), ApplyFontToGameOverlay);
-        GameOverlayFontName = IOUtils.Read(token, nameof(GameOverlayFontName), GameOverlayFontName);
         SettingsFontName = IOUtils.Read(token, nameof(SettingsFontName), SettingsFontName);
         ScrollSpeed = IOUtils.Read(token, nameof(ScrollSpeed), ScrollSpeed);
         PanelOpacity = IOUtils.Read(token, nameof(PanelOpacity), PanelOpacity);

@@ -4,7 +4,6 @@ using GTweens.Extensions;
 using GTweens.Tweens;
 using Quartz.Async;
 using Quartz.Core;
-using Quartz.Features.GameOverlayFont;
 using Quartz.IO;
 using Quartz.Localization;
 using Quartz.Resource;
@@ -36,8 +35,6 @@ internal static class PageSettings {
     private static bool fontDeleteArmed;
     private static GameObject fontStatusRow;
     private static TextMeshProUGUI fontStatusText;
-    private static UIDropDown<string> gameFontDropdown;
-    private static GameObject gameFontPickerRow;
     private static UIDropDown<string> settingsFontDropdown;
     private static string pendingFontName = "";
 
@@ -664,48 +661,6 @@ internal static class PageSettings {
 
         objects[fontTextTr] = (fontLabelRow.gameObject, fontGroup);
 
-        // Applies the chosen font to ADOFAI's own in-game overlay (the level
-        // title/artist HUD), handled by the GameOverlayFont feature.
-        var gameFontRow = GenerateUI.Row(content.transform);
-        UIToggle gameFontToggle = GenerateUI.Toggle(
-            gameFontRow,
-            defSet.ApplyFontToGameOverlay,
-            MainCore.Conf.ApplyFontToGameOverlay,
-            toggle => {
-                MainCore.Conf.ApplyFontToGameOverlay = toggle;
-                MainCore.ConfMgr.RequestSave();
-                GameOverlayFont.Refresh();
-                RefreshGameFontRow();
-            },
-            "Use font in the in-game overlay",
-            "use_font_in_game_overlay"
-        );
-        gameFontToggle.Rect.AddToolTip(
-            "DESC_USE_FONT_IN_GAME_OVERLAY",
-            "Apply the selected font to A Dance of Fire and Ice's own in-game overlay (the level title and artist shown during play), not just this mod's UI. The default SUIT font keeps the game's own font."
-        );
-        var gameFontToggleTr = gameFontToggle.Label.gameObject.AddComponent<TextLocalization>().Init("USE_FONT_IN_GAME_OVERLAY", "Use font in the in-game overlay");
-        objects[gameFontToggleTr] = (fontLabelRow.gameObject, gameFontRow.gameObject);
-
-        // In-game overlay font picker — visible only while the toggle above is on.
-        // Lets the game's own text use a different font than the mod UI; the first
-        // option ("Same as overlay font") follows the overlay font live.
-        var gameFontPickRow = GenerateUI.Row(content.transform);
-        gameFontPickerRow = gameFontPickRow.gameObject;
-        gameFontDropdown = GenerateUI.DropDown(
-            gameFontPickRow,
-            FontManager.SameAsOverlay,
-            CurrentGameFontValue(),
-            BuildGameFontValues(),
-            DisplayGameFont,
-            OnGameFontSelected,
-            "game_font_dropdown"
-        );
-        // Render each option in the face it names (the "Same as overlay" row uses
-        // the default font).
-        gameFontDropdown.ItemFont = FontManager.GetFont;
-        RefreshGameFontRow();
-
         // Settings-window font: lets this mod's own settings window use a
         // different face than the gameplay overlays. "Same as overlay font"
         // (the default) follows the Font picker above, so setups that never
@@ -719,8 +674,8 @@ internal static class PageSettings {
             settingsFontRow,
             FontManager.SameAsOverlay,
             CurrentSettingsFontValue(),
-            BuildGameFontValues(),
-            DisplayGameFont,
+            BuildSettingsFontValues(),
+            DisplaySettingsFont,
             OnSettingsFontSelected,
             "settings_font_dropdown"
         );
@@ -744,37 +699,20 @@ internal static class PageSettings {
         FontManager.ApplyMenuFont();
     }
 
-    private static IReadOnlyList<string> BuildGameFontValues() {
+    // The settings-window font picker's options: "Same as overlay font" plus
+    // every available font, each later rendered in its own face.
+    private static IReadOnlyList<string> BuildSettingsFontValues() {
         var list = new List<string> { FontManager.SameAsOverlay };
         list.AddRange(FontManager.GetAvailableFonts());
         return list;
     }
 
-    private static string CurrentGameFontValue() {
-        string name = MainCore.Conf.GameOverlayFontName;
-        return string.IsNullOrEmpty(name) ? FontManager.SameAsOverlay : name;
-    }
-
-    private static string DisplayGameFont(string name) =>
+    private static string DisplaySettingsFont(string name) =>
         name == FontManager.SameAsOverlay
             ? Tr("FONT_SAME_AS_OVERLAY", "Same as overlay font")
             : name == FontManager.DefaultName
                 ? Tr("FONT_DEFAULT", "Default (Cookie Run Bold)")
                 : name;
-
-    private static void OnGameFontSelected(string name) {
-        MainCore.Conf.GameOverlayFontName = name == FontManager.SameAsOverlay ? "" : name;
-        MainCore.ConfMgr.RequestSave();
-        // Re-font the game's own text (captured TMP labels + a re-sweep); live
-        // twins follow GameOverlayFontAsset on their own each frame.
-        GameOverlayFont.ApplyFontChange();
-    }
-
-    // The in-game font picker only applies while the feature is on, so hide it
-    // when the toggle is off.
-    private static void RefreshGameFontRow() {
-        if(gameFontPickerRow != null) gameFontPickerRow.SetActive(MainCore.Conf.ApplyFontToGameOverlay);
-    }
 
     // Rebuild every open font picker after an import, rename, or delete. This
     // also updates selections whose persisted override was renamed or reset.
@@ -784,13 +722,8 @@ internal static class PageSettings {
             fontDropdown.Set(FontManager.CurrentName, false);
         }
 
-        if(gameFontDropdown != null) {
-            gameFontDropdown.SetValues(BuildGameFontValues());
-            gameFontDropdown.Set(CurrentGameFontValue(), false);
-        }
-
         if(settingsFontDropdown != null) {
-            settingsFontDropdown.SetValues(BuildGameFontValues());
+            settingsFontDropdown.SetValues(BuildSettingsFontValues());
             settingsFontDropdown.Set(CurrentSettingsFontValue(), false);
         }
     }

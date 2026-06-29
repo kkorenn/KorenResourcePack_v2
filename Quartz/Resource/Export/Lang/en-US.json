@@ -204,8 +204,6 @@
     "FONT_DELETED": "Deleted '{0}'.",
     "FONT_DEFAULT": "Default (Cookie Run Bold)",
     "FONT_SAME_AS_OVERLAY": "Same as overlay font",
-    "USE_FONT_IN_GAME_OVERLAY": "Use font in the in-game overlay",
-    "DESC_USE_FONT_IN_GAME_OVERLAY": "Apply the selected font to A Dance of Fire and Ice's own in-game overlay (the level title and artist shown during play), not just this mod's UI. The default SUIT font keeps the game's own font.",
     "SETTINGS_FONT": "Settings Window Font",
     "DESC_SETTINGS_FONT": "Font for this mod's own settings window. \"Same as overlay font\" follows the Font picker above.",
     "FXRM_ADVFILTERS": "Advanced Filter",
