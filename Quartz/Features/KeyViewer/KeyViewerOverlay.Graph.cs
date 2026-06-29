@@ -144,9 +144,8 @@ public static partial class KeyViewerOverlay {
         }
 
         private static bool Equal(float[] a, float[] b) {
-            for(int i = 0; i < a.Length; i++) {
+            for(int i = 0; i < a.Length; i++)
                 if(Mathf.Abs(a[i] - b[i]) > 0.001f) return false;
-            }
             return true;
         }
 
@@ -161,11 +160,8 @@ public static partial class KeyViewerOverlay {
             float ox = r.xMin, oy = r.yMin;
             float safeMax = Mathf.Max(_max, 1f);
 
-            if(_bar) {
-                BuildBars(vh, h, w, ht, ox, oy, safeMax);
-            } else {
-                BuildLine(vh, h, w, ht, ox, oy, safeMax);
-            }
+            if(_bar) BuildBars(vh, h, w, ht, ox, oy, safeMax);
+            else BuildLine(vh, h, w, ht, ox, oy, safeMax);
         }
 
         private void BuildLine(VertexHelper vh, float[] h, float w, float ht, float ox, float oy, float safeMax) {

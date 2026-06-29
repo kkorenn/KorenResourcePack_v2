@@ -590,9 +590,8 @@ public static partial class GenerateUI {
                         current.GetComponent<LayoutGroup>() != null ||
                         current.GetComponent<ContentSizeFitter>() != null
                     )
-                ) {
+                )
                     LayoutRebuilder.ForceRebuildLayoutImmediate(currentRect);
-                }
 
                 current = current.parent;
             }

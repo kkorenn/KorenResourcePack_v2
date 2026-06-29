@@ -18,6 +18,5 @@ public sealed class FloatTweener : Tweener<float> {
             duration,
             FloatInterpolator.Instance,
             validation
-        ) {
-    }
+        ) { }
 }

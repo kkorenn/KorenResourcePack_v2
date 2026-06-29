@@ -293,11 +293,8 @@ public sealed class KeyViewerStylesheet {
             if(!counter && !hasState) { continue; } // unrecognised key/counter selector (e.g. bare .graph)
 
             int state = -1; // -1 both, 0 inactive, 1 active
-            if(lower.IndexOf("inactive", StringComparison.Ordinal) >= 0) {
-                state = 0;
-            } else if(lower.IndexOf("active", StringComparison.Ordinal) >= 0) {
-                state = 1;
-            }
+            if(lower.IndexOf("inactive", StringComparison.Ordinal) >= 0) { state = 0; }
+            else if(lower.IndexOf("active", StringComparison.Ordinal) >= 0) { state = 1; }
 
             if(counter) {
                 AddTo(_ctrIdle, _ctrActive, state, classes, decls);
@@ -621,9 +618,7 @@ public sealed class KeyViewerStylesheet {
 
     private static bool IsBold(string v) {
         string t = v.Trim();
-        if(t.Equals("bold", StringComparison.OrdinalIgnoreCase) || t.Equals("bolder", StringComparison.OrdinalIgnoreCase)) {
-            return true;
-        }
+        if(t.Equals("bold", StringComparison.OrdinalIgnoreCase) || t.Equals("bolder", StringComparison.OrdinalIgnoreCase)) { return true; }
         return int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) && w >= 600;
     }
 

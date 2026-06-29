@@ -20,7 +20,6 @@ public enum ResizeHandleType {
 }
 
 public class ResizeHandle : MonoBehaviour {
-
     public ResizeHandleType Type;
     public RectTransform Panel;
     public RectTransform PanelParent;
@@ -298,7 +297,6 @@ public class ResizeHandle : MonoBehaviour {
 // grows by the ring on every side, and hides the handles while the menu is
 // closed or in reorganize mode.
 public sealed class ResizeFrame : MonoBehaviour {
-
     public RectTransform Panel;
     public RectTransform Self;
     public GameObject Handles;

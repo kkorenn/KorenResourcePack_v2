@@ -10,7 +10,6 @@ using Quartz.UI.Generator;
 using Quartz.UI.Objects.Impl;
 using Quartz.UI.Utility;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Quartz.UI.Factory.Page;
 
@@ -325,11 +324,8 @@ internal static class PageVisuals {
             content, "Otto Icon", startExpanded: false,
             v => {
                 conf.Enabled = v;
-                if(v) {
-                    OttoIcon.Refresh();
-                } else {
-                    OttoIcon.Restore();
-                }
+                if(v) OttoIcon.Refresh();
+                else OttoIcon.Restore();
                 OttoIcon.Save();
             },
             conf.Enabled
@@ -410,11 +406,8 @@ internal static class PageVisuals {
             content, "UI Hiding", startExpanded: false,
             v => {
                 conf.Enabled = v;
-                if(v) {
-                    UiHider.ApplyNow();
-                } else {
-                    UiHider.Restore();
-                }
+                if(v) UiHider.ApplyNow();
+                else UiHider.Restore();
                 UiHider.Save();
             },
             conf.Enabled
@@ -512,11 +505,8 @@ internal static class PageVisuals {
             content, "Planet Colors", startExpanded: false,
             v => {
                 conf.Enabled = v;
-                if(v) {
-                    PlanetColors.Refresh();
-                } else {
-                    PlanetColors.Restore();
-                }
+                if(v) PlanetColors.Refresh();
+                else PlanetColors.Restore();
                 Save();
             },
             conf.Enabled
@@ -767,11 +757,8 @@ internal static class PageVisuals {
                 (def.HiddenMask & maskBit) != 0,
                 (conf.HiddenMask & maskBit) != 0,
                 v => {
-                    if(v) {
-                        conf.HiddenMask |= maskBit;
-                    } else {
-                        conf.HiddenMask &= ~maskBit;
-                    }
+                    if(v) conf.HiddenMask |= maskBit;
+                    else conf.HiddenMask &= ~maskBit;
                     JudgementPopupHider.Save();
                 },
                 label,

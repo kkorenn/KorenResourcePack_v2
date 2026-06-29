@@ -11,7 +11,7 @@ public static class PresetEasingDelegateFactory {
     const float D1 = 2.75f;
 
     public static EasingDelegate GetEaseDelegate(Easing easing) {
-        EasingDelegate result = easing switch {
+        return easing switch {
             Easing.InSine => InSine,
             Easing.OutSine => OutSine,
             Easing.InOutSine => InOutSine,
@@ -44,7 +44,6 @@ public static class PresetEasingDelegateFactory {
             Easing.InOutBounce => InOutBounce,
             _ => Linear,
         };
-        return result;
     }
 
     static float Linear(float a, float b, float t) => Lerp(a, b, t);

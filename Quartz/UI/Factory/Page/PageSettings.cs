@@ -79,15 +79,13 @@ internal static class PageSettings {
                 bool isBlank = string.IsNullOrWhiteSpace(value);
                 Dictionary<GameObject, bool> labelActivationMap = [];
 
-                foreach(var pair in objects.Where(pair => pair.Value.LabelRow != null)) {
+                foreach(var pair in objects.Where(pair => pair.Value.LabelRow != null))
                     labelActivationMap[pair.Value.LabelRow] = isBlank;
-                }
 
                 string normalizedQuery = StringUtils.Normalize(value);
 
-                if(MainCore.Conf.Language == "ko-KR") {
+                if(MainCore.Conf.Language == "ko-KR")
                     normalizedQuery = StringUtils.NormalizeToHangulChosung(normalizedQuery);
-                }
 
                 foreach(var (labelLoc, valueTuple) in objects) {
                     var (labelRow, mainRow) = valueTuple;
@@ -95,9 +93,8 @@ internal static class PageSettings {
                     if(labelRow == null || mainRow == null) continue;
 
                     string normalizedTarget = labelLoc != null ? StringUtils.Normalize(labelLoc.Value) : string.Empty;
-                    if(MainCore.Conf.Language == "ko-KR" && !string.IsNullOrEmpty(normalizedTarget)) {
+                    if(MainCore.Conf.Language == "ko-KR" && !string.IsNullOrEmpty(normalizedTarget))
                         normalizedTarget = StringUtils.NormalizeToHangulChosung(normalizedTarget);
-                    }
 
                     bool isMainMatch = isBlank
                         || (
@@ -110,9 +107,8 @@ internal static class PageSettings {
                     if(isMainMatch) labelActivationMap[labelRow] = true;
                 }
 
-                foreach(var kvp in labelActivationMap) {
+                foreach(var kvp in labelActivationMap)
                     kvp.Key.SetActive(kvp.Value);
-                }
 
                 LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             },

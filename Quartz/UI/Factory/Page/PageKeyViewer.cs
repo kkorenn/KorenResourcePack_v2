@@ -1074,8 +1074,7 @@ internal static class PageKeyViewer {
         Transform body, string label, string id,
         Color defColor, Color current, Action<Color> setter,
         Action apply, Action save, Action refreshPreview
-    ) {
-        GenerateUI.ColorPicker(
+    ) => GenerateUI.ColorPicker(
             GenerateUI.Row(body),
             defColor,
             current,
@@ -1084,7 +1083,6 @@ internal static class PageKeyViewer {
             label,
             id
         );
-    }
 
     private static RectTransform AddModeBody(Transform parent, string name) {
         GameObject obj = new(name);

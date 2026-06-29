@@ -217,7 +217,6 @@ public sealed class PanelConfig {
         IOUtils.ReadRgba(token, "TextShadow", ref p.TextShadowR, ref p.TextShadowG, ref p.TextShadowB, ref p.TextShadowA);
         return p;
     }
-
 }
 
 // Persisted config for the panel overlay system. Replaces the old fixed

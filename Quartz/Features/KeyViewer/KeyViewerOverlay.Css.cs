@@ -253,9 +253,7 @@ public static partial class KeyViewerOverlay {
             || spec.TransitionSec > 0.01f
             || LayerAnimated(spec.IdleBefore) || LayerAnimated(spec.ActiveBefore)
             || LayerAnimated(spec.IdleAfter) || LayerAnimated(spec.ActiveAfter);
-        if(animated) {
-            cssFx.Add(box);
-        }
+        if(animated) cssFx.Add(box);
     }
 
     private static void Exempt(Component c) {
@@ -758,9 +756,7 @@ public static partial class KeyViewerOverlay {
         string url = PickFontUrl(face);
         string path = CachedFontPath(face);
         if(url == null || path == null) return;
-        lock(cssFontLock) {
-            cssFontPending.Add(face.Family);
-        }
+        lock(cssFontLock) cssFontPending.Add(face.Family);
 
         var thread = new Thread(() => {
             try {
@@ -772,9 +768,7 @@ public static partial class KeyViewerOverlay {
             } catch(Exception ex) {
                 MainCore.Log.Msg($"[KeyViewer] CSS font download failed ({face.Family}): {ex.Message}");
             } finally {
-                lock(cssFontLock) {
-                    cssFontPending.Remove(face.Family);
-                }
+                lock(cssFontLock) cssFontPending.Remove(face.Family);
             }
         }) { IsBackground = true, Name = "QuartzCssFont" };
         thread.Start();

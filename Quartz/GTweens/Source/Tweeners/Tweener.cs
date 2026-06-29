@@ -62,9 +62,7 @@ public abstract class Tweener<T> : ITweener {
 
         Elapsed = 0.0f;
 
-        bool valid = Validate();
-
-        if(!valid) { Kill(); return; }
+        if(!Validate()) { Kill(); return; }
 
         _initialValue = _getter.Invoke();
 
@@ -74,9 +72,7 @@ public abstract class Tweener<T> : ITweener {
     }
 
     public void Reset(ResetMode mode) {
-        bool valid = Validate();
-
-        if(!valid) { Kill(); return; }
+        if(!Validate()) { Kill(); return; }
 
         GetFirstTimeValues();
 
@@ -108,9 +104,7 @@ public abstract class Tweener<T> : ITweener {
     public void Tick(float deltaTime) {
         if(!IsPlaying) return;
 
-        bool valid = Validate();
-
-        if(!valid) { Kill(); return; }
+        if(!Validate()) { Kill(); return; }
 
         Elapsed = Math.Min(Duration, Elapsed + deltaTime);
 
@@ -126,15 +120,11 @@ public abstract class Tweener<T> : ITweener {
     }
 
     public void Complete() {
-        bool valid = Validate();
-
-        if(!valid) return;
+        if(!Validate()) return;
 
         GetFirstTimeValues();
 
-        T newValue = _interpolator.Evaluate(_initialValue, _finalValue, 1.0f, _easingFunction);
-
-        _setter(newValue);
+        _setter(_interpolator.Evaluate(_initialValue, _finalValue, 1.0f, _easingFunction));
 
         IsPlaying = false;
         IsCompleted = true;
@@ -150,8 +140,7 @@ public abstract class Tweener<T> : ITweener {
     void CompleteIfInstant() {
         if(!IsPlaying) return;
 
-        bool isInstant = Duration == 0.0f;
-        if(isInstant) Complete();
+        if(Duration == 0.0f) Complete();
     }
 
     bool Validate() => _validation.Invoke();

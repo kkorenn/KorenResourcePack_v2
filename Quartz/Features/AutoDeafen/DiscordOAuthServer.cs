@@ -352,13 +352,12 @@ internal static class DiscordOAuthServer {
         } catch { }
 
         try {
-            if(Environment.OSVersion.Platform == PlatformID.MacOSX) {
+            if(Environment.OSVersion.Platform == PlatformID.MacOSX)
                 Process.Start("open", url);
-            } else if(Environment.OSVersion.Platform == PlatformID.Unix || (int)Environment.OSVersion.Platform == 6) {
+            else if(Environment.OSVersion.Platform == PlatformID.Unix || (int)Environment.OSVersion.Platform == 6)
                 Process.Start("xdg-open", url);
-            } else {
+            else
                 Process.Start(url);
-            }
         } catch { }
     }
 

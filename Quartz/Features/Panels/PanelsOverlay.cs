@@ -427,9 +427,8 @@ public static class PanelsOverlay {
             lastShow = show;
             lastReorganizing = isReorganizing;
 
-            foreach(LivePanel p in panels) {
+            foreach(LivePanel p in panels)
                 UpdatePanel(p, show, isReorganizing, refreshText || p.Dirty);
-            }
         }
 
         private void UpdatePanel(LivePanel p, bool show, bool isReorganizing, bool refreshText) {
@@ -585,9 +584,8 @@ public static class PanelsOverlay {
 
         private static bool BuilderEquals(StringBuilder sb, int length, string value) {
             if(value == null || value.Length != length) return false;
-            for(int i = 0; i < length; i++) {
+            for(int i = 0; i < length; i++)
                 if(sb[i] != value[i]) return false;
-            }
             return true;
         }
 

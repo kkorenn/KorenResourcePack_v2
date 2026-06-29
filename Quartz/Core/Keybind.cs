@@ -32,23 +32,20 @@ public static class Keybind {
             "LeftWindows", "RightWindows",
         };
         List<KeyCode> keys = [];
-        foreach(string name in names) {
+        foreach(string name in names)
             if(System.Enum.TryParse(name, out KeyCode kc) && !keys.Contains(kc)) keys.Add(kc);
-        }
         return [.. keys];
     }
 
     private static bool AnyCmdHeld() {
-        for(int i = 0; i < CmdKeys.Length; i++) {
+        for(int i = 0; i < CmdKeys.Length; i++)
             if(Input.GetKey(CmdKeys[i])) return true;
-        }
         return false;
     }
 
     private static bool IsCmdKey(KeyCode key) {
-        for(int i = 0; i < CmdKeys.Length; i++) {
+        for(int i = 0; i < CmdKeys.Length; i++)
             if(CmdKeys[i] == key) return true;
-        }
         return false;
     }
 

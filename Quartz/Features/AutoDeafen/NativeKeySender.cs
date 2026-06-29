@@ -73,25 +73,25 @@ internal static class NativeKeySender {
             return;
         }
 
-        if(ctrl) { keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero); }
-        if(shift) { keybd_event(VK_SHIFT, 0, 0, UIntPtr.Zero); }
-        if(alt) { keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); }
-        if(meta) { keybd_event(VK_LWIN, 0, 0, UIntPtr.Zero); }
+        if(ctrl) keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
+        if(shift) keybd_event(VK_SHIFT, 0, 0, UIntPtr.Zero);
+        if(alt) keybd_event(VK_MENU, 0, 0, UIntPtr.Zero);
+        if(meta) keybd_event(VK_LWIN, 0, 0, UIntPtr.Zero);
 
         keybd_event(vk, 0, 0, UIntPtr.Zero);
         keybd_event(vk, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
 
-        if(meta) { keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); }
-        if(alt) { keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); }
-        if(shift) { keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); }
-        if(ctrl) { keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); }
+        if(meta) keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        if(alt) keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        if(shift) keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        if(ctrl) keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
     }
 
     private static byte WinVk(KeyCode k) {
-        if(k >= KeyCode.A && k <= KeyCode.Z) { return (byte)(0x41 + (k - KeyCode.A)); }
-        if(k >= KeyCode.Alpha0 && k <= KeyCode.Alpha9) { return (byte)(0x30 + (k - KeyCode.Alpha0)); }
-        if(k >= KeyCode.Keypad0 && k <= KeyCode.Keypad9) { return (byte)(0x60 + (k - KeyCode.Keypad0)); }
-        if(k >= KeyCode.F1 && k <= KeyCode.F15) { return (byte)(0x70 + (k - KeyCode.F1)); }
+        if(k >= KeyCode.A && k <= KeyCode.Z) return (byte)(0x41 + (k - KeyCode.A));
+        if(k >= KeyCode.Alpha0 && k <= KeyCode.Alpha9) return (byte)(0x30 + (k - KeyCode.Alpha0));
+        if(k >= KeyCode.Keypad0 && k <= KeyCode.Keypad9) return (byte)(0x60 + (k - KeyCode.Keypad0));
+        if(k >= KeyCode.F1 && k <= KeyCode.F15) return (byte)(0x70 + (k - KeyCode.F1));
         return k switch {
             KeyCode.Space => 0x20,
             KeyCode.Return => 0x0D,

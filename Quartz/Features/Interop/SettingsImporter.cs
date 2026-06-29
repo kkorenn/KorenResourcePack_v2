@@ -4,13 +4,10 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using Quartz.Core;
-using Quartz.Features.ChatterBlocker;
 using Quartz.Features.Combo;
 using Quartz.Features.EffectRemover;
 using Quartz.Features.Judgement;
-using Quartz.Features.KeyLimiter;
 using Quartz.Features.KeyViewer;
-using Quartz.Features.OttoIcon;
 using Quartz.Features.PlanetColors;
 using Quartz.Features.ProgressBar;
 using Quartz.Features.Restriction;
@@ -209,9 +206,7 @@ public static class SettingsImporter {
             try {
                 if(string.IsNullOrEmpty(root) || !Directory.Exists(root)) continue;
                 dirs = Directory.GetDirectories(root);
-            } catch {
-                continue;
-            }
+            } catch { continue; }
 
             foreach(string dir in dirs) {
                 string id = ReadInfoJsonId(dir);
@@ -1989,9 +1984,7 @@ public static class SettingsImporter {
     private static string ReadFirstText(IEnumerable<string> paths) {
         foreach(string path in paths) {
             try {
-                if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
-                    return File.ReadAllText(path);
-                }
+                if(!string.IsNullOrEmpty(path) && File.Exists(path)) return File.ReadAllText(path);
             } catch { }
         }
         return null;

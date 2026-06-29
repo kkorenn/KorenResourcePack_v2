@@ -112,9 +112,7 @@ public class UISlider : UIObject {
 
         Value = Mathf.Clamp(value, Min, Max);
 
-        if(invoke) {
-            OnChanged?.Invoke(Value);
-        }
+        if(invoke) OnChanged?.Invoke(Value);
 
         UpdateVisual();
     }

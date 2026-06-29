@@ -107,9 +107,8 @@ internal static class PageImport {
         foreach(SettingsImportOption opt in options) compatIds.Add(opt.Id);
 
         List<InstalledModInfo> incompatible = [];
-        foreach(InstalledModInfo mod in installed) {
+        foreach(InstalledModInfo mod in installed)
             if(!compatIds.Contains(mod.Id)) incompatible.Add(mod);
-        }
 
         if(options.Count == 0 && incompatible.Count == 0) {
             var emptyRow = GenerateUI.Row(listContainer, 96f);

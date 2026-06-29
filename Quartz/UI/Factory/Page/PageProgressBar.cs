@@ -4,7 +4,6 @@ using Quartz.Features.ProgressBar;
 using Quartz.UI.Generator;
 using Quartz.UI.Objects.Impl;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Quartz.UI.Factory.Page;
 

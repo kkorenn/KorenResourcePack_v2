@@ -12,6 +12,5 @@ public sealed class SystemQuaternionTweener : Tweener<Quaternion> {
         float duration,
         ValidationDelegates.Validation validation
         )
-        : base(currValueGetter, setter, to, duration, SystemQuaternionInterpolator.Instance, validation) {
-    }
+        : base(currValueGetter, setter, to, duration, SystemQuaternionInterpolator.Instance, validation) { }
 }

@@ -31,9 +31,7 @@ public sealed class SequenceTweenBehaviour : TweenBehaviour {
         _playingTweens.RemoveAt(0);
 
         if(_playingTweens.Count > 0) {
-            GTween nextGTween = _playingTweens[0];
-
-            nextGTween.Start();
+            _playingTweens[0].Start();
         } else {
             Tick(deltaTime);
         }
@@ -118,8 +116,7 @@ public sealed class SequenceTweenBehaviour : TweenBehaviour {
         _playingTweens.AddRange(_tweens);
 
         if(_playingTweens.Count > 0) {
-            GTween gTween = _playingTweens[0];
-            gTween.Start(isCompletingInstantly);
+            _playingTweens[0].Start(isCompletingInstantly);
         } else {
             MarkFinished();
         }

@@ -307,9 +307,7 @@ internal static class PageGameplay {
         int active = KeyLimiter.ActiveProfileIndex;
 
         int[] indices = new int[count];
-        for(int i = 0; i < count; i++) {
-            indices[i] = i;
-        }
+        for(int i = 0; i < count; i++) indices[i] = i;
 
         GenerateUI.DropDown(
             GenerateUI.Row(body),
@@ -687,11 +685,8 @@ internal static class PageGameplay {
                 (def.JRestrictAllowedMask & bit) != 0,
                 (conf.JRestrictAllowedMask & bit) != 0,
                 v => {
-                    if(v) {
-                        conf.JRestrictAllowedMask |= bit;
-                    } else {
-                        conf.JRestrictAllowedMask &= ~bit;
-                    }
+                    if(v) conf.JRestrictAllowedMask |= bit;
+                    else conf.JRestrictAllowedMask &= ~bit;
                     Restriction.Save();
                 },
                 entries[i].Label,

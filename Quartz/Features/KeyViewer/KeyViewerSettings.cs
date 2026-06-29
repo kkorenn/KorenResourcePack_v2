@@ -633,13 +633,11 @@ public sealed class KeyViewerSettings : ISettingsFile {
         }
     }
 
-    private static float[] ReadFloats(JToken token, string name, float[] fallback) {
-        return ReadArray(token, name, fallback, t => t.Value<float>());
-    }
+    private static float[] ReadFloats(JToken token, string name, float[] fallback) =>
+        ReadArray(token, name, fallback, t => t.Value<float>());
 
-    private static bool[] ReadBools(JToken token, string name, bool[] fallback) {
-        return ReadArray(token, name, fallback, t => t.Value<bool>());
-    }
+    private static bool[] ReadBools(JToken token, string name, bool[] fallback) =>
+        ReadArray(token, name, fallback, t => t.Value<bool>());
 
     private static string[] ReadLabels(JToken token, string name, string[] fallback) {
         if(token[name] is not JArray arr || arr.Count != fallback.Length) return fallback;
@@ -649,9 +647,8 @@ public sealed class KeyViewerSettings : ISettingsFile {
         return result;
     }
 
-    private static int[] ReadKeys(JToken token, string name, int[] fallback) {
-        return ReadArray(token, name, fallback, t => t.Value<int>());
-    }
+    private static int[] ReadKeys(JToken token, string name, int[] fallback) =>
+        ReadArray(token, name, fallback, t => t.Value<int>());
 
     private static T[] ReadArray<T>(JToken token, string name, T[] fallback, Func<JToken, T> read) {
         if(token[name] is not JArray arr || arr.Count != fallback.Length) return fallback;

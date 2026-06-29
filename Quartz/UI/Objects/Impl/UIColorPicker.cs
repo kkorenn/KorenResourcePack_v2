@@ -364,12 +364,11 @@ public sealed class UIColorPicker : UIObject {
         svTexture.Apply(false);
     }
 
-    private static bool SameColor(Color a, Color b) {
-        return Mathf.Abs(a.r - b.r) < 0.001f
+    private static bool SameColor(Color a, Color b) =>
+        Mathf.Abs(a.r - b.r) < 0.001f
             && Mathf.Abs(a.g - b.g) < 0.001f
             && Mathf.Abs(a.b - b.b) < 0.001f
             && Mathf.Abs(a.a - b.a) < 0.001f;
-    }
 
     private static Color Normalize(Color color) {
         color.r = Mathf.Clamp01(color.r);

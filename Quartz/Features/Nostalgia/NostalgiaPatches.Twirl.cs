@@ -99,9 +99,7 @@ public sealed class TwirlRenderer : MonoBehaviour {
     public scrFloor floor;
     public bool outline;
 
-    private void Awake() {
-        sr = gameObject.GetOrAddComponent<SpriteRenderer>();
-    }
+    private void Awake() => sr = gameObject.GetOrAddComponent<SpriteRenderer>();
 
     private void LateUpdate() {
         if(floor == null) return;

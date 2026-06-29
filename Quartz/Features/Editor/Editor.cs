@@ -264,15 +264,13 @@ public static partial class EditorFeature {
         Dictionary<string, LevelEventInfo> infos,
         bool isLevelEvents
     ) {
-        if(panel.panelsList != null) {
+        if(panel.panelsList != null)
             foreach(PropertiesPanel built in panel.panelsList)
                 if(built != null) Object.DestroyImmediate(built.gameObject);
-        }
 
         RectTransform tabs = panel.tabs;
-        if(tabs != null) {
+        if(tabs != null)
             for(int i = tabs.childCount - 1; i >= 0; i--) Object.DestroyImmediate(tabs.GetChild(i).gameObject);
-        }
 
         panel.Init(infos, isLevelEvents);
     }

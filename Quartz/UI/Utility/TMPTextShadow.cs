@@ -67,9 +67,8 @@ public static class TMPTextShadow {
         // (only the SongTitle's long rich text hits this; short HUD labels stay on
         // a single atlas). overrideSorting=false: a batch/hierarchy boundary only,
         // no global sorting order to collide with the sibling overlay canvases.
-        if(isolateCanvas && shadowRoot.GetComponent<Canvas>() == null) {
+        if(isolateCanvas && shadowRoot.GetComponent<Canvas>() == null)
             shadowRoot.gameObject.AddComponent<Canvas>().overrideSorting = false;
-        }
 
         shadowRoot.gameObject.SetActive(on);
         if(!on) return;
@@ -190,11 +189,8 @@ public static class TMPTextShadow {
         int rootIndex = root.GetSiblingIndex();
         int textIndex = text.transform.GetSiblingIndex();
 
-        if(rootIndex > textIndex) {
-            root.SetSiblingIndex(textIndex);
-        } else if(rootIndex < textIndex - 1) {
-            root.SetSiblingIndex(textIndex - 1);
-        }
+        if(rootIndex > textIndex) root.SetSiblingIndex(textIndex);
+        else if(rootIndex < textIndex - 1) root.SetSiblingIndex(textIndex - 1);
     }
 
     private static void SyncRootRect(RectTransform source, RectTransform root) {
@@ -270,14 +266,10 @@ public static class TMPTextShadow {
     // whole-title colour, where resetting to opaque on close is correct.
     private static string ColorTagToAlpha(string tag) {
         int eq = tag.IndexOf('=');
-        if(eq < 0) {
-            return "<alpha=#FF>"; // </color> or a bare <color>
-        }
+        if(eq < 0) return "<alpha=#FF>"; // </color> or a bare <color>
 
         string val = tag.Substring(eq + 1, tag.Length - eq - 2).Trim().Trim('"', '\'');
-        if(val.Length == 0 || val[0] != '#') {
-            return "<alpha=#FF>"; // named colour (red, etc.) → opaque silhouette
-        }
+        if(val.Length == 0 || val[0] != '#') return "<alpha=#FF>"; // named colour (red, etc.) → opaque silhouette
 
         string hex = val.Substring(1);
         string aa = hex.Length switch {

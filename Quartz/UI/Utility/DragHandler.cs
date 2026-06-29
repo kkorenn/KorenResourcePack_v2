@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 namespace Quartz.UI.Utility;
 
 public class DragHandler : MonoBehaviour {
-
     private RectTransform rect;
     private Vector2 offset;
 

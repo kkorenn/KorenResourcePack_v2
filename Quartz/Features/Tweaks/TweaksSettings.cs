@@ -32,8 +32,8 @@ public sealed class TweaksSettings : ISettingsFile {
     public bool HideResultCheckpoints = true;
     public bool HideResultMaximumUsedKeys = true;
 
-    public JToken Serialize() {
-        return new JObject {
+    public JToken Serialize() =>
+        new JObject {
             [nameof(RemoveAllCheckpoints)] = RemoveAllCheckpoints,
             [nameof(RemoveBallCoreParticles)] = RemoveBallCoreParticles,
             [nameof(DisableTileHitGlow)] = DisableTileHitGlow,
@@ -49,7 +49,6 @@ public sealed class TweaksSettings : ISettingsFile {
             [nameof(HideResultCheckpoints)] = HideResultCheckpoints,
             [nameof(HideResultMaximumUsedKeys)] = HideResultMaximumUsedKeys,
         };
-    }
 
     public void Deserialize(JToken token) {
         RemoveAllCheckpoints = IOUtils.Read(token, nameof(RemoveAllCheckpoints), RemoveAllCheckpoints);

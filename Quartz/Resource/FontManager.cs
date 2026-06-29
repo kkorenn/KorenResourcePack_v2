@@ -507,9 +507,8 @@ public static class FontManager {
         if(asset.material != null) UnityEngine.Object.Destroy(asset.material);
 
         Texture2D[] atlases = asset.atlasTextures;
-        if(atlases != null) {
+        if(atlases != null)
             foreach(Texture2D tex in atlases) if(tex != null) UnityEngine.Object.Destroy(tex);
-        }
 
         UnityEngine.Object.Destroy(asset);
     }

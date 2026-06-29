@@ -288,9 +288,8 @@ public static partial class EditorFeature {
 
         for(int i = 0; i < iterations; i++) {
             scrFloor floor = selected[i];
-            if(floor == null || floor.seqID == lastSeq) {
+            if(floor == null || floor.seqID == lastSeq)
                 continue; // the final tile of the level has no outgoing angle.
-            }
 
             // Read the live arc, not the cached scrFloor.angleLength. This game
             // version's CalculateFloorAngleLengths() only refreshes tile 0, and the

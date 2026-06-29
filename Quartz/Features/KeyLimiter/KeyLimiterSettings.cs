@@ -92,9 +92,8 @@ public sealed class KeyLimiterSettings : ISettingsFile {
     private static int[] ReadKeys(JToken token) {
         if(token is not JArray arr) return [];
         List<int> keys = [];
-        foreach(JToken t in arr) {
+        foreach(JToken t in arr)
             try { keys.Add((int)t); } catch { }
-        }
         return [.. keys];
     }
 }

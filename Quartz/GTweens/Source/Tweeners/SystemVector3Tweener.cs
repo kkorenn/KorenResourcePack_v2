@@ -19,6 +19,5 @@ public sealed class SystemVector3Tweener : Tweener<Vector3> {
               duration,
               SystemVector3Interpolator.Instance,
               validation
-              ) {
-    }
+              ) { }
 }

@@ -411,9 +411,8 @@ public static partial class KeyViewerOverlay {
         BuildFoot();
 
         totalCount = 0;
-        foreach(Box box in boxes) {
+        foreach(Box box in boxes)
             if(!box.IsStat) totalCount += box.Count;
-        }
 
         AddReorganizeHandle();
 
@@ -835,9 +834,8 @@ public static partial class KeyViewerOverlay {
         for(int i = keyCount; i < specs.Count; i++) AddDmNoteBox(i, specs[i]);
 
         totalCount = 0;
-        foreach(Box box in boxes) {
+        foreach(Box box in boxes)
             if(!box.IsStat) totalCount += box.Count;
-        }
 
         AddReorganizeHandle();
 
@@ -976,9 +974,8 @@ public static partial class KeyViewerOverlay {
         if(!string.IsNullOrWhiteSpace(configured) && keysTable?[configured] != null && posTable?[configured] != null) return configured;
 
         if(keysTable != null) {
-            foreach(JProperty prop in keysTable.Properties()) {
+            foreach(JProperty prop in keysTable.Properties())
                 if(posTable?[prop.Name] != null) return prop.Name;
-            }
         }
 
         return string.IsNullOrWhiteSpace(configured) ? "4key" : configured;
@@ -1277,11 +1274,10 @@ public static partial class KeyViewerOverlay {
             rt.anchoredPosition = counter == bottom
                 ? new Vector2(2f, y0)
                 : new Vector2(2f, y0 + counterH + itemGap);
-            if(top) {
+            if(top)
                 rt.anchoredPosition = counter
                     ? new Vector2(2f, y0 + labelH + itemGap)
                     : new Vector2(2f, y0);
-            }
             rt.sizeDelta = new Vector2(spec.W - 4f, counter ? counterH : labelH);
             return;
         }
@@ -1303,11 +1299,10 @@ public static partial class KeyViewerOverlay {
             rt.anchoredPosition = counter == left
                 ? new Vector2(x0, 2f)
                 : new Vector2(x0 + counterW + itemGap, 2f);
-            if(right) {
+            if(right)
                 rt.anchoredPosition = counter
                     ? new Vector2(x0 + labelW + itemGap, 2f)
                     : new Vector2(x0, 2f);
-            }
             rt.sizeDelta = new Vector2(counter ? counterW : labelW, spec.H - 4f);
             return;
         }
@@ -1925,9 +1920,8 @@ public static partial class KeyViewerOverlay {
         if(!countsDirty) return;
 
         countsDirty = false;
-        foreach(Box box in boxes) {
+        foreach(Box box in boxes)
             if(!box.IsStat) Conf.SetCount(box.Name, box.Count);
-        }
         Save();
     }
 

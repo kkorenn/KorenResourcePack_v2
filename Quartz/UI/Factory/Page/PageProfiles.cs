@@ -197,9 +197,8 @@ internal static class PageProfiles {
         Features.KeyViewer.KeyViewerOverlay.Apply();
         Features.KeyViewer.KeyViewerOverlay.Save();
 
-        if(statusText != null) {
+        if(statusText != null)
             statusText.text = MainCore.Tr.Get("PROFILE_RECALIBRATED", "Recalibrated overlays to this display.");
-        }
     }
 
     // Built-in presets: a header plus one Apply row per shipped .qprofile/.krprofile.
@@ -243,9 +242,8 @@ internal static class PageProfiles {
                         if(ProfileManager.ApplyPreset(presetPath) != null) {
                             UICore.Rebuild();
                         } else {
-                            if(statusText != null) {
+                            if(statusText != null)
                                 statusText.text = Tr("PROFILE_STATUS_PRESET_FAILED", "Couldn't apply preset.");
-                            }
                             RebuildList();
                         }
                     });
@@ -354,9 +352,8 @@ internal static class PageProfiles {
 
         GenerateUI.ClearChildren(listContainer);
 
-        foreach(string name in ProfileManager.List()) {
+        foreach(string name in ProfileManager.List())
             CreateProfileRow(name, name == ProfileManager.Active);
-        }
     }
 
     private static void CreateProfileRow(string name, bool active) {

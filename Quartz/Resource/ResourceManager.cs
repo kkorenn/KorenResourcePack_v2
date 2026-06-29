@@ -156,9 +156,8 @@ public sealed class ResourceManager(Assembly assembly, string resourcePath) : ID
                     // separate Unity objects not freed by destroying the asset.
                     if(font.material != null) Object.Destroy(font.material);
                     Texture2D[] atlases = font.atlasTextures;
-                    if(atlases != null) {
+                    if(atlases != null)
                         foreach(Texture2D tex in atlases) if(tex != null) Object.Destroy(tex);
-                    }
                     Object.Destroy(font);
                     break;
             }

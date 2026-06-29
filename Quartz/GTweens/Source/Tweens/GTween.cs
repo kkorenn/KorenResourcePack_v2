@@ -77,9 +77,7 @@ public sealed class GTween {
 
         OnTickAction?.Invoke();
 
-        bool isFinished = Behaviour.GetFinished();
-
-        if(!isFinished) return;
+        if(!Behaviour.GetFinished()) return;
 
         bool needsToLoop = _loopsRemaining > 0 && Behaviour.GetLoopable();
 
@@ -160,9 +158,7 @@ public sealed class GTween {
     public GTween Simulate(float time) {
         if(!IsPlaying) Start();
 
-        bool loops = Loops > 0;
-
-        float simulationTime = loops ?
+        float simulationTime = Loops > 0 ?
             time % Behaviour.GetDuration() :
             Math.Min(time, Behaviour.GetDuration());
 
@@ -304,9 +300,7 @@ public sealed class GTween {
     }
 
     void Loop(ResetMode loopResetMode) {
-        bool needsToLoop = _loopsRemaining > 0;
-
-        if(!needsToLoop || !Behaviour.GetLoopable()) return;
+        if(!(_loopsRemaining > 0) || !Behaviour.GetLoopable()) return;
 
         --_loopsRemaining;
 

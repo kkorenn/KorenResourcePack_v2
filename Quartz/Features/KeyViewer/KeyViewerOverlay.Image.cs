@@ -80,9 +80,7 @@ public static partial class KeyViewerOverlay {
     }
 
     private static void StartImageDownload(string url, string path) {
-        lock(cssImageLock) {
-            if(!cssImagePending.Add(url)) return;
-        }
+        lock(cssImageLock) { if(!cssImagePending.Add(url)) return; }
         var thread = new Thread(() => {
             try {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -92,9 +90,7 @@ public static partial class KeyViewerOverlay {
             } catch(Exception ex) {
                 MainCore.Log.Msg("[KeyViewer] CSS image download failed: " + ex.Message);
             } finally {
-                lock(cssImageLock) {
-                    cssImagePending.Remove(url);
-                }
+                lock(cssImageLock) { cssImagePending.Remove(url); }
             }
         }) { IsBackground = true, Name = "QuartzCssImage" };
         thread.Start();

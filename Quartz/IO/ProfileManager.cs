@@ -329,8 +329,7 @@ public static class ProfileManager {
                     try {
                         JToken b = JToken.Parse(File.ReadAllText(file));
                         if(IsProfileBundle(b)) name = b["Name"]?.Value<string>();
-                    } catch {
-                    }
+                    } catch { }
                     name = Sanitize(name) ?? Sanitize(Path.GetFileNameWithoutExtension(file));
                     if(name != null) list.Add(new PresetInfo(file, name));
                 }

@@ -12,6 +12,5 @@ public sealed class SystemVector4Tweener : Tweener<Vector4> {
         float duration,
         ValidationDelegates.Validation validation
     )
-        : base(currValueGetter, setter, to, duration, SystemVector4Interpolator.Instance, validation) {
-    }
+        : base(currValueGetter, setter, to, duration, SystemVector4Interpolator.Instance, validation) { }
 }

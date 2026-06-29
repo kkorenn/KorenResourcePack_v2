@@ -103,9 +103,8 @@ internal static class PageSearch {
         }
 
         List<Entry> matches = [];
-        foreach(Entry e in BuildIndex()) {
+        foreach(Entry e in BuildIndex())
             if(Norm(e.Text).Contains(q)) matches.Add(e);
-        }
 
         // Prefix matches first, categories before plain rows, then A-Z.
         matches.Sort((a, b) => {
@@ -126,9 +125,8 @@ internal static class PageSearch {
             ? string.Format(Tr("SEARCH_RESULTS_CAPPED", "{0} results (showing first {1})"), matches.Count, MAX_RESULTS)
             : string.Format(Tr("SEARCH_RESULTS", "{0} result(s)"), matches.Count);
 
-        for(int i = 0; i < shown; i++) {
+        for(int i = 0; i < shown; i++)
             AddResultRow(matches[i]);
-        }
     }
 
     private static void AddResultRow(Entry e) {

@@ -151,9 +151,8 @@ internal static class PageOverlay {
             return;
         }
 
-        for(int i = 0; i < panels.Count; i++) {
+        for(int i = 0; i < panels.Count; i++)
             CreatePanelSection(panelsList.transform, panels[i], i);
-        }
     }
 
     private static void CreatePanelSection(Transform parent, PanelConfig panel, int index) {
