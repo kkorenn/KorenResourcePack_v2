@@ -1,9 +1,7 @@
 # Build output
 bin/
 obj/
-/dist/*.zip
-/dist/Quartz/
-
+/dist/
 # Native encoder build artifacts (source + scripts are tracked; binaries are
 # produced by native/build.sh and bundled into the mod zip, not committed)
 /native/koren_encoder/build/
