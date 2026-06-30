@@ -1,0 +1,35 @@
+Quartz/Features/Judgement/Judgement.cs
+  s_6b8e3084f760a7::t_a981575c54ff2e 30-37
+  s_6b8e3084f760a7::t_018025503cc0b1 61-73
+  s_6b8e3084f760a7::t_f2f0e7d53b6980 80
+  s_6b8e3084f760a7::t_78ac07b13b24e5 101
+  s_6b8e3084f760a7::t_98c8e7bf7019af 93
+Quartz/Features/AutoDeafen/AutoDeafen.cs
+  s_60286c019cd47d::t_1283999659e073 163-182,185,187-188,190,193-194,199-204,207,212-214
+Quartz/Features/ChatterBlocker/ChatterBlocker.cs
+  s_60286c019cd47d::t_3f103dbb0ae139 46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "d18d2a91c7adec7157138a7449a46c322fd5f4c1",
+  "prompts": {},
+  "sessions": {
+    "s_60286c019cd47d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c0113d4c-a339-4b38-8eb4-2dcff109f678",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    },
+    "s_6b8e3084f760a7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "79433265-7a09-45cd-812b-7513fbacaac9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
