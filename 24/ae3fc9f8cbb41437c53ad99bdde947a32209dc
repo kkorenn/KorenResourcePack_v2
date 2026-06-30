@@ -1,0 +1,14 @@
+.gitignore
+  h_6eeb8441a8a159 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "24ae3fc9f8cbb41437c53ad99bdde947a32209dc",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
