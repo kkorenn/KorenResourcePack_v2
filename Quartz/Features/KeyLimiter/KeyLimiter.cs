@@ -342,6 +342,13 @@ public static class KeyLimiter {
         // emits a spurious KeyReleased ~1s into a hold, dropping them mid-press.
         bool? mac = MacModifierHeld(key);
         if(mac.HasValue) return mac.Value;
+        // Windows: real RightAlt/RightControl read via GetAsyncKeyState. Only a
+        // POSITIVE overrides — on a negative we fall through to the hook window
+        // below so the Korean Hangul/Hanja keys (same physical position, a
+        // different virtual key GetAsyncKeyState can't see as RMENU/RCONTROL)
+        // keep their flash. Unity's Input is blind to a held right modifier here
+        // too, so without this it fell to the window, which expired ~1s in.
+        if(WinModifierDown(key)) return true;
         // Lock-free fast reject for the overwhelmingly common no-hook-keys-held
         // case (volatile read, no lock acquired per un-pressed key per frame).
         if(!hookActive) return false;
@@ -401,6 +408,39 @@ public static class KeyLimiter {
         } catch {
             macKeyStateUnavailable = true; // framework/symbol missing — stop trying
             return null;
+        }
+    }
+
+    // ===== Windows physical key-state poll =====
+    //
+    // Same failure as macOS, different OS: Unity's Input doesn't report a held
+    // RightAlt/RightControl on Windows, so the viewer fell back to the hook
+    // window, which expired about a second into a hold (modifier keys don't
+    // auto-repeat, so nothing refreshed it) and dropped the box while the key was
+    // still down. GetAsyncKeyState reads the real physical state (high bit = down
+    // now). Main-thread only; wrapped so it degrades to the hook state if the
+    // call is ever unavailable. The DllImport is only INVOKED on Windows
+    // (WinModifierDown gates on IsWindowsRuntime), so it's inert on macOS/Linux.
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int vKey);
+
+    private static bool winKeyStateUnavailable;
+
+    // True only when key is a real Windows right modifier that's physically down
+    // right now. False otherwise (not that key, not Windows, up, or unavailable)
+    // so the caller falls through to the hook window for Hangul/Hanja.
+    private static bool WinModifierDown(KeyCode key) {
+        int vk = key switch {
+            KeyCode.RightAlt => 0xA5,     // VK_RMENU
+            KeyCode.RightControl => 0xA3, // VK_RCONTROL
+            _ => 0,
+        };
+        if(vk == 0 || winKeyStateUnavailable || !IsWindowsRuntime()) return false;
+        try {
+            return (GetAsyncKeyState(vk) & 0x8000) != 0;
+        } catch {
+            winKeyStateUnavailable = true; // symbol missing — stop trying
+            return false;
         }
     }
 
