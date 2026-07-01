@@ -1,0 +1,16 @@
+README.kr.md
+  h_6eeb8441a8a159 11-13,25,35-36,43,56,58-60
+README.md
+  h_6eeb8441a8a159 11-13,24,33-34,40,52,54-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.6",
+  "base_commit_sha": "612555dfda5c0e77eabb3c4ce491c7c8ced39fdf",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
