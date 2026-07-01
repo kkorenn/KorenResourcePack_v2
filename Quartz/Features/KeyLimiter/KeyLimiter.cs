@@ -297,8 +297,21 @@ public static class KeyLimiter {
     // keys are held.
     private static volatile bool hookActive;
 
-    private static bool IsHookOnlyKey(KeyCode key)
-        => key is KeyCode.RightAlt or KeyCode.RightControl;
+    // Keys whose held state must come from the SkyHook hook because Unity's
+    // legacy Input can't be trusted for them:
+    //  - RightAlt / RightControl on every platform: the Korean Hangul / Hanja
+    //    keys surface here and Input never sees them.
+    //  - The other modifiers (Shift / Control / Alt) on macOS/Linux: Input
+    //    delivers no down-edge for them and some builds don't report held state
+    //    either, so the hook is their only dependable source (this is what let
+    //    Left Shift finally be captured into the allow-list). On Windows Input
+    //    reports these directly, so they're left un-tracked to avoid needless
+    //    hook lock traffic.
+    private static bool IsHookOnlyKey(KeyCode key) {
+        if(key is KeyCode.RightAlt or KeyCode.RightControl) return true;
+        return !IsWindowsRuntime() && key is
+            KeyCode.LeftShift or KeyCode.RightShift or KeyCode.LeftControl or KeyCode.LeftAlt;
+    }
 
     public static void NoteHookEvent(KeyCode key, bool pressed) {
         if(!IsHookOnlyKey(key)) return;
@@ -580,11 +593,11 @@ public static class KeyLimiter {
 
     // ===== per-frame ticker =====
 
-    // Keys Unity's legacy Input can't report but the SkyHook hook can: the
-    // Korean Hangul/Hanja keys, which map to RightAlt/RightControl. Capture
-    // consults the hook-held state only for these so it can add them.
-    private static bool IsHookOnlyModifier(KeyCode key)
-        => key is KeyCode.RightControl or KeyCode.RightAlt;
+    // Capture consults the hook-held state for exactly the keys the hook tracks
+    // (RightAlt/RightControl everywhere, plus the other modifiers on macOS/Linux)
+    // so keys Unity's Input can't see — notably Left Shift on macOS — can still
+    // be added to the allow-list.
+    private static bool IsHookOnlyModifier(KeyCode key) => IsHookOnlyKey(key);
 
     private static void PersistChange() {
         Save();

@@ -117,9 +117,16 @@ public static class ChatterBlocker {
                 RecordKeyStats(controller, key);
                 if(AcceptNormalKey(key, now, threshold, chatterActive)) count++;
             } else if(value is AsyncKeyCode asyncKey) {
+                KeyCode physical = KeyLimiter.KeyLimiter.NormalizeKey(
+                    KeyLimiter.KeyLimiter.HookKeyToPhysicalUnityKey(asyncKey.key, asyncKey.label));
+                // Mark the physical key as reported this frame so CountKeysMissedByGame
+                // won't re-inject a down-edge for it. A modifier the async path already
+                // reported here (e.g. Left Shift on macOS, which only arrives async) is
+                // also visible to Input.GetKey, so without this it would be counted
+                // twice — a phantom extra hit that reads as an overload.
+                if(physical != KeyCode.None) reportedKeysThisFrame.Add(physical);
                 // Same Auto Deafen injected-chord drop on the async path.
-                if(AutoDeafen.AutoDeafen.IsInjectedKey(KeyLimiter.KeyLimiter.NormalizeKey(
-                        KeyLimiter.KeyLimiter.HookKeyToPhysicalUnityKey(asyncKey.key, asyncKey.label)))) continue;
+                if(AutoDeafen.AutoDeafen.IsInjectedKey(physical)) continue;
                 // Async keys are normally blocked at the SkyHook hook (it swallows the
                 // event), but that only works where the OS hook can SUPPRESS — on macOS
                 // the tap observes without reliably suppressing, so a disallowed key
@@ -142,8 +149,10 @@ public static class ChatterBlocker {
     // as hits even though their held state is readable. Re-create the missing
     // down-edge for allowed keys the game failed to report this frame. No-op
     // on Windows (the game already reports those keys, so they land in
-    // reportedKeysThisFrame and are skipped). Ported from v1; held detection
-    // uses Input.GetKey since v2 has no KeyViewer raw-hook state.
+    // reportedKeysThisFrame and are skipped). Ported from v1. Held detection is
+    // Input.GetKey with the SkyHook-fed held state as a fallback, since Unity's
+    // Input can't report some keys at all (Left Shift on macOS is the reported
+    // case) — without the fallback those keys would never inject a hit.
     private static int CountKeysMissedByGame(scrController controller, long now, long threshold, bool chatterActive) {
         if(!KeyLimiter.KeyLimiter.IsActive() || !KeyLimiter.KeyLimiter.InPlayerControl()) {
             injectedKeyHeldPrev.Clear();
@@ -172,6 +181,13 @@ public static class ChatterBlocker {
             bool held;
             try { held = UnityEngine.Input.GetKey(key); }
             catch { continue; }
+
+            // Keys Unity's Input can't see (Korean Hangul/Hanja everywhere; every
+            // modifier on macOS/Linux) fall back to the SkyHook-fed held state.
+            // HookKeyHeld returns false for any key the hook doesn't track, so
+            // this is a no-op for ordinary keys and can't double-count a key the
+            // async path already reported (those are skipped above).
+            if(!held) held = KeyLimiter.KeyLimiter.HookKeyHeld(key);
 
             if(held && !injectedKeyHeldPrev.Contains(key)) {
                 RecordKeyStats(controller, key);
