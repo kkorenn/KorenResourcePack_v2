@@ -2,7 +2,6 @@ using Quartz.Core;
 using Quartz.IO;
 using MonsterLove.StateMachine;
 using SkyHook;
-using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
 
@@ -270,32 +269,23 @@ public static class KeyLimiter {
     // consults this as a fallback when Input.GetKey comes up empty.
     //
     // Written from the SkyHook thread (NoteHookEvent) and read from the main
-    // thread (HookKeyHeld), so both held collections are lock-guarded (on the
-    // hookHeldUntil object). Two schemes, picked per platform at the press edge:
-    //
-    //  - Reliable-release platforms (macOS/Linux, where libuiohook pairs every
-    //    KeyPressed with a KeyReleased): the press marks the key held in
-    //    hookHeldKeys and it stays lit until the real release edge clears it. A
-    //    fixed expiry can't be used here — RightAlt/RightControl are real
-    //    modifiers that DON'T auto-repeat, so the old refresh-on-repeat window
-    //    expired (HookHeldWindowMs) while the key was still physically held,
-    //    dropping the box after a fraction of a second.
-    //  - Windows: the right-Ctrl/right-Alt positions are the Korean Hangul/Hanja
-    //    toggle keys (VK 0x15 / 0x19), which emit a press but no reliable
-    //    release. Those use the expiring window so a missing release can't leave
-    //    a box stuck lit; each auto-repeat refreshes it. (Real RightAlt on a
-    //    non-Korean Windows layout is seen by Unity's Input directly, so it never
-    //    reaches this fallback.)
-    private const int HookHeldWindowMs = 250;
-    private static readonly Dictionary<KeyCode, int> hookHeldUntil = new();
-    // Sticky held keys (reliable-release platforms): held until the release edge.
+    // thread (HookKeyHeld), so the held set is lock-guarded. The hook forwards
+    // every edge BEFORE the limiter decides whether to suppress the key, so this
+    // sees presses Unity's Input never will: a key the limiter swallowed on
+    // Windows, or a right-side modifier Unity can't report. A key stays held from
+    // its press edge until its release edge — deliberately NO timed window:
+    // modifier keys don't auto-repeat, so a refresh-on-repeat window expired
+    // mid-hold and dropped the viewer box after ~250ms even though the key was
+    // still down. libuiohook is a global hook, so the release edge still arrives
+    // across focus changes. (Trade-off: a pure toggle key that emits a press but
+    // no release — e.g. Korean Hangul/Hanja on some layouts — stays marked held
+    // until its next press. Acceptable next to a real modifier never staying lit.)
     private static readonly HashSet<KeyCode> hookHeldKeys = new();
 
-    // Volatile mirror of (any hook key currently held), maintained under the
-    // lock. Both collections are only ever populated by SkyHook edges for keys
-    // Unity's Input can't see, so they stay empty for the common case. This flag
-    // lets the viewer/capture fallback skip the lock entirely when no hook-only
-    // keys are held.
+    // Volatile mirror of (hookHeldKeys.Count > 0), maintained under the lock. It's
+    // only ever populated by SkyHook edges for the IsHookOnlyKey set, so it stays
+    // empty for the common case; this flag lets the viewer/capture fallback skip
+    // the lock entirely when no hook-only key is held.
     private static volatile bool hookActive;
 
     // Keys whose held state must come from the SkyHook hook because Unity's
@@ -316,131 +306,21 @@ public static class KeyLimiter {
 
     public static void NoteHookEvent(KeyCode key, bool pressed) {
         if(!IsHookOnlyKey(key)) return;
-        lock(hookHeldUntil) {
-            if(pressed) {
-                // IsWindowsRuntime() reads Application.platform — already done on
-                // this same hook thread by HookKeyToPhysicalUnityKey for every
-                // edge, so consulting it here is consistent and safe.
-                if(IsWindowsRuntime()) {
-                    hookHeldUntil[key] = Environment.TickCount + HookHeldWindowMs;
-                } else {
-                    hookHeldKeys.Add(key);
-                }
-            } else {
-                hookHeldKeys.Remove(key);
-                hookHeldUntil.Remove(key);
-            }
-            hookActive = hookHeldKeys.Count > 0 || hookHeldUntil.Count > 0;
+        lock(hookHeldKeys) {
+            if(pressed) hookHeldKeys.Add(key);
+            else hookHeldKeys.Remove(key);
+            hookActive = hookHeldKeys.Count > 0;
         }
     }
 
     public static bool HookKeyHeld(KeyCode key) {
-        if(key == KeyCode.None) return false;
-        // macOS: read the real physical state for the Unity-blind right modifiers,
-        // bypassing the SkyHook edge stream entirely (see MacModifierHeld). The
-        // sticky/expiring hook state below can't hold these — the native hook
-        // emits a spurious KeyReleased ~1s into a hold, dropping them mid-press.
-        bool? mac = MacModifierHeld(key);
-        if(mac.HasValue) return mac.Value;
-        // Windows: real RightAlt/RightControl read via GetAsyncKeyState. Only a
-        // POSITIVE overrides — on a negative we fall through to the hook window
-        // below so the Korean Hangul/Hanja keys (same physical position, a
-        // different virtual key GetAsyncKeyState can't see as RMENU/RCONTROL)
-        // keep their flash. Unity's Input is blind to a held right modifier here
-        // too, so without this it fell to the window, which expired ~1s in.
-        if(WinModifierDown(key)) return true;
         // Lock-free fast reject for the overwhelmingly common no-hook-keys-held
         // case (volatile read, no lock acquired per un-pressed key per frame).
-        if(!hookActive) return false;
-        lock(hookHeldUntil) {
-            // Sticky press (reliable-release platforms): held until the release.
-            if(hookHeldKeys.Contains(key)) return true;
-            // Expiring window (Windows Hangul/Hanja). Unchecked (until - now)
-            // keeps the right sign across the ~49-day Environment.TickCount wrap.
-            return hookHeldUntil.TryGetValue(key, out int until)
-                && unchecked(until - Environment.TickCount) > 0;
-        }
-    }
-
-    // ===== macOS physical key-state poll =====
-    //
-    // On macOS the SkyHook edge stream can't be trusted for RightAlt/RightControl:
-    // Unity's Input is blind to them, AND the native hook emits a spurious
-    // KeyReleased about a second into a sustained hold (a key-repeat-delay
-    // artifact), so no amount of edge bookkeeping keeps the box lit while the key
-    // is physically down. CGEventSourceKeyState reads the window server's current
-    // key state directly — no edges, no repeats — so it always reflects the true
-    // hold. Called on the main thread only (every HookKeyHeld caller runs there).
-    // Wrapped so a missing framework/symbol degrades to the hook state, never a
-    // crash. The DllImport is only ever INVOKED on macOS (MacModifierHeld gates on
-    // IsMacRuntime first), so the extern is inert on Windows/Linux.
-    [DllImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
-    [return: MarshalAs(UnmanagedType.I1)]
-    private static extern bool CGEventSourceKeyState(int stateID, ushort keyCode);
-
-    private const int MacHidStateID = 1; // kCGEventSourceStateHIDSystemState
-    private static bool macKeyStateUnavailable;
-    private static int isMacRuntime = -1; // -1 unknown, 0 no, 1 yes (main-thread cached)
-
-    private static bool IsMacRuntime() {
-        if(isMacRuntime < 0) {
-            isMacRuntime = Application.platform is RuntimePlatform.OSXPlayer or RuntimePlatform.OSXEditor ? 1 : 0;
-        }
-        return isMacRuntime == 1;
-    }
-
-    // macOS virtual keycode for a Unity-blind right modifier, or -1 for any other
-    // key — the fast exit, since this runs for every un-pressed viewer box/frame.
-    private static int MacModifierVK(KeyCode key) => key switch {
-        KeyCode.RightAlt => 0x3D,      // kVK_RightOption
-        KeyCode.RightControl => 0x3E,  // kVK_RightControl
-        _ => -1,
-    };
-
-    // Physical held state if key is a natively-pollable macOS modifier; null if it
-    // isn't one, we're not on macOS, or the native call is unavailable — the
-    // caller then falls back to the hook-fed state.
-    private static bool? MacModifierHeld(KeyCode key) {
-        int vk = MacModifierVK(key);
-        if(vk < 0 || macKeyStateUnavailable || !IsMacRuntime()) return null;
-        try {
-            return CGEventSourceKeyState(MacHidStateID, (ushort)vk);
-        } catch {
-            macKeyStateUnavailable = true; // framework/symbol missing — stop trying
-            return null;
-        }
-    }
-
-    // ===== Windows physical key-state poll =====
-    //
-    // Same failure as macOS, different OS: Unity's Input doesn't report a held
-    // RightAlt/RightControl on Windows, so the viewer fell back to the hook
-    // window, which expired about a second into a hold (modifier keys don't
-    // auto-repeat, so nothing refreshed it) and dropped the box while the key was
-    // still down. GetAsyncKeyState reads the real physical state (high bit = down
-    // now). Main-thread only; wrapped so it degrades to the hook state if the
-    // call is ever unavailable. The DllImport is only INVOKED on Windows
-    // (WinModifierDown gates on IsWindowsRuntime), so it's inert on macOS/Linux.
-    [DllImport("user32.dll")]
-    private static extern short GetAsyncKeyState(int vKey);
-
-    private static bool winKeyStateUnavailable;
-
-    // True only when key is a real Windows right modifier that's physically down
-    // right now. False otherwise (not that key, not Windows, up, or unavailable)
-    // so the caller falls through to the hook window for Hangul/Hanja.
-    private static bool WinModifierDown(KeyCode key) {
-        int vk = key switch {
-            KeyCode.RightAlt => 0xA5,     // VK_RMENU
-            KeyCode.RightControl => 0xA3, // VK_RCONTROL
-            _ => 0,
-        };
-        if(vk == 0 || winKeyStateUnavailable || !IsWindowsRuntime()) return false;
-        try {
-            return (GetAsyncKeyState(vk) & 0x8000) != 0;
-        } catch {
-            winKeyStateUnavailable = true; // symbol missing — stop trying
-            return false;
+        if(!hookActive || key == KeyCode.None) return false;
+        lock(hookHeldKeys) {
+            // Held from the press edge until the release edge — see the notes on
+            // hookHeldKeys for why there's no timed expiry.
+            return hookHeldKeys.Contains(key);
         }
     }
 
