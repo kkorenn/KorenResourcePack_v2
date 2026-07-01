@@ -1,0 +1,14 @@
+agents/release.md
+  h_6eeb8441a8a159 69,71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.6",
+  "base_commit_sha": "933033f1c8c54d842e80b69294541d1d6e38072b",
+  "prompts": {},
+  "humans": {
+    "h_6eeb8441a8a159": {
+      "author": "koren <131921956+kkorenn@users.noreply.github.com>"
+    }
+  }
+}
