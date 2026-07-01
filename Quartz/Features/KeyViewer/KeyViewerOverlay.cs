@@ -155,6 +155,10 @@ public static partial class KeyViewerOverlay {
         public KeyCode KeyCode;
         public KeyCode GhostKeyCode;
         public float X, Y, W, H;
+        // DmNote stacking order (the position's zIndex, default = the element's
+        // index within its own preset array, matching OverlayScene's
+        // `pos.zIndex ?? index`). Drives box sibling order and note draw order.
+        public float ZIndex;
         public string DisplayText;
         public bool CounterEnabled;
         public bool InlineStatCounter;
@@ -817,25 +821,22 @@ public static partial class KeyViewerOverlay {
         List<DmNoteSpec> specs = ParseDmNoteSpecs();
         root.sizeDelta = new Vector2(dmCanvasWidth, dmCanvasHeight);
 
-        // Key paint order, two levels: a TOP-row key (smaller Y on screen) draws over a
-        // bottom-row key, and within one row the earlier preset key draws over the later
-        // one (so R before T in the JSON -> R over T, same row). Unity paints later
-        // siblings on top, so create bottom-to-top: largest Y first, and within equal Y
-        // the later JSON index first — the smallest-Y / earliest-JSON key ends up created
-        // last and therefore topmost. Stats and graphs (appended after the keys by
-        // ParseDmNoteSpecs) are built afterwards, staying above the keys as before. index
-        // is only the GameObject name / graph id; box identity is spec.KeyCode, so
-        // reordering creation can't disturb key->count.
-        int keyCount = 0;
-        while(keyCount < specs.Count && !specs[keyCount].IsStat && !specs[keyCount].IsGraph) keyCount++;
-        int[] keyOrder = new int[keyCount];
-        for(int i = 0; i < keyCount; i++) keyOrder[i] = i;
-        System.Array.Sort(keyOrder, (a, b) => {
-            int byRow = specs[b].Y.CompareTo(specs[a].Y);   // larger Y (bottom row) first
-            return byRow != 0 ? byRow : b.CompareTo(a);      // same row: later JSON index first
+        // Paint order replicates DmNote's CSS stacking: every element (key, stat,
+        // graph) carries the preset's zIndex — default = its index within its own
+        // array, as OverlayScene does with `pos.zIndex ?? index` — and a higher
+        // zIndex draws on top. Ties fall back to DOM order (keys, then stats, then
+        // graphs, in array order — the order ParseDmNoteSpecs already emits), where
+        // the later element wins. Unity paints later siblings on top, so create in
+        // ascending (zIndex, sequence) order. index is only the GameObject name /
+        // graph id; box identity is spec.KeyCode, so reordering creation can't
+        // disturb key->count.
+        int[] order = new int[specs.Count];
+        for(int i = 0; i < order.Length; i++) order[i] = i;
+        System.Array.Sort(order, (a, b) => {
+            int byZ = specs[a].ZIndex.CompareTo(specs[b].ZIndex); // lower zIndex first (behind)
+            return byZ != 0 ? byZ : a.CompareTo(b);                // tie: later array index on top
         });
-        foreach(int i in keyOrder) AddDmNoteBox(i, specs[i]);
-        for(int i = keyCount; i < specs.Count; i++) AddDmNoteBox(i, specs[i]);
+        foreach(int i in order) AddDmNoteBox(i, specs[i]);
 
         totalCount = 0;
         foreach(Box box in boxes)
@@ -914,6 +915,7 @@ public static partial class KeyViewerOverlay {
                 if(posArr[i] is not JObject p || JBool(p, "hidden", false)) continue;
 
                 DmNoteSpec spec = ParseDmNoteSpec(keyArr[i]?.ToString() ?? "", p, false);
+                spec.ZIndex = JFloat(p, "zIndex", i);
                 result.Add(spec);
                 ExtendDmBounds(spec, ref minX, ref minY, ref maxX, ref maxY);
             }
@@ -926,6 +928,7 @@ public static partial class KeyViewerOverlay {
                     if(JBool(statPosition, "hidden", false)) continue;
 
                     DmNoteSpec spec = ParseDmNoteSpec(JStr(p, "statType", JStr(statPosition, "statType", "stat")), statPosition, true);
+                    spec.ZIndex = JFloat(statPosition, "zIndex", i);
                     result.Add(spec);
                     ExtendDmBounds(spec, ref minX, ref minY, ref maxX, ref maxY);
                 }
@@ -939,6 +942,7 @@ public static partial class KeyViewerOverlay {
                     JObject pos = (p["position"] as JObject) ?? p;
                     if(JBool(pos, "hidden", false)) continue;
                     DmNoteSpec spec = ParseGraphSpec(pos);
+                    spec.ZIndex = JFloat(pos, "zIndex", i);
                     result.Add(spec);
                     ExtendDmBounds(spec, ref minX, ref minY, ref maxX, ref maxY);
                 }
@@ -2013,6 +2017,7 @@ public static partial class KeyViewerOverlay {
 
         RawRain raw = new() {
             Group = 1,
+            Order = spec.ZIndex,
             StartTime = now,
             AnchorX = box.CenterX,
             Width = box.BoxW,
@@ -2034,6 +2039,9 @@ public static partial class KeyViewerOverlay {
     // release — same scheme as v1.
     internal sealed class RawRain {
         public int Group;
+        // Draw order within the group (DM Note: the key's zIndex; simple mode
+        // leaves 0). Drops with equal Order keep spawn order, newest on top.
+        public float Order;
         public float StartTime;
         public float EndTime = -1f;
         public float AnchorX;
@@ -2211,7 +2219,20 @@ public static partial class KeyViewerOverlay {
 
             while(pending.Count > 0) {
                 RawRain raw = pending.Dequeue();
-                groups[Mathf.Clamp(raw.Group, 1, 3) - 1].Add(raw);
+                List<RawRain> group = groups[Mathf.Clamp(raw.Group, 1, 3) - 1];
+                // Insert sorted by Order (stable: an equal Order lands after the
+                // existing drops), mirroring DmNote's noteBuffer.allocate()
+                // insertion sort by trackIndex — the buffer order IS the draw
+                // order, and it must follow key zIndex, never press order. Simple
+                // mode spawns everything with Order 0, keeping the plain append.
+                int at = group.Count;
+                for(int i = 0; i < group.Count; i++) {
+                    if(group[i].Order > raw.Order) {
+                        at = i;
+                        break;
+                    }
+                }
+                group.Insert(at, raw);
             }
 
             float now = Time.unscaledTime;
