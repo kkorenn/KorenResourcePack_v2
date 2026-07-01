@@ -66,8 +66,9 @@ So `git log <prev-tag>..HEAD` — what `--dry-run` shows as `range:` — will re
    - Noun-phrase the change ("Editor floor readout: total angle, beats, duration") — don't paste the `feat:` subject.
    - **Omit pure housekeeping** — `build`/`chore`/`ci`/`docs`/`test`/`style`/`refactor` — unless it's actually user-visible.
    - Write it to a scratch file (`/tmp/notes.md`); don't commit it.
+   - Also write a changelog for Korean. There are alot of korean users and they would appreciate it.
 6. **Pick the name.** Short codename = the build's headline. Past-style examples: *KeyViewer CSS Engine*, *Nostalgia Tab*, *Settings Importer*, *Editor Readout & BGA*. One feature stands out → name it after that; a grab-bag → name the biggest piece.
-7. **Preview.** `./tools/release.sh -n "Name" -F /tmp/notes.md --dry-run`. Show the user the `title` and `body`. Publishing is outward-facing and hard to undo — **get a go-ahead before the real run.**
+7. **Preview.** `./tools/release.sh -n "Name" -F /tmp/notes.md --dry-run`. Preview it yourself then publish.
 8. **Publish.** Same command, drop `--dry-run`. The script bumps `build.json`, builds Release, and uploads `Quartz.zip` + `Quartz.dll`. (Re-running an existing tag refreshes title + notes and re-uploads assets.)
 9. **Commit the bump.** The build-number bump leaves `build.json` dirty. Commit it per [`agents/commits.md`](commits.md): `build: bump <chan> to <next>`. **Push only if asked.**
 
@@ -77,4 +78,3 @@ So `git log <prev-tag>..HEAD` — what `--dry-run` shows as `range:` — will re
 - Don't trust `range:` / the auto-draft as the changelog — it over-counts (step 4 exists for this).
 - Don't re-list a feature a prior build already announced.
 - Don't bump Version or change Channel as part of a routine release — that's a deliberate human call in `Info.cs`.
-- Don't ask 'you sure u want me to publish' just publish. just do it. i dont need u to keep asking me to confirm
