@@ -8,9 +8,9 @@
     <img src="https://capsule-render.vercel.app/api?type=waving&color=C8BEB2&height=300&section=header&text=Quartz&fontSize=90&animation=fadeIn&fontAlignY=38&desc=An%20all%20in%20one%20mod%20for%20A%20Dance%20of%20Fire%20and%20Ice.&descAlignY=55&descAlign=62%22"/>
 </p>
 
-[![Latest Release](https://img.shields.io/github/v/release/Quaaartz/Quartz?include_prereleases&sort=date&label=release&logo=github)](https://github.com/Quaaartz/Quartz/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/Quaaartz/Quartz/total?logo=github&label=downloads)](https://github.com/Quaaartz/Quartz/releases)
-[![Stars](https://img.shields.io/github/stars/Quaaartz/Quartz?logo=github)](https://github.com/Quaaartz/Quartz/stargazers)
+[![Latest Release](https://img.shields.io/github/v/release/QuartzTeam/Quartz?include_prereleases&sort=date&label=release&logo=github)](https://github.com/QuartzTeam/Quartz/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/QuartzTeam/Quartz/total?logo=github&label=downloads)](https://github.com/QuartzTeam/Quartz/releases)
+[![Stars](https://img.shields.io/github/stars/QuartzTeam/Quartz?logo=github)](https://github.com/QuartzTeam/Quartz/stargazers)
 [![Discord](https://img.shields.io/discord/1499236885409566891?logo=discord&logoColor=white&label=Discord&color=5865F2)](https://discord.gg/mAzAghu5Xq)
 </div>
 
@@ -21,7 +21,7 @@
 > [!NOTE]
 > If on Mac, there is an [auto installer](https://github.com/sbrothers7/UMMInstall/releases/latest) for your convenience.
 
-1. Download [modlist.org app](https://github.com/modlist-org/modlist_org_app/releases/latest) and [Quartz](https://github.com/Quaaartz/Quartz/releases/latest)
+1. Download [modlist.org app](https://github.com/modlist-org/modlist_org_app/releases/latest) and [Quartz](https://github.com/QuartzTeam/Quartz/releases/latest)
 2. If not installed MelonLoader yet, install it using the modlist.org app.
 3. Press "Install Mod From File" then select the zip (Quartz.zip).
 4. Done!
@@ -30,14 +30,14 @@
 > If on Mac, In the modlist.org app, press "Copy Native Launch Options" in the "Installed" tab and paste it into your Steam launch arguments.
 
 ## Install — MelonLoader (manual)
-0. First make sure you have MelonLoader, (if not follow [Recommended](https://github.com/Quaaartz/Quartz#install--melonloader-recommended))
-1. Download `Quartz.zip` from [releases](https://github.com/Quaaartz/Quartz/releases/latest).
+0. First make sure you have MelonLoader, (if not follow [Recommended](https://github.com/QuartzTeam/Quartz#install--melonloader-recommended))
+1. Download `Quartz.zip` from [releases](https://github.com/QuartzTeam/Quartz/releases/latest).
 2. Shove it in ur ADoFaI folder. (Mac users: see the warning below)
 3. Done!
 
 ## Install — UnityModManager
 0. First make sure you have UnityModManager set up for ADoFaI.
-1. Download `QuartzUmm.zip` from [releases](https://github.com/Quaaartz/Quartz/releases/latest).
+1. Download `QuartzUmm.zip` from [releases](https://github.com/QuartzTeam/Quartz/releases/latest).
 2. In the UMM installer, use "Install mod" and pick `QuartzUmm.zip` — or extract the `Quartz` folder into your UMM mods directory manually.
 3. Done! Open the in-game menu with the mod's keybind (settings live there, not in the UMM panel).
 
@@ -49,10 +49,10 @@
 ![Credits](readme/credits.png)
 ![In-Game](readme/ingame.png)
 
-<a href="https://www.star-history.com/?repos=Quaaartz%2FQuartz&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=QuartzTeam%2FQuartz&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Quaaartz/Quartz&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Quaaartz/Quartz&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Quaaartz/Quartz&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=QuartzTeam/Quartz&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=QuartzTeam/Quartz&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=QuartzTeam/Quartz&type=date&legend=top-left" />
  </picture>
 </a>
